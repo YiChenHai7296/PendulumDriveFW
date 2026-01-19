@@ -287,7 +287,7 @@ unsigned char User_Func_SetPulse(unsigned short u16T2Pulse)
     /* Ð´Èë»º³å */
     //TIM1->CCR1 = u16T2Pulse-1;
     //TIM1->CCR2 = u16T2Pulse/2-1;
-    TIM1->CCR3 = (1000 - 1 - u16T2Pulse)/2+u16T2Pulse;
+    //TIM1->CCR3 = (1000 - 1 - u16T2Pulse)/2+u16T2Pulse;
     HRTIM1->sTimerxRegs[0].CMP1xR = u16T2Pulse-1;
     HRTIM1->sTimerxRegs[0].CMP2xR = u16T2Pulse/2-1;
     HRTIM1->sTimerxRegs[0].CMP3xR = (17000 - 1 - u16T2Pulse)/2+u16T2Pulse;
