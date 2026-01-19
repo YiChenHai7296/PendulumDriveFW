@@ -24,12 +24,9 @@
 #include "usart.h"
 
 /* ADC采集原始数据 */
-__IO uint16_t au16_ADC1_HighVol_Value[2]; //PWM高电平
-__IO uint16_t au16_ADC2_LowVol_Value[1];
+__IO uint16_t au16_ADC1_Vol_Value[2]; //PWM高电平
+__IO uint16_t au16_ADC2_Vol_Value[1];
 
-/* ADC转换结果存储 */
-float f_ADC1_HighVol_Result[2];
-float f_ADC2_LowVol_Result[2];
 
 /* ADC测试输入电压值 */
 float f_TEST_VALUE = 1.6;
@@ -105,7 +102,7 @@ void MX_ADC1_Init(void)
   }
   /* USER CODE BEGIN ADC1_Init 2 */
 
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)au16_ADC1_HighVol_Value,1);
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)au16_ADC1_Vol_Value,1);
   
 
   //HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
@@ -168,7 +165,7 @@ void MX_ADC2_Init(void)
   //HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
 
   //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&au16_ADC_HighVol_Value, 1);
-  HAL_ADC_Start_DMA(&hadc2,(uint32_t*)au16_ADC2_LowVol_Value,1);
+  HAL_ADC_Start_DMA(&hadc2,(uint32_t*)au16_ADC2_Vol_Value,1);
 
 
   /* USER CODE END ADC2_Init 2 */
@@ -341,29 +338,37 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 //3.3f / 4095.0f;
 
 
+float ADC_Read_MotorVol(void)
+{
+    float f_ADC1_Vol_Result[2];
+    float f_ADC2_Vol_Result[2];
+    float f_Motor_Vol = 0; //输出电压值
+    
+    f_ADC1_Vol_Result[0] = (float)au16_ADC1_Vol_Value[0]*(float)3.3/4096;
+    f_ADC2_Vol_Result[0]  = (float)au16_ADC2_Vol_Value[0]*(float)3.3/4096;
+
+    f_Motor_Vol = (f_ADC1_Vol_Result[0] + f_ADC2_Vol_Result[0]) / 2;
+
+    return f_Motor_Vol;
+}
+
+
+
+
 void ADC_TEST()
 {
     unsigned char u8TargeValueInt = 0;
     unsigned int  u16TargeValueFloat = 0;
-    float         fTargetValue = 0.0;
+
     unsigned char u8StopFlag = 0;
-    
 
-    float f_Max_HLError = 0;             //adc1、adc2采集最大差值(存在间隔)
-    float f_Max_VolError = 0;            //最大误差
-    float f_Max_VolError2 = 0;            //最大误差
-    float f_Aver_VolError = 0;           //平均误差
-    float f_Aver_VolError_total = 0;     //总误差
-    float f_Aver_VolError2 = 0;           //平均误差
-    float f_Aver_VolError_total2 = 0;     //总误差2
-    float f_Temp_Error = 0;              //浮点型临时变量
-    float f_Temp_Error2 = 0;              //浮点型临时变量
-    float f_MAX_HLError2 = 0;
-    float f_MAX_HLError22 = 0;
-        
-    unsigned int u32_Temp_i = 0;     //采集计数
-
-
+    float        fTargetValue  = 0.0;     //测试电压
+    float        fMotorVol     = 0.0;     //当前采集电压
+    float        fSingleVolErr = 0.0;     //单次误差
+    float        fAverVolErr   = 0.0;     //平均误差
+    unsigned int u32_Temp_i    = 0.0;     //采集计数
+    float        fMaxVolErr    = 0.0;     //最大误差
+    float        fTotalVolErr  = 0.0;     //总误差
 
 
     HAL_UART_Receive(&huart2,u8DebugRxBuff,10,100); //清除串口缓冲区
@@ -385,45 +390,27 @@ void ADC_TEST()
     
     while(!u8StopFlag)
     {
-        f_ADC1_HighVol_Result[0] = (float)au16_ADC1_HighVol_Value[0]*(float)3.3/4096;
-        f_ADC2_LowVol_Result[0]  = (float)au16_ADC2_LowVol_Value[0]*(float)3.3/4096;
+        /* 获取当前示数 */
+        fMotorVol = ADC_Read_MotorVol();
 
-        f_Temp_Error = fTargetValue - f_ADC1_HighVol_Result[0];
-
-        if(f_Temp_Error<0)
+        /* 单次误差计算 */
+        fSingleVolErr = fTargetValue - fMotorVol;
+        if(fSingleVolErr < 0)
         {
-            f_Temp_Error = 0 - f_Temp_Error;
+            fSingleVolErr = 0 - fSingleVolErr;
         }
-        if(f_Temp_Error>f_MAX_HLError2)
+        /* 判断最大误差 */
+        if(fSingleVolErr > fMaxVolErr)
         {
-          f_MAX_HLError2 = f_Temp_Error;
-        }
-
-
-            f_Aver_VolError_total += f_Temp_Error;
-            u32_Temp_i++;
-            f_Aver_VolError = f_Aver_VolError_total/u32_Temp_i;
-
-            printf("MAX_HLError2 = %f  ADC1_HighVol_Result[0] = %f  Aver_VolError = %f  \n",f_MAX_HLError2,f_ADC1_HighVol_Result[0],f_Aver_VolError);
-
-            
-            //////////////////
-        f_Temp_Error2 = fTargetValue - f_ADC2_LowVol_Result[0];
-
-        if(f_Temp_Error2<0)
-        {
-            f_Temp_Error2 = 0 - f_Temp_Error2;
-        }
-        if(f_Temp_Error2>f_MAX_HLError22)
-        {
-                f_MAX_HLError22 = f_Temp_Error2;
+            fMaxVolErr = fSingleVolErr;
         }
 
+        /* 计算平均误差 */
+        fTotalVolErr += fSingleVolErr;
+        u32_Temp_i++;
+        fAverVolErr = fTotalVolErr/u32_Temp_i;
 
-        f_Aver_VolError_total2 += f_Temp_Error2;
-        f_Aver_VolError2 = f_Aver_VolError_total2/u32_Temp_i;
-
-        printf("MAX_LowError = %f  ADC_LowVol_Result[0] = %f  Aver_VolError = %f  \n\n",f_MAX_HLError22,f_ADC2_LowVol_Result[0],f_Aver_VolError2);
+        printf("fMotorVol = %f  fSingleVolErr = %f  fAverVolErr = %f  fMaxVolErr = %f  \n",fMotorVol,fSingleVolErr,fAverVolErr,fMaxVolErr);
         HAL_Delay(400); 
 
 

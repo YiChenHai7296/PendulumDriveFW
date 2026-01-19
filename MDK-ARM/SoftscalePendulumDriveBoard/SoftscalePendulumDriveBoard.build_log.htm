@@ -27,26 +27,40 @@ Project File Date:  01/04/2026
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-compiling hrtim.c...
-../Core/Src/hrtim.c(283): warning:  #223-D: function "printf" declared implicitly
-          printf("占空比输入不合法：%d\n",u16T2Pulse);
-../Core/Src/hrtim.c(308): warning:  #223-D: function "printf" declared implicitly
-    printf("\n 请输入测试目标占空比：(00000 ~ 10000 对应 0.00% ~ 100.00%)\n");
-../Core/Src/hrtim.c(339): warning:  #223-D: function "printf" declared implicitly
-          printf("\n 目标占空比：%.2f %% ,写入失败！\n",(float)u16TargePulse/100.0f);
-../Core/Src/hrtim.c(342): warning:  #223-D: function "printf" declared implicitly
-        printf("\n 目标占空比：%.2f %% ,已写入！\n",(float)u16TargePulse/100.0f);
-../Core/Src/hrtim.c(326): warning:  #177-D: variable "i"  was declared but never referenced
-    static int i = 0;
-../Core/Src/hrtim.c(327): warning:  #177-D: variable "au16T4PulseTest"  was declared but never referenced
-    unsigned short au16T4PulseTest[4]={2000,6000,10000,14000};
-../Core/Src/hrtim.c(328): warning:  #177-D: variable "temp1"  was declared but never referenced
-    static int temp1 = 0;
-../Core/Src/hrtim.c: 7 warnings, 0 errors
+compiling main.c...
+../Core/Inc/adc.h(47): warning:  #1295-D: Deprecated declaration ADC_TEST - give arg types
+  void ADC_TEST();
+../Core/Src/main.c(73): warning:  #1295-D: Deprecated declaration u32CRC_TEST - give arg types
+  unsigned int u32CRC_TEST();
+../Core/Src/main.c(90): warning:  #223-D: function "printf" declared implicitly
+    printf("CRC:0x%x \n",crc);
+../Core/Src/main.c(98): warning:  #188-D: enumerated type mixed with another type
+  HAL_StatusTypeDef StatusU5 = 0;
+../Core/Src/main.c(209): warning:  #223-D: function "printf" declared implicitly
+      printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
+../Core/Src/main.c(239): warning:  #223-D: function "PWM_TEST" declared implicitly
+              PWM_TEST();
+../Core/Src/main.c(130): warning:  #177-D: variable "i"  was declared but never referenced
+    int i = 655356;
+../Core/Src/main.c(131): warning:  #177-D: variable "crc"  was declared but never referenced
+    uint32_t crc = 0;
+../Core/Src/main.c(134): warning:  #177-D: variable "crc_Data"  was declared but never referenced
+    uint32_t crc_Data[6] = {0x00010203,0x09080607,0x0002,0x0003,0x0004,0x0005};
+../Core/Src/main.c(135): warning:  #177-D: variable "j"  was declared but never referenced
+    int j = 0;
+../Core/Src/main.c(139): warning:  #177-D: variable "p_TEST"  was declared but never referenced
+    uint32_t *p_TEST = &TEST;
+../Core/Src/main.c: 11 warnings, 0 errors
+compiling adc.c...
+../Core/Inc/adc.h(47): warning:  #1295-D: Deprecated declaration ADC_TEST - give arg types
+  void ADC_TEST();
+../Core/Src/adc.c(376): warning:  #223-D: function "printf" declared implicitly
+      printf("\n 请输入测试目标电压：(整数位)\n");
+../Core/Src/adc.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=35696 RO-data=824 RW-data=124 ZI-data=5428  
+Program Size: Code=35524 RO-data=756 RW-data=108 ZI-data=5428  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 7 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 13 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -69,7 +83,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:6.1.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
