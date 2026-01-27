@@ -21,7 +21,6 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-#include <stdio.h>
 #include "RingFrameQueue.h"
 
 
@@ -627,13 +626,7 @@ volatile uint8_t g_rx_flag;
 
 
 
-//重定向c库函数printf到串口DEBUG_USART，重定向后可使用printf函数
-int fputc(int ch, FILE *f)
-{
-    /*发送一个字节数据到串口DEBUG USART */
-    HAL_UART_Transmit(&huart2,(uint8_t*)&ch, 1 , 1000);
-    return(ch);
-}
+
 
 
 
@@ -767,12 +760,12 @@ void User_UART_IDLECallback(UART_HandleTypeDef *huart)
 {
   unsigned char u8RecvLen = 0;
 
-  /* 停止DMA接收    清除标志位 */
-  HAL_UART_DMAStop(huart);
-  __HAL_UART_CLEAR_IDLEFLAG(&huart1);
-  
   if(USART1 == huart->Instance)
   {
+    /* 停止DMA接收    清除标志位 */
+    HAL_UART_DMAStop(huart);
+    __HAL_UART_CLEAR_IDLEFLAG(&huart1);
+  
     /* 计算接收长度 */
     u8RecvLen  = UART_1_RX_BUFF_LEN - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);
 

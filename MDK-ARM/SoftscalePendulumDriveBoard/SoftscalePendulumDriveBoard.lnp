@@ -11,6 +11,8 @@
 "softscalependulumdriveboard\stm32g4xx_it.o"
 "softscalependulumdriveboard\stm32g4xx_hal_msp.o"
 "softscalependulumdriveboard\ringframequeue.o"
+"softscalependulumdriveboard\debug.o"
+"softscalependulumdriveboard\simulink_protocol.o"
 "softscalependulumdriveboard\stm32g4xx_hal_adc.o"
 "softscalependulumdriveboard\stm32g4xx_hal_adc_ex.o"
 "softscalependulumdriveboard\stm32g4xx_ll_adc.o"

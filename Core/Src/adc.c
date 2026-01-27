@@ -371,16 +371,16 @@ void ADC_TEST()
     float        fTotalVolErr  = 0.0;     //总误差
 
 
-    HAL_UART_Receive(&huart2,u8DebugRxBuff,10,100); //清除串口缓冲区
+    HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100); //清除串口缓冲区
 
     printf("\n 请输入测试目标电压：(整数位)\n");
-    while(HAL_OK != HAL_UART_Receive(&huart2,u8DebugRxBuff,1,1000));
+    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,1000));
     u8TargeValueInt = u8DebugRxBuff[0]-0x30;
 
     HAL_Delay(500);
     
     printf("\n 请输入测试目标电压：(四位小数位)\n");
-    while(HAL_OK != HAL_UART_Receive(&huart2,u8DebugRxBuff,4,1000));
+    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,4,1000));
     u16TargeValueFloat = (u8DebugRxBuff[0]-0x30)*1000+(u8DebugRxBuff[1]-0x30)*100+(u8DebugRxBuff[2]-0x30)*10+(u8DebugRxBuff[3]-0x30);
 
     fTargetValue = u8TargeValueInt + u16TargeValueFloat/10000.0;
@@ -414,11 +414,11 @@ void ADC_TEST()
         HAL_Delay(400); 
 
 
-        if(HAL_OK == HAL_UART_Receive(&huart2,u8DebugRxBuff,1,100))
+        if(HAL_OK == HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,100))
         {
             u8StopFlag = 1;
 
-            HAL_UART_Receive(&huart2,u8DebugRxBuff,100,100);//清除串口缓冲区
+            HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,100,100);//清除串口缓冲区
         }
         
     }

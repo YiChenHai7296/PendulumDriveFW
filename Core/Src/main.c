@@ -25,6 +25,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "simulink_protocol.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -204,6 +205,27 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+
+    Protocol_FeedbackFrame_t pFeedbackFrame_test;
+    unsigned char pbufftest[32]= 0;
+
+    pFeedbackFrame_test.motor_current = 0x12;
+    pFeedbackFrame_test.motor_position = 0x1234;
+    pFeedbackFrame_test.motor_speed = 0x1234;
+    pFeedbackFrame_test.axis_position = 0x1234;
+    pFeedbackFrame_test.axis_speed = 0x123;
+    pFeedbackFrame_test.pendulum_position = 0x5678;
+    pFeedbackFrame_test.pendulum_speed = 0x123;
+
+
+
+    Protocol_PackFeedbackFrame(&pFeedbackFrame_test, pbufftest);
+
+
+
+
+
     //HAL_UART_Transmit(&huart1, tcp_demo_sendbuf, 15, 10000);
 
     printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
@@ -213,7 +235,7 @@ int main(void)
     printf("  3. CRC–£—Èº∆À„≤‚ ‘...  \n" );
     printf("  ==================================== \n" );
 
-    while(HAL_OK != HAL_UART_Receive(&huart2,u8DebugRxBuff,1,200));
+    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,200));
 
     u8DebugMenuChoose = u8DebugRxBuff[0];
     

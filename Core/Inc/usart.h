@@ -43,7 +43,7 @@ extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
-
+#define DEBUG_UART &huart2
 
 
 /* USER CODE END Private defines */

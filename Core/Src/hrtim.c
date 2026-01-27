@@ -303,10 +303,10 @@ unsigned char User_Func_SetPulse(unsigned short u16T2Pulse)
 void PWM_TEST(void)
 {
 
-  HAL_UART_Receive(&huart2,u8DebugRxBuff,10,100); //清除串口缓冲区
+  HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100); //清除串口缓冲区
 
   printf("\n 请输入测试目标占空比：(00000 ~ 10000 对应 0.00% ~ 100.00%)\n");
-  while(HAL_OK != HAL_UART_Receive(&huart2,u8DebugRxBuff,5,1000));
+  while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,5,1000));
   u16TargePulse = (u8DebugRxBuff[0]-0x30)*10000 + (u8DebugRxBuff[1]-0x30)*1000 + (u8DebugRxBuff[2]-0x30)*100 + (u8DebugRxBuff[3]-0x30)*10 + u8DebugRxBuff[4]-0x30;
 
 
