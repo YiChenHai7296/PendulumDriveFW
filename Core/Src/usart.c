@@ -21,7 +21,9 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include <string.h>
 #include "RingFrameQueue.h"
+#include "stm32g4xx_hal_uart_ex.h"
 
 
 #define UART_1_RX_BUFF_LEN 100
@@ -104,7 +106,7 @@ void MX_UART4_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN UART4_Init 2 */
-
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
   /* USER CODE END UART4_Init 2 */
 
 }
@@ -147,7 +149,7 @@ void MX_UART5_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN UART5_Init 2 */
-
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
   /* USER CODE END UART5_Init 2 */
 
 }
@@ -191,11 +193,8 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-  __HAL_UART_ENABLE_IT(&huart1,UART_IT_IDLE);
-
   RFQ_Init(&UART1_RX_RFQ);
-  
-  HAL_UART_Receive_DMA(&huart1,au8Uart1RecvBuff,UART_1_RX_BUFF_LEN);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart1, au8Uart1RecvBuff, UART_1_RX_BUFF_LEN);
 
   /* USER CODE END USART1_Init 2 */
 
@@ -240,8 +239,8 @@ void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-    __HAL_UART_ENABLE_IT(&huart2,UART_IT_IDLE);
-  HAL_UART_Receive_DMA(&huart2,au8Uart3DMABuff,UART_3_RX_BUFF_LEN);
+  RFQ_Init(&UART2_RX_RFQ);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart2, au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
 
   /* USER CODE END USART2_Init 2 */
 
@@ -286,8 +285,7 @@ void MX_USART3_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART3_Init 2 */
-  HAL_UART_Receive_DMA(&huart3,au8Uart3DMABuff,UART_3_RX_BUFF_LEN);
-
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, UART_3_RX_BUFF_LEN);
 
   /* USER CODE END USART3_Init 2 */
 
@@ -733,7 +731,7 @@ unsigned char RxBuff5[100];
 unsigned char RxCharBuff5[10];
 
 
-volatile uint8_t g_rx_char;/* DEBUG??¡Á?¡¤???????????????*/
+volatile uint8_t g_rx_char;/* DEBUG????????????????????*/
 volatile uint8_t g_rx_flag;
 
 
@@ -868,84 +866,63 @@ void User_UART_IDLECallback(UART_HandleTypeDef *huart)
 }
 #endif
 
-void User_UART_IDLECallback(UART_HandleTypeDef *huart)
+/**
+  * @brief  HAL: DMA+IDLE ???????UART1~5 ???
+  * @param  huart ????
+  * @param  Size  ?????????
+  * Use HAL_UARTEx_GetRxEventType(huart): IDLE=frame early end, TC=full buffer, HT=half (ignore, do not restart).
+  */
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-  unsigned char u8RecvLen = 0;
+  HAL_UART_RxEventTypeTypeDef ev = HAL_UARTEx_GetRxEventType(huart);
 
+  /* Only IDLE or TC: frame end. HT = half buffer, frame not done, do not restart. */
+  if (ev != HAL_UART_RXEVENT_IDLE && ev != HAL_UART_RXEVENT_TC)
+    return;
 
-  if(USART1 == huart->Instance)
+  if (huart->Instance == USART1)
   {
-
-    HAL_UART_DMAStop(huart);
-    __HAL_UART_CLEAR_IDLEFLAG(&huart1);
-  
-#if 0
-    u8RecvLen  = UART_1_RX_BUFF_LEN - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);
-
-    RFQ_Push(&UART1_RX_RFQ,au8Uart1RecvBuff,u8RecvLen);
-
-
-    memset(au8Uart1RecvBuff,0,u8RecvLen);
-    u8RecvLen = 0;
-	#endif    
-    HAL_UART_Receive_DMA(&huart1,au8Uart1RecvBuff,100);
-    
+    if (Size > 0U)
+    {
+      RFQ_Push(&UART1_RX_RFQ, au8Uart1RecvBuff, Size);
+    }
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart1, au8Uart1RecvBuff, UART_1_RX_BUFF_LEN);
   }
-
-  if(USART2 == huart->Instance)
+  else if (huart->Instance == USART2)
   {
-    /* USART2 DMA?????????? */
-    /* ??DMA??    ????? */
-    HAL_UART_DMAStop(huart);
-    __HAL_UART_CLEAR_IDLEFLAG(&huart2);
-
-    memcpy(au8MotorEncoderBuff,au8Uart3DMABuff,6);
-   
-    HAL_UART_Receive_DMA(&huart2,au8Uart3DMABuff,UART_3_RX_BUFF_LEN);
-
-  
-    /* ?????? */
-    /* ??????????USART2 DMA?????????? */
-    /* ?????????????????USART2???DMA?? */
-    // u8RecvLen = UART2_RX_BUFF_LEN - __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);
-
-    /* ??????????? */
-    // RFQ_Push(&UART2_RX_RFQ, au8Uart2RecvBuff, u8RecvLen);
-
-    /* ??????? */
-    // memset(au8Uart2RecvBuff, 0, u8RecvLen);
-    // u8RecvLen = 0;
-    
-    /* ????DMA */
-    // HAL_UART_Receive_DMA(&huart2, au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
-    
+    if (Size > 0U)
+    {
+      RFQ_Push(&UART2_RX_RFQ, au8Uart2RecvBuff, Size);
+    }
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
   }
-  else if(USART3 == huart->Instance)
+  else if (huart->Instance == USART3)
   {
-    HAL_UART_DMAStop(huart);
-    __HAL_UART_CLEAR_IDLEFLAG(&huart3);
-
-    memcpy(au8MotorEncoderBuff,au8Uart3DMABuff,6);
-   
-    HAL_UART_Receive_DMA(&huart3,au8Uart3DMABuff,UART_3_RX_BUFF_LEN);
+    if (Size > 0U)
+    {
+      uint16_t len = (Size > 6u) ? 6u : Size;
+      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, len);
+    }
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, 6);
   }
-}
-
-
-void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
-{
-  if(RESET != __HAL_UART_GET_FLAG(huart,UART_FLAG_IDLE))
+  else if (huart->Instance == UART4)
   {
-    /* ????????????? */
-    User_UART_IDLECallback(huart);
+    if (Size > 0U)
+    {
+      uint16_t len = (Size > 6u) ? 6u : Size;
+      memcpy(au8OutputShaftEncoderBuff, au8Uart4DMABuff, len);
+    }
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
   }
-  
-  else
+  else if (huart->Instance == UART5)
   {
-    ;
+    if (Size > 0U)
+    {
+      uint16_t len = (Size > 6u) ? 6u : Size;
+      memcpy(au8SwingArmEncoderBuff, au8Uart5DMABuff, len);
+    }
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
   }
-
-  return;
 }
 
 
