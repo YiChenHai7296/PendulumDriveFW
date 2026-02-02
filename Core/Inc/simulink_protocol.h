@@ -1,141 +1,101 @@
-/* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    simulink_protocol.h
-  * @brief   simulink…œŒªª˙Õ®–≈–≠“È’ªÕ∑Œƒº˛
-  *          ”√”⁄◊È÷°∫ÕΩ‚÷°£¨÷ß≥÷øÿ÷∆÷°∫Õ∑¥¿°÷°
-  ******************************************************************************
-  */
-/* USER CODE END Header */
+ * @file simulink_protocol.h
+ * @brief Simulink ‰∏ä‰ΩçÊú∫ÈÄö‰ø°ÂçèËÆÆÊ†àÂ§¥Êñá‰ª∂ÔºåÁî®‰∫éÁªÑÂ∏ß‰∏éËß£Â∏ßÔºåÊîØÊåÅÊéßÂà∂Â∏ß‰∏éÂèçÈ¶àÂ∏ß
+ */
 
-#ifndef __SIMULINK_PROTOCOL_H__
-#define __SIMULINK_PROTOCOL_H__
+#ifndef SIMULINK_PROTOCOL_H
+#define SIMULINK_PROTOCOL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include <stdint.h>
 #include <stdbool.h>
 
-/* USER CODE BEGIN Includes */
+#define NULL ((void *)0)
 
-/* USER CODE END Includes */
-
-/* ===================== –≠“È÷°∏Ò Ω∂®“Â ===================== */
-/* ÷°Õ∑ */
-#define PROTOCOL_HEAD_BYTE0    0x5A
-#define PROTOCOL_HEAD_BYTE1    0xA5
-#define PROTOCOL_HEAD_SIZE     2
-
-/* ÷°¿‡–Õ */
-#define PROTOCOL_TYPE_CONTROL  0x01    // øÿ÷∆÷°£®Õ‚≤øΩ” ’£©
-#define PROTOCOL_TYPE_FEEDBACK 0x02    // ∑¥¿°÷°£®±æª˙∑¢ÀÕ£©
-
-/* ∏∫‘ÿ≥§∂» */
-#define PROTOCOL_LEN_CONTROL   0x04    // øÿ÷∆÷°∏∫‘ÿ≥§∂»£∫4◊÷Ω⁄
-#define PROTOCOL_LEN_FEEDBACK  0x1A    // ∑¥¿°÷°∏∫‘ÿ≥§∂»£∫26◊÷Ω⁄
-
-/* ÷°◊‹≥§∂» */
-#define PROTOCOL_FRAME_SIZE_CONTROL    (PROTOCOL_HEAD_SIZE + 1 + 1 + PROTOCOL_LEN_CONTROL + 2)   // 2+1+1+4+2=10◊÷Ω⁄
-#define PROTOCOL_FRAME_SIZE_FEEDBACK   (PROTOCOL_HEAD_SIZE + 1 + 1 + PROTOCOL_LEN_FEEDBACK + 2)  // 2+1+1+26+2=32◊÷Ω⁄
-
-/* ===================== øÿ÷∆÷°≤Œ ˝∑∂Œß ===================== */
-#define PROTOCOL_PWM_MIN       -10000
-#define PROTOCOL_PWM_MAX       10000
-#define PROTOCOL_CURRENT_MIN   -2000
-#define PROTOCOL_CURRENT_MAX   2000
-
-/* ===================== ∑¥¿°÷°≤Œ ˝∑∂Œß ===================== */
-#define PROTOCOL_MOTOR_CURRENT_MIN     -2000
-#define PROTOCOL_MOTOR_CURRENT_MAX     2000
-#define PROTOCOL_MOTOR_POSITION_MIN    0
-#define PROTOCOL_MOTOR_POSITION_MAX    2097151      // 21Œª±‡¬Î∆˜
-#define PROTOCOL_MOTOR_SPEED_MIN       -40000
-#define PROTOCOL_MOTOR_SPEED_MAX       40000
-#define PROTOCOL_AXIS_POSITION_MIN     0
-#define PROTOCOL_AXIS_POSITION_MAX     131072       // 17Œª±‡¬Î∆˜
-#define PROTOCOL_AXIS_SPEED_MIN        -4000
-#define PROTOCOL_AXIS_SPEED_MAX        4000
-#define PROTOCOL_PENDULUM_POSITION_MIN 0
-#define PROTOCOL_PENDULUM_POSITION_MAX 131072       // 17Œª±‡¬Î∆˜
-#define PROTOCOL_PENDULUM_SPEED_MIN    -4000
-#define PROTOCOL_PENDULUM_SPEED_MAX    4000
-
-/* =====================  ˝æ›Ω·ππ∂®“Â ===================== */
 /**
-  * @brief  øÿ÷∆÷°≤Œ ˝Ω·ππÃÂ
-  */
+ * @brief ÂçèËÆÆÊìç‰ΩúÁªìÊûúÊûö‰∏æ
+ */
+typedef enum
+{
+    SIMULINK_PROTOCOL_OK = 0,     /**< ÊàêÂäü */
+    SIMULINK_PROTOCOL_ERR_NULL,   /**< ÊåáÈíà‰∏∫Á©∫ */
+    SIMULINK_PROTOCOL_ERR_LENGTH, /**< Â∏ßÈïøÂ∫¶‰∏çË∂≥ÊàñÈùûÊ≥ï */
+    SIMULINK_PROTOCOL_ERR_CRC,    /**< CRC Ê†°È™åÂ§±Ë¥• */
+    SIMULINK_PROTOCOL_ERR_RANGE   /**< ÂèÇÊï∞Ë∂ÖÂá∫Á∫¶ÂÆöËåÉÂõ¥ */
+} SimulinkProtocolResult_t;
+
+/**
+ * @brief ÊéßÂà∂Â∏ßËß£ÊûêÁªìÊûúÔºà‰∏ä‰ΩçÊú∫‰∏ãÂèëÁöÑÊéßÂà∂ÈáèÔºâ
+ */
 typedef struct
 {
-    int16_t pwm;        // PWM÷µ£¨∑∂Œß£∫-10000~10000
-    int16_t current;    // µÁ¡˜÷µ£¨∑∂Œß£∫-2000~2000
-} Protocol_ControlFrame_t;
+    int16_t pwm;     /**< PWM ÂÄºÔºåËåÉÂõ¥ -10000~10000 */
+    int16_t current; /**< ÁîµÊµÅËÆæÂÆöÔºåËåÉÂõ¥ -2000~2000 */
+} SimulinkProtocolControlData_t;
 
 /**
-  * @brief  ∑¥¿°÷°≤Œ ˝Ω·ππÃÂ
-  */
+ * @brief ÂèçÈ¶àÂ∏ßÊï∞ÊçÆÔºàÊú¨Êú∫‰∏äÊä•Áªô‰∏ä‰ΩçÊú∫ÁöÑÁä∂ÊÄÅÔºâ
+ */
 typedef struct
 {
-    int16_t motor_current;      // µÁª˙µÁ¡˜÷µ£¨∑∂Œß£∫-2000~2000
-    int32_t motor_position;      // µÁª˙Œª÷√£¨∑∂Œß£∫0~2097151£®21Œª±‡¬Î∆˜£©
-    int32_t motor_speed;         // µÁª˙◊™ÀŸ£¨∑∂Œß£∫-40000~40000
-    int32_t axis_position;       // ÷·Œª÷√£¨∑∂Œß£∫0~131072£®17Œª±‡¬Î∆˜£©
-    int32_t axis_speed;          // ÷·◊™ÀŸ£¨∑∂Œß£∫-4000~4000
-    int32_t pendulum_position;   // ∞⁄∏ÀŒª÷√£¨∑∂Œß£∫0~131072£®17Œª±‡¬Î∆˜£©
-    int32_t pendulum_speed;      // ∞⁄∏À◊™ÀŸ£¨∑∂Œß£∫-4000~4000
-} Protocol_FeedbackFrame_t;
+    int16_t motor_current;       /**< ÁîµÊú∫ÁîµÊµÅÔºåËåÉÂõ¥ -2000~2000 */
+    int32_t motor_position;      /**< ÁîµÊú∫‰ΩçÁΩÆÔºå21 ‰ΩçÁºñÁ†ÅÂô® */
+    int32_t motor_speed;         /**< ÁîµÊú∫ËΩ¨ÈÄü */
+    int32_t axis_position;       /**< ËΩ¥‰ΩçÁΩÆÔºå17 ‰ΩçÁºñÁ†ÅÂô® */
+    int32_t axis_speed;          /**< ËΩ¥ËΩ¨ÈÄü */
+    int32_t pendulum_position;   /**< ÊëÜ‰ΩçÁΩÆÔºå17 ‰ΩçÁºñÁ†ÅÂô® */
+    int32_t pendulum_speed;      /**< ÊëÜËΩ¨ÈÄü */
+} SimulinkProtocolFeedbackData_t;
 
-/* ===================== ∫Ø ˝…˘√˜ ===================== */
-
-/**
-  * @brief  ¥Ú∞¸∑¥¿°÷°
-  * @param  pFeedbackFrame ∑¥¿°÷°≤Œ ˝Ω·ππÃÂ÷∏’Î
-  * @param  pBuffer  ‰≥ˆª∫≥Â«¯÷∏’Î£¨÷¡…Ÿ–Ë“™PROTOCOL_FRAME_SIZE_FEEDBACK◊÷Ω⁄
-  * @retval  µº ¥Ú∞¸µƒ◊÷Ω⁄ ˝£¨ ß∞‹∑µªÿ0
-  */
-uint16_t Protocol_PackFeedbackFrame(const Protocol_FeedbackFrame_t *pFeedbackFrame, uint8_t *pBuffer);
+/** ÊéßÂà∂Â∏ßÊÄªÈïøÂ∫¶ÔºàÂ≠óËäÇÔºâÔºå‰æø‰∫éË∞ÉÁî®ÊñπÂàÜÈÖçÁºìÂÜ≤Âå∫ */
+#define SIMULINK_PROTOCOL_CONTROL_FRAME_SIZE  10U
+/** ÂèçÈ¶àÂ∏ßÊÄªÈïøÂ∫¶ÔºàÂ≠óËäÇÔºâÔºå‰æø‰∫éË∞ÉÁî®ÊñπÂàÜÈÖçÁºìÂÜ≤Âå∫ */
+#define SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE 32U
 
 /**
-  * @brief  Ω‚∞¸øÿ÷∆÷°
-  * @param  pBuffer Ω” ’ª∫≥Â«¯÷∏’Î£¨∞¸∫¨ÕÍ’˚µƒøÿ÷∆÷° ˝æ›
-  * @param  bufferSize ª∫≥Â«¯¥Û–°
-  * @param  pControlFrame  ‰≥ˆøÿ÷∆÷°≤Œ ˝Ω·ππÃÂ÷∏’Î
-  * @retval true: Ω‚∞¸≥…π¶  false: Ω‚∞¸ ß∞‹
-  */
-bool Protocol_UnpackControlFrame(const uint8_t *pBuffer, uint16_t bufferSize, Protocol_ControlFrame_t *pControlFrame);
+ * @brief Ëß£Â∏ßÔºö‰ªéÂ∫ïÂ±ÇËé∑Âèñ‰∏ÄÂ∏ßÊéßÂà∂Â∏ßÂπ∂Ëß£ÊûêÔºåÁªìÊûúÂ°´ÂÖ• pOut
+ *        ÂéüÂßãÂ∏ßÊï∞ÊçÆÁî±Â∫ïÂ±ÇÊèê‰æõÔºàËßÅ SimulinkProtocol_GetControlFrameÔºâ
+ * @param[out] pOut Ëß£ÊûêÂæóÂà∞ÁöÑÊéßÂà∂Êï∞ÊçÆ
+ * @return Ëß£ÊûêÁªìÊûú
+ */
+SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut);
 
 /**
-  * @brief  CRC16–£—Èº∆À„£®‘§¡ÙΩ”ø⁄£¨”…”√ªß µœ÷£©
-  * @param  pData  ˝æ›÷∏’Î
-  * @param  length  ˝æ›≥§∂»
-  * @retval CRC16–£—È÷µ
-  */
-uint16_t Protocol_CalculateCRC16(const uint8_t *pData, uint16_t length);
+ * @brief ÁªÑÂ∏ßÔºöÂ∞ÜÂèçÈ¶àÊï∞ÊçÆÊâìÂåÖ‰∏∫ÂèçÈ¶àÂ∏ßÔºåÂÜôÂÖ•Â∫ïÂ±ÇÊèê‰æõÁöÑÂèëÈÄÅÁºìÂÜ≤Âå∫
+ *        ÂèëÈÄÅÁºìÂÜ≤Âå∫Áî±Â∫ïÂ±ÇÊèê‰æõÔºàËßÅ SimulinkProtocol_GetFeedbackTxBufferÔºâ
+ * @param[in] pIn ÂèçÈ¶àÊï∞ÊçÆ
+ * @return ÊâìÂåÖÁªìÊûú
+ */
+SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn);
 
 /**
-  * @brief  —È÷§÷°Õ∑
-  * @param  pBuffer ª∫≥Â«¯÷∏’Î
-  * @retval true: ÷°Õ∑’˝»∑  false: ÷°Õ∑¥ÌŒÛ
-  */
-bool Protocol_VerifyHeader(const uint8_t *pBuffer);
+ * @brief Ê†°È™åÂ∏ßÂ§¥ÊòØÂê¶‰∏∫ 0x5A 0xA5
+ * @param[in] pBuffer ÁºìÂÜ≤Âå∫ÊåáÈíà
+ * @return true Â∏ßÂ§¥Ê≠£Á°ÆÔºåfalse Âê¶Âàô
+ */
+bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer);
 
 /**
-  * @brief  ≤È’“÷°Õ∑Œª÷√
-  * @param  pBuffer ª∫≥Â«¯÷∏’Î
-  * @param  bufferSize ª∫≥Â«¯¥Û–°
-  * @retval ÷°Õ∑Œª÷√À˜“˝£¨Œ¥’“µΩ∑µªÿ-1
-  */
-int16_t Protocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize);
+ * @brief Âú®ÁºìÂÜ≤Âå∫‰∏≠Êü•ÊâæÂ∏ßÂ§¥‰ΩçÁΩÆ
+ * @param[in] pBuffer    ÁºìÂÜ≤Âå∫
+ * @param[in] bufferSize ÈïøÂ∫¶
+ * @return Â∏ßÂ§¥Ëµ∑Âßã‰∏ãÊ†áÔºåÊú™ÊâæÂà∞ËøîÂõû -1
+ */
+int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize);
 
-/* USER CODE BEGIN Prototypes */
-
-/* USER CODE END Prototypes */
+/**
+ * ‰ª•‰∏ãÁî±Â∫ïÂ±ÇÈ©±Âä®ÂÆûÁé∞ÔºåÂçèËÆÆÂ±ÇËß£Â∏ß/ÁªÑÂ∏ßÊó∂Ë∞ÉÁî®ÔºåÈ°∂Â±Ç‰∏çÁõ¥Êé•‰ΩøÁî®„ÄÇ
+ * ÊéßÂà∂Â∏ßÔºöËá≥Â∞ë SIMULINK_PROTOCOL_CONTROL_FRAME_SIZE Â≠óËäÇÔºõ
+ * ÂèçÈ¶àÂèëÈÄÅÁºìÂÜ≤ÔºöËá≥Â∞ë SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE Â≠óËäÇ„ÄÇ
+ */
+const uint8_t *SimulinkProtocol_GetControlFrame(void);
+uint8_t *SimulinkProtocol_GetFeedbackTxBuffer(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __PROTOCOL_H__ */
+#endif /* SIMULINK_PROTOCOL_H */

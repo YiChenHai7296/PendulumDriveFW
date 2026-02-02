@@ -1,325 +1,324 @@
-/* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    simulink_protocol.c
-  * @brief   simulinkÉÏÎ»»úÍ¨ĞÅĞ­ÒéÕ»ÊµÏÖÎÄ¼ş
-  *          ÓÃÓÚ×éÖ¡ºÍ½âÖ¡£¬Ö§³Ö¿ØÖÆÖ¡ºÍ·´À¡Ö¡
-  ******************************************************************************
-  */
-/* USER CODE END Header */
+ * @file simulink_protocol.c
+ * @brief Simulink ä¸Šä½æœºé€šä¿¡åè®®æ ˆå®ç°ï¼Œç”¨äºç»„å¸§ä¸è§£å¸§ï¼Œæ”¯æŒæ§åˆ¶å¸§ä¸åé¦ˆå¸§
+ */
 
 #include "simulink_protocol.h"
 
-/* USER CODE BEGIN Includes */
+/* ===================== å¸§æ ¼å¼å¸¸é‡ï¼ˆå†…éƒ¨ï¼‰ ===================== */
+#define SIMULINK_HEAD_BYTE0        0x5AU
+#define SIMULINK_HEAD_BYTE1        0xA5U
+#define SIMULINK_HEAD_SIZE         2U
+#define SIMULINK_TYPE_CONTROL      0x01U
+#define SIMULINK_TYPE_FEEDBACK     0x02U
+#define SIMULINK_LEN_CONTROL       0x04U
+#define SIMULINK_LEN_FEEDBACK      0x1AU
+#define SIMULINK_CONTROL_FRAME_LEN (SIMULINK_HEAD_SIZE + 1U + 1U + SIMULINK_LEN_CONTROL + 2U)
+#define SIMULINK_FEEDBACK_FRAME_LEN (SIMULINK_HEAD_SIZE + 1U + 1U + SIMULINK_LEN_FEEDBACK + 2U)
 
-/* USER CODE END Includes */
+/* å‚æ•°èŒƒå›´ï¼ˆå†…éƒ¨æ ¡éªŒç”¨ï¼‰ */
+#define SIMULINK_PWM_MIN           (-10000)
+#define SIMULINK_PWM_MAX           10000
+#define SIMULINK_CURRENT_MIN       (-2000)
+#define SIMULINK_CURRENT_MAX       2000
+#define SIMULINK_MOTOR_CURRENT_MIN (-2000)
+#define SIMULINK_MOTOR_CURRENT_MAX 2000
+#define SIMULINK_MOTOR_POSITION_MIN 0
+#define SIMULINK_MOTOR_POSITION_MAX 2097151
+#define SIMULINK_MOTOR_SPEED_MIN   (-40000)
+#define SIMULINK_MOTOR_SPEED_MAX   40000
+#define SIMULINK_AXIS_POSITION_MIN 0
+#define SIMULINK_AXIS_POSITION_MAX 131072
+#define SIMULINK_AXIS_SPEED_MIN    (-4000)
+#define SIMULINK_AXIS_SPEED_MAX    4000
+#define SIMULINK_PENDULUM_POSITION_MIN 0
+#define SIMULINK_PENDULUM_POSITION_MAX 131072
+#define SIMULINK_PENDULUM_SPEED_MIN (-4000)
+#define SIMULINK_PENDULUM_SPEED_MAX 4000
 
-/* ===================== Ë½ÓĞº¯ÊıÉùÃ÷ ===================== */
-static void PackInt16LittleEndian(uint8_t *pBuffer, int16_t value);
-static void PackInt32LittleEndian(uint8_t *pBuffer, int32_t value);
-static int16_t UnpackInt16LittleEndian(const uint8_t *pBuffer);
-static int32_t UnpackInt32LittleEndian(const uint8_t *pBuffer);
-
-/* ===================== º¯ÊıÊµÏÖ ===================== */
+/* ===================== å†…éƒ¨å°ç«¯æ‰“åŒ…/è§£åŒ… ===================== */
 
 /**
-  * @brief  ´ò°ü16Î»ÕûÊıÎªĞ¡¶ËÄ£Ê½£¨µÍÎ»ÔÚÇ°£©
-  * @param  pBuffer Êä³ö»º³åÇøÖ¸Õë
-  * @param  value Òª´ò°üµÄÖµ
-  */
-static void PackInt16LittleEndian(uint8_t *pBuffer, int16_t value)
+ * @brief å°† 16 ä½æ•´æ•°æŒ‰å°ç«¯åºå†™å…¥ç¼“å†²åŒºï¼ˆä½å­—èŠ‚åœ¨å‰ï¼‰
+ */
+static void SimulinkProtocol_PackInt16LE(uint8_t *pBuf, int16_t value)
 {
-    pBuffer[0] = (uint8_t)(value & 0xFF);
-    pBuffer[1] = (uint8_t)((value >> 8) & 0xFF);
+    pBuf[0] = (uint8_t)((uint16_t)value & 0xFFU);
+    pBuf[1] = (uint8_t)(((uint16_t)value >> 8) & 0xFFU);
 }
 
 /**
-  * @brief  ´ò°ü32Î»ÕûÊıÎªĞ¡¶ËÄ£Ê½£¨µÍÎ»ÔÚÇ°£©
-  * @param  pBuffer Êä³ö»º³åÇøÖ¸Õë
-  * @param  value Òª´ò°üµÄÖµ
-  */
-static void PackInt32LittleEndian(uint8_t *pBuffer, int32_t value)
+ * @brief å°† 32 ä½æ•´æ•°æŒ‰å°ç«¯åºå†™å…¥ç¼“å†²åŒºï¼ˆä½å­—èŠ‚åœ¨å‰ï¼‰
+ */
+static void SimulinkProtocol_PackInt32LE(uint8_t *pBuf, int32_t value)
 {
-    pBuffer[0] = (uint8_t)(value & 0xFF);
-    pBuffer[1] = (uint8_t)((value >> 8) & 0xFF);
-    pBuffer[2] = (uint8_t)((value >> 16) & 0xFF);
-    pBuffer[3] = (uint8_t)((value >> 24) & 0xFF);
+    pBuf[0] = (uint8_t)((uint32_t)value & 0xFFU);
+    pBuf[1] = (uint8_t)(((uint32_t)value >> 8) & 0xFFU);
+    pBuf[2] = (uint8_t)(((uint32_t)value >> 16) & 0xFFU);
+    pBuf[3] = (uint8_t)(((uint32_t)value >> 24) & 0xFFU);
 }
 
 /**
-  * @brief  ´ÓĞ¡¶ËÄ£Ê½½â°ü16Î»ÕûÊı£¨µÍÎ»ÔÚÇ°£©
-  * @param  pBuffer ÊäÈë»º³åÇøÖ¸Õë
-  * @retval ½â°üºóµÄ16Î»ÕûÊı
-  */
-static int16_t UnpackInt16LittleEndian(const uint8_t *pBuffer)
+ * @brief ä»ç¼“å†²åŒºæŒ‰å°ç«¯åºè§£æå‡º 16 ä½æ•´æ•°
+ */
+static int16_t SimulinkProtocol_UnpackInt16LE(const uint8_t *pBuf)
 {
-    int16_t value = 0;
-    value = (int16_t)pBuffer[0];
-    value |= ((int16_t)pBuffer[1] << 8);
-    return value;
+    return (int16_t)((uint16_t)pBuf[0] | ((uint16_t)pBuf[1] << 8));
 }
 
 /**
-  * @brief  ´ÓĞ¡¶ËÄ£Ê½½â°ü32Î»ÕûÊı£¨µÍÎ»ÔÚÇ°£©
-  * @param  pBuffer ÊäÈë»º³åÇøÖ¸Õë
-  * @retval ½â°üºóµÄ32Î»ÕûÊı
-  */
-static int32_t UnpackInt32LittleEndian(const uint8_t *pBuffer)
+ * @brief ä»ç¼“å†²åŒºæŒ‰å°ç«¯åºè§£æå‡º 32 ä½æ•´æ•°
+ */
+static int32_t SimulinkProtocol_UnpackInt32LE(const uint8_t *pBuf)
 {
-    int32_t value = 0;
-    value = (int32_t)pBuffer[0];
-    value |= ((int32_t)pBuffer[1] << 8);
-    value |= ((int32_t)pBuffer[2] << 16);
-    value |= ((int32_t)pBuffer[3] << 24);
-    return value;
+    return (int32_t)((uint32_t)pBuf[0] | ((uint32_t)pBuf[1] << 8) |
+                     ((uint32_t)pBuf[2] << 16) | ((uint32_t)pBuf[3] << 24));
 }
 
-/**
-  * @brief  ´ò°ü·´À¡Ö¡
-  * @param  pFeedbackFrame ·´À¡Ö¡²ÎÊı½á¹¹ÌåÖ¸Õë
-  * @param  pBuffer Êä³ö»º³åÇøÖ¸Õë£¬ÖÁÉÙĞèÒªPROTOCOL_FRAME_SIZE_FEEDBACK×Ö½Ú
-  * @retval Êµ¼Ê´ò°üµÄ×Ö½ÚÊı£¬Ê§°Ü·µ»Ø0
-  */
-uint16_t Protocol_PackFeedbackFrame(const Protocol_FeedbackFrame_t *pFeedbackFrame, uint8_t *pBuffer)
-{
-    uint16_t offset = 0;
-    uint16_t crc16 = 0;
-    
-    if (pFeedbackFrame == NULL || pBuffer == NULL)
-    {
-        return 0;
-    }
-    
-    // ²ÎÊı·¶Î§¼ì²é
-    if (pFeedbackFrame->motor_current < PROTOCOL_MOTOR_CURRENT_MIN || 
-        pFeedbackFrame->motor_current > PROTOCOL_MOTOR_CURRENT_MAX)
-    {
-        return 0;
-    }
-    if (pFeedbackFrame->motor_position < PROTOCOL_MOTOR_POSITION_MIN || 
-        pFeedbackFrame->motor_position > PROTOCOL_MOTOR_POSITION_MAX)
-    {
-        return 0;
-    }
-    if (pFeedbackFrame->motor_speed < PROTOCOL_MOTOR_SPEED_MIN || 
-        pFeedbackFrame->motor_speed > PROTOCOL_MOTOR_SPEED_MAX)
-    {
-        return 0;
-    }
-    if (pFeedbackFrame->axis_position < PROTOCOL_AXIS_POSITION_MIN || 
-        pFeedbackFrame->axis_position > PROTOCOL_AXIS_POSITION_MAX)
-    {
-        return 0;
-    }
-    if (pFeedbackFrame->axis_speed < PROTOCOL_AXIS_SPEED_MIN || 
-        pFeedbackFrame->axis_speed > PROTOCOL_AXIS_SPEED_MAX)
-    {
-        return 0;
-    }
-    if (pFeedbackFrame->pendulum_position < PROTOCOL_PENDULUM_POSITION_MIN || 
-        pFeedbackFrame->pendulum_position > PROTOCOL_PENDULUM_POSITION_MAX)
-    {
-        return 0;
-    }
-    if (pFeedbackFrame->pendulum_speed < PROTOCOL_PENDULUM_SPEED_MIN || 
-        pFeedbackFrame->pendulum_speed > PROTOCOL_PENDULUM_SPEED_MAX)
-    {
-        return 0;
-    }
-    
-    // 1. Ö¡Í·£º0x5A 0xA5
-    pBuffer[offset++] = PROTOCOL_HEAD_BYTE0;
-    pBuffer[offset++] = PROTOCOL_HEAD_BYTE1;
-    
-    // 2. ÀàĞÍ£º0x02£¨·´À¡Ö¡£©
-    pBuffer[offset++] = PROTOCOL_TYPE_FEEDBACK;
-    
-    // 3. ³¤¶È£º0x1A£¨26×Ö½Ú£©
-    pBuffer[offset++] = PROTOCOL_LEN_FEEDBACK;
-    
-    // 4. ¸ºÔØÓò£¨26×Ö½Ú£©
-    // 0~1×Ö½Ú£ºµç»úµçÁ÷Öµ
-    PackInt16LittleEndian(&pBuffer[offset], pFeedbackFrame->motor_current);
-    offset += 2;
-    
-    // 2~5×Ö½Ú£ºµç»úÎ»ÖÃ£¨21Î»±àÂëÆ÷£©
-    PackInt32LittleEndian(&pBuffer[offset], pFeedbackFrame->motor_position);
-    offset += 4;
-    
-    // 6~9×Ö½Ú£ºµç»ú×ªËÙ
-    PackInt32LittleEndian(&pBuffer[offset], pFeedbackFrame->motor_speed);
-    offset += 4;
-    
-    // 10~13×Ö½Ú£ºÖáÎ»ÖÃ£¨17Î»±àÂëÆ÷£©
-    PackInt32LittleEndian(&pBuffer[offset], pFeedbackFrame->axis_position);
-    offset += 4;
-    
-    // 14~17×Ö½Ú£ºÖá×ªËÙ
-    PackInt32LittleEndian(&pBuffer[offset], pFeedbackFrame->axis_speed);
-    offset += 4;
-    
-    // 18~21×Ö½Ú£º°Ú¸ËÎ»ÖÃ£¨17Î»±àÂëÆ÷£©
-    PackInt32LittleEndian(&pBuffer[offset], pFeedbackFrame->pendulum_position);
-    offset += 4;
-    
-    // 22~25×Ö½Ú£º°Ú¸Ë×ªËÙ
-    PackInt32LittleEndian(&pBuffer[offset], pFeedbackFrame->pendulum_speed);
-    offset += 4;
-    
-    // 5. CRC16Ğ£Ñé£¨¼ÆËãÖ¡Í·+ÀàĞÍ+³¤¶È+¸ºÔØÓò£©
-    // ×¢Òâ£ºCRC16¼ÆËã·¶Î§ÊÇ´ÓÖ¡Í·µ½¸ºÔØÓò½áÊø£¬²»°üÀ¨CRC16±¾Éí
-    crc16 = Protocol_CalculateCRC16(pBuffer, offset);
-    pBuffer[offset++] = (uint8_t)(crc16 & 0xFF);        // CRC16µÍ×Ö½Ú
-    pBuffer[offset++] = (uint8_t)((crc16 >> 8) & 0xFF); // CRC16¸ß×Ö½Ú
-    
-    return offset;
-}
+/* ===================== å†…éƒ¨ CRC16ï¼ˆMODBUSï¼šå¤šé¡¹å¼ 0xA001ï¼Œåˆå€¼ 0xFFFFï¼Œå°ç«¯è¾“å‡ºï¼‰ ===================== */
 
 /**
-  * @brief  ½â°ü¿ØÖÆÖ¡
-  * @param  pBuffer ½ÓÊÕ»º³åÇøÖ¸Õë£¬°üº¬ÍêÕûµÄ¿ØÖÆÖ¡Êı¾İ
-  * @param  bufferSize »º³åÇø´óĞ¡
-  * @param  pControlFrame Êä³ö¿ØÖÆÖ¡²ÎÊı½á¹¹ÌåÖ¸Õë
-  * @retval true: ½â°ü³É¹¦  false: ½â°üÊ§°Ü
-  */
-bool Protocol_UnpackControlFrame(const uint8_t *pBuffer, uint16_t bufferSize, Protocol_ControlFrame_t *pControlFrame)
+ * @brief è®¡ç®— CRC16 æ ¡éªŒå€¼
+ */
+static uint16_t SimulinkProtocol_CalcCRC16(const uint8_t *pData, uint16_t length)
 {
-    uint16_t offset = 0;
-    uint16_t crc16_calculated = 0;
-    uint16_t crc16_received = 0;
-    
-    if (pBuffer == NULL || pControlFrame == NULL)
+    uint16_t crc = 0xFFFFU;
+    uint16_t i;
+    uint8_t j;
+
+    if (pData == NULL || length == 0U)
     {
-        return false;
+        return 0U;
     }
-    
-    // ¼ì²é»º³åÇø´óĞ¡ÊÇ·ñ×ã¹»
-    if (bufferSize < PROTOCOL_FRAME_SIZE_CONTROL)
+
+    for (i = 0U; i < length; i++)
     {
-        return false;
+        crc ^= (uint16_t)pData[i];
+        for (j = 0U; j < 8U; j++)
+        {
+            if (crc & 1U)
+            {
+                crc = (uint16_t)((crc >> 1) ^ 0xA001U);
+            }
+            else
+            {
+                crc >>= 1;
+            }
+        }
     }
-    
-    // 1. ÑéÖ¤Ö¡Í·£º0x5A 0xA5
-    if (pBuffer[offset++] != PROTOCOL_HEAD_BYTE0 || 
-        pBuffer[offset++] != PROTOCOL_HEAD_BYTE1)
-    {
-        return false;
-    }
-    
-    // 2. ÑéÖ¤ÀàĞÍ£º0x01£¨¿ØÖÆÖ¡£©
-    if (pBuffer[offset++] != PROTOCOL_TYPE_CONTROL)
-    {
-        return false;
-    }
-    
-    // 3. ÑéÖ¤³¤¶È£º0x04£¨4×Ö½Ú£©
-    if (pBuffer[offset++] != PROTOCOL_LEN_CONTROL)
-    {
-        return false;
-    }
-    
-    // 4. ½âÎö¸ºÔØÓò£¨4×Ö½Ú£©
-    // 0~1×Ö½Ú£ºPWMÖµ
-    pControlFrame->pwm = UnpackInt16LittleEndian(&pBuffer[offset]);
-    offset += 2;
-    
-    // 2~3×Ö½Ú£ºµçÁ÷Öµ
-    pControlFrame->current = UnpackInt16LittleEndian(&pBuffer[offset]);
-    offset += 2;
-    
-    // 5. ÑéÖ¤CRC16
-    // ½ÓÊÕµ½µÄCRC16£¨Ğ¡¶ËÄ£Ê½£©
-    crc16_received = (uint16_t)pBuffer[offset];
-    crc16_received |= ((uint16_t)pBuffer[offset + 1] << 8);
-    
-    // ¼ÆËãCRC16£¨´ÓÖ¡Í·µ½¸ºÔØÓò½áÊø£©
-    crc16_calculated = Protocol_CalculateCRC16(pBuffer, offset);
-    
-    // CRC16Ğ£ÑéÊ§°Ü
-    if (crc16_calculated != crc16_received)
-    {
-        return false;
-    }
-    
-    // 6. ²ÎÊı·¶Î§¼ì²é
-    if (pControlFrame->pwm < PROTOCOL_PWM_MIN || 
-        pControlFrame->pwm > PROTOCOL_PWM_MAX)
-    {
-        return false;
-    }
-    if (pControlFrame->current < PROTOCOL_CURRENT_MIN || 
-        pControlFrame->current > PROTOCOL_CURRENT_MAX)
-    {
-        return false;
-    }
-    
-    return true;
+
+    return crc;
 }
 
-/**
-  * @brief  CRC16Ğ£Ñé¼ÆËã£¨Ô¤Áô½Ó¿Ú£¬ÓÉÓÃ»§ÊµÏÖ£©
-  * @param  pData Êı¾İÖ¸Õë
-  * @param  length Êı¾İ³¤¶È
-  * @retval CRC16Ğ£ÑéÖµ
-  * 
-  * @note   ÓÃ»§ĞèÒªÔÚ´Ëº¯ÊıÖĞÊµÏÖCRC16¼ÆËãËã·¨
-  *         µ±Ç°ÎªÕ¼Î»ÊµÏÖ£¬·µ»Ø0
-  */
-uint16_t Protocol_CalculateCRC16(const uint8_t *pData, uint16_t length)
-{
-    // TODO: ÓÃ»§ÔÚ´ËÊµÏÖCRC16¼ÆËãËã·¨
-    // Ê¾Àı£º¿ÉÒÔÊ¹ÓÃCRC16-CCITT¡¢CRC16-MODBUSµÈËã·¨
-    
-    (void)pData;    // ±ÜÃâÎ´Ê¹ÓÃ²ÎÊı¾¯¸æ
-    (void)length;   // ±ÜÃâÎ´Ê¹ÓÃ²ÎÊı¾¯¸æ
-    
-    return 0;       // Õ¼Î»·µ»ØÖµ£¬ÓÃ»§ĞèÒªÌæ»»ÎªÊµ¼ÊµÄCRC16¼ÆËã½á¹û
-}
+/* ===================== å†…éƒ¨ï¼šè§£ææ§åˆ¶å¸§ ===================== */
 
 /**
-  * @brief  ÑéÖ¤Ö¡Í·
-  * @param  pBuffer »º³åÇøÖ¸Õë
-  * @retval true: Ö¡Í·ÕıÈ·  false: Ö¡Í·´íÎó
-  */
-bool Protocol_VerifyHeader(const uint8_t *pBuffer)
+ * @brief ä»åŸå§‹å­—èŠ‚æµè§£ææ§åˆ¶å¸§å¹¶æ ¡éªŒ CRCã€èŒƒå›´
+ */
+static SimulinkProtocolResult_t SimulinkProtocol_ParseControlFrame(const uint8_t *pFrame,
+                                                                   uint16_t length,
+                                                                   SimulinkProtocolControlData_t *pOut)
+{
+    uint16_t offset = 0U;
+    uint16_t crc_calc;
+    uint16_t crc_recv;
+
+    if ((pFrame == NULL) || (pOut == NULL))
+    {
+        return SIMULINK_PROTOCOL_ERR_NULL;
+    }
+
+    if (length < SIMULINK_CONTROL_FRAME_LEN)
+    {
+        return SIMULINK_PROTOCOL_ERR_LENGTH;
+    }
+
+    if (pFrame[offset++] != SIMULINK_HEAD_BYTE0 || pFrame[offset++] != SIMULINK_HEAD_BYTE1)
+    {
+        return SIMULINK_PROTOCOL_ERR_LENGTH;
+    }
+
+    if (pFrame[offset++] != SIMULINK_TYPE_CONTROL)
+    {
+        return SIMULINK_PROTOCOL_ERR_LENGTH;
+    }
+
+    if (pFrame[offset++] != SIMULINK_LEN_CONTROL)
+    {
+        return SIMULINK_PROTOCOL_ERR_LENGTH;
+    }
+
+    pOut->pwm    = SimulinkProtocol_UnpackInt16LE(&pFrame[offset]);
+    offset += 2U;
+    pOut->current = SimulinkProtocol_UnpackInt16LE(&pFrame[offset]);
+    offset += 2U;
+
+    crc_recv  = (uint16_t)pFrame[offset] | ((uint16_t)pFrame[offset + 1] << 8);
+    crc_calc  = SimulinkProtocol_CalcCRC16(pFrame, offset);
+    if (crc_calc != crc_recv)
+    {
+        return SIMULINK_PROTOCOL_ERR_CRC;
+    }
+
+    if (pOut->pwm < SIMULINK_PWM_MIN || pOut->pwm > SIMULINK_PWM_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+    if (pOut->current < SIMULINK_CURRENT_MIN || pOut->current > SIMULINK_CURRENT_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+
+    return SIMULINK_PROTOCOL_OK;
+}
+
+/* ===================== å†…éƒ¨ï¼šç»„åé¦ˆå¸§ ===================== */
+
+/**
+ * @brief å°†åé¦ˆæ•°æ®ç»“æ„æŒ‰åè®®æ ¼å¼ç»„å¸§å¹¶å†™å…¥ç¼“å†²åŒºï¼Œå« CRC16
+ */
+static SimulinkProtocolResult_t SimulinkProtocol_AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *pIn,
+                                                                       uint8_t *pBuf,
+                                                                       uint16_t bufSize,
+                                                                       uint16_t *pOutLen)
+{
+    uint16_t offset = 0U;
+    uint16_t crc16;
+
+    if ((pIn == NULL) || (pBuf == NULL))
+    {
+        return SIMULINK_PROTOCOL_ERR_NULL;
+    }
+
+    if (bufSize < SIMULINK_FEEDBACK_FRAME_LEN)
+    {
+        return SIMULINK_PROTOCOL_ERR_LENGTH;
+    }
+
+    pBuf[offset++] = SIMULINK_HEAD_BYTE0;
+    pBuf[offset++] = SIMULINK_HEAD_BYTE1;
+    pBuf[offset++] = SIMULINK_TYPE_FEEDBACK;
+    pBuf[offset++] = SIMULINK_LEN_FEEDBACK;
+
+    SimulinkProtocol_PackInt16LE(&pBuf[offset], pIn->motor_current);
+    offset += 2U;
+    SimulinkProtocol_PackInt32LE(&pBuf[offset], pIn->motor_position);
+    offset += 4U;
+    SimulinkProtocol_PackInt32LE(&pBuf[offset], pIn->motor_speed);
+    offset += 4U;
+    SimulinkProtocol_PackInt32LE(&pBuf[offset], pIn->axis_position);
+    offset += 4U;
+    SimulinkProtocol_PackInt32LE(&pBuf[offset], pIn->axis_speed);
+    offset += 4U;
+    SimulinkProtocol_PackInt32LE(&pBuf[offset], pIn->pendulum_position);
+    offset += 4U;
+    SimulinkProtocol_PackInt32LE(&pBuf[offset], pIn->pendulum_speed);
+    offset += 4U;
+
+    crc16 = SimulinkProtocol_CalcCRC16(pBuf, offset);
+    pBuf[offset++] = (uint8_t)(crc16 & 0xFFU);
+    pBuf[offset++] = (uint8_t)((crc16 >> 8) & 0xFFU);
+
+    if (pOutLen != NULL)
+    {
+        *pOutLen = offset;
+    }
+
+    return SIMULINK_PROTOCOL_OK;
+}
+
+/* ===================== å¯¹å¤–æ¥å£ ===================== */
+
+SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut)
+{
+    const uint8_t *pFrame;
+
+    if (pOut == NULL)
+    {
+        return SIMULINK_PROTOCOL_ERR_NULL;
+    }
+
+    pFrame = SimulinkProtocol_GetControlFrame();
+    if (pFrame == NULL)
+    {
+        return SIMULINK_PROTOCOL_ERR_NULL;
+    }
+
+    return SimulinkProtocol_ParseControlFrame(pFrame, SIMULINK_CONTROL_FRAME_LEN, pOut);
+}
+
+SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn)
+{
+    uint8_t *pBuffer;
+
+    if (pIn == NULL)
+    {
+        return SIMULINK_PROTOCOL_ERR_NULL;
+    }
+
+    if (pIn->motor_current < SIMULINK_MOTOR_CURRENT_MIN || pIn->motor_current > SIMULINK_MOTOR_CURRENT_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+    if (pIn->motor_position < SIMULINK_MOTOR_POSITION_MIN || pIn->motor_position > SIMULINK_MOTOR_POSITION_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+    if (pIn->motor_speed < SIMULINK_MOTOR_SPEED_MIN || pIn->motor_speed > SIMULINK_MOTOR_SPEED_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+    if (pIn->axis_position < SIMULINK_AXIS_POSITION_MIN || pIn->axis_position > SIMULINK_AXIS_POSITION_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+    if (pIn->axis_speed < SIMULINK_AXIS_SPEED_MIN || pIn->axis_speed > SIMULINK_AXIS_SPEED_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+    if (pIn->pendulum_position < SIMULINK_PENDULUM_POSITION_MIN || pIn->pendulum_position > SIMULINK_PENDULUM_POSITION_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+    if (pIn->pendulum_speed < SIMULINK_PENDULUM_SPEED_MIN || pIn->pendulum_speed > SIMULINK_PENDULUM_SPEED_MAX)
+    {
+        return SIMULINK_PROTOCOL_ERR_RANGE;
+    }
+
+    pBuffer = SimulinkProtocol_GetFeedbackTxBuffer();
+    if (pBuffer == NULL)
+    {
+        return SIMULINK_PROTOCOL_ERR_NULL;
+    }
+
+    return SimulinkProtocol_AssembleFeedbackFrame(pIn, pBuffer, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
+}
+
+bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer)
 {
     if (pBuffer == NULL)
     {
         return false;
     }
-    
-    return (pBuffer[0] == PROTOCOL_HEAD_BYTE0 && 
-            pBuffer[1] == PROTOCOL_HEAD_BYTE1);
+    return (pBuffer[0] == SIMULINK_HEAD_BYTE0 && pBuffer[1] == SIMULINK_HEAD_BYTE1);
 }
 
-/**
-  * @brief  ²éÕÒÖ¡Í·Î»ÖÃ
-  * @param  pBuffer »º³åÇøÖ¸Õë
-  * @param  bufferSize »º³åÇø´óĞ¡
-  * @retval Ö¡Í·Î»ÖÃË÷Òı£¬Î´ÕÒµ½·µ»Ø-1
-  */
-int16_t Protocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize)
+int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize)
 {
     uint16_t i;
-    
-    if (pBuffer == NULL || bufferSize < PROTOCOL_HEAD_SIZE)
+
+    if (pBuffer == NULL || bufferSize < SIMULINK_HEAD_SIZE)
     {
         return -1;
     }
-    
-    // ²éÕÒÖ¡Í·0x5A 0xA5
-    for (i = 0; i <= bufferSize - PROTOCOL_HEAD_SIZE; i++)
+
+    for (i = 0U; i <= bufferSize - SIMULINK_HEAD_SIZE; i++)
     {
-        if (pBuffer[i] == PROTOCOL_HEAD_BYTE0 && 
-            pBuffer[i + 1] == PROTOCOL_HEAD_BYTE1)
+        if (pBuffer[i] == SIMULINK_HEAD_BYTE0 && pBuffer[i + 1] == SIMULINK_HEAD_BYTE1)
         {
             return (int16_t)i;
         }
     }
-    
+
     return -1;
 }
-
-/* USER CODE BEGIN Implementation */
-
-/* USER CODE END Implementation */

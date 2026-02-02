@@ -25,7 +25,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "simulink_protocol.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -207,7 +206,8 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 
-    Protocol_FeedbackFrame_t pFeedbackFrame_test;
+    #if 0
+		Protocol_FeedbackFrame_t pFeedbackFrame_test;
     unsigned char pbufftest[32]= 0;
 
     pFeedbackFrame_test.motor_current = 0x12;
@@ -221,7 +221,7 @@ int main(void)
 
 
     Protocol_PackFeedbackFrame(&pFeedbackFrame_test, pbufftest);
-
+#endif
 
 
 

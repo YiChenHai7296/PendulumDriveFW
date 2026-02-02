@@ -394,6 +394,26 @@
           <GroupName>Application/User/Core</GroupName>
           <Files>
             <File>
+              <FileName>RingFrameQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\RingFrameQueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>simulink_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\simulink_protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>encoder_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\encoder_protocol.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>
@@ -442,21 +462,6 @@
               <FileName>stm32g4xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32g4xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>RingFrameQueue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\RingFrameQueue.c</FilePath>
-            </File>
-            <File>
-              <FileName>debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\debug.c</FilePath>
-            </File>
-            <File>
-              <FileName>simulink_protocol.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\simulink_protocol.c</FilePath>
             </File>
           </Files>
         </Group>
