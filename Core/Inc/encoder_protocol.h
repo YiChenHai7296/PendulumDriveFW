@@ -1,6 +1,6 @@
 /**
  * @file encoder_protocol.h
- * @brief µç»ú±àÂëÆ÷Ö¡½âÎöĞ­ÒéÕ»½Ó¿Ú
+ * @brief ç¼–ç å™¨å¸§è§£æåè®®æ ˆæ¥å£
  */
 
 #ifndef ENCODER_PROTOCOL_H
@@ -13,47 +13,73 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-
-
 #define NULL ((void *)0)
 
-
 /**
- * @brief ±àÂëÆ÷Ö¡½âÎö½á¹û
+ * @brief ç¼–ç å™¨å¸§è§£æç»“æœ
  */
 typedef enum
 {
-    ENCODER_PROTOCOL_OK = 0,        /**< ½âÎö³É¹¦ */
-    ENCODER_PROTOCOL_ERR_NULL,      /**< Ö¸ÕëÎª¿Õ */
-    ENCODER_PROTOCOL_ERR_LENGTH,    /**< Ö¡³¤¶È´íÎó */
-    ENCODER_PROTOCOL_ERR_CRC        /**< CRC Ğ£ÑéÊ§°Ü */
+    ENCODER_PROTOCOL_OK = 0,        /**< è§£ææˆåŠŸ */
+    ENCODER_PROTOCOL_ERR_NULL,      /**< æŒ‡é’ˆä¸ºç©º */
+    ENCODER_PROTOCOL_ERR_LENGTH,    /**< å¸§é•¿åº¦é”™è¯¯ */
+    ENCODER_PROTOCOL_ERR_CRC        /**< CRC æ ¡éªŒå¤±è´¥ */
 } EncoderProtocolResult_t;
 
 /**
- * @brief ±àÂëÆ÷×´Ì¬Óë¾ø¶ÔÎ»ÖÃÊı¾İ
+ * @brief ç¼–ç å™¨çŠ¶æ€ä¸ç»å¯¹ä½ç½®æ•°æ®
  */
 typedef struct
 {
-    bool     count_error;      /**< SA.bit4£º¼ÆÊı´íÎó±êÖ¾ */
-    bool     mt_or_batt_error; /**< SA.bit5£º¶àÈ¦/µç³ØÏà¹Ø´íÎó(Âß¼­»ò½á¹û) */
-    uint32_t absolute_position;/**< 21 Î»¾ø¶ÔÎ»ÖÃÊı¾İ£¬·¶Î§ 0~0x1FFFFF */
+    bool     count_error;      /**< SA.bit4ï¼šè®¡æ•°é”™è¯¯æ ‡å¿— */
+    bool     mt_or_batt_error; /**< SA.bit5ï¼šå¤šåœˆ/ç”µæ± ç›¸å…³é”™è¯¯(é€»è¾‘æˆ–ç»“æœ) */
+    uint32_t absolute_position;/**< 21 ä½ç»å¯¹ä½ç½®æ•°æ®ï¼ŒèŒƒå›´ 0~0x1FFFFF */
 } EncoderProtocolData_t;
 
 /**
- * @brief ´Ó±àÂëÆ÷µ×²ãÊı¾İÔ´¶ÁÈ¡²¢½âÎöÒ»Ö¡Êı¾İ
+ * @brief ä»ç¼–ç å™¨åº•å±‚æ•°æ®æºè¯»å–å¹¶è§£æä¸€å¸§æ•°æ®ï¼ˆç”µæœºç¼–ç å™¨ï¼ŒUART3ï¼‰
  *
- * Ö¡¸ñÊ½£¨µ×²ãÊµÏÖ¸ºÔğ»ñÈ¡Ô­Ê¼ 6 ×Ö½ÚÖ¡£¬±¾½Ó¿Ú²»±©Â¶Êı¾İÀ´Ô´£©£º
- * CM(1B, ¹Ì¶¨ 0x02) + SA(1B) + AS0~AS2(3B, 21bit ¾ø¶ÔÖµ) + CRC8(1B)
+ * å¸§æ ¼å¼ï¼ˆåº•å±‚å®ç°è´Ÿè´£è·å–åŸå§‹ 6 å­—èŠ‚å¸§ï¼Œæœ¬æ¥å£ä¸æš´éœ²æ•°æ®æ¥æºï¼‰ï¼š
+ * CM(1B, å›ºå®š 0x02) + SA(1B) + AS0~AS2(3B, 21bit ç»å¯¹å€¼) + CRC8(1B)
  *
- * @param[out] pOut   ½âÎöºóµÄ×´Ì¬Óë¾ø¶ÔÎ»ÖÃÊı¾İ
+ * @param[out] pOut    è§£æåçš„çŠ¶æ€ä¸ç»å¯¹ä½ç½®æ•°æ®
  *
- * @return EncoderProtocolResult_t ½âÎö½á¹û
+ * @return EncoderProtocolResult_t è§£æç»“æœ
  */
 EncoderProtocolResult_t EncoderProtocol_Read(EncoderProtocolData_t *pOut);
+
+/**
+ * @brief è¯»å–ç”µæœºç¼–ç å™¨ä¸€å¸§å¹¶è§£æï¼ˆUART3ï¼‰
+ * @param[out] pOut è§£æåçš„çŠ¶æ€ä¸ç»å¯¹ä½ç½®æ•°æ®
+ * @return EncoderProtocolResult_t è§£æç»“æœ
+ */
+EncoderProtocolResult_t EncoderProtocol_ReadMotor(EncoderProtocolData_t *pOut);
+
+/**
+ * @brief è¯»å–è¾“å‡ºè½´ç¼–ç å™¨ä¸€å¸§å¹¶è§£æï¼ˆUART4ï¼‰
+ * @param[out] pOut è§£æåçš„çŠ¶æ€ä¸ç»å¯¹ä½ç½®æ•°æ®
+ * @return EncoderProtocolResult_t è§£æç»“æœ
+ */
+EncoderProtocolResult_t EncoderProtocol_ReadOutputShaft(EncoderProtocolData_t *pOut);
+
+/**
+ * @brief è¯»å–æ‘†è‡‚ç¼–ç å™¨ä¸€å¸§å¹¶è§£æï¼ˆUART5ï¼‰
+ * @param[out] pOut è§£æåçš„çŠ¶æ€ä¸ç»å¯¹ä½ç½®æ•°æ®
+ * @return EncoderProtocolResult_t è§£æç»“æœ
+ */
+EncoderProtocolResult_t EncoderProtocol_ReadSwingArm(EncoderProtocolData_t *pOut);
+
+/**
+ * @brief ä»æŒ‡å®šç¼“å†²åŒºè§£æä¸€å¸§ç¼–ç å™¨æ•°æ®ï¼ˆ6 å­—èŠ‚ï¼‰
+ * @param[in]  pFrame  åŸå§‹å¸§æŒ‡é’ˆï¼Œé•¿åº¦è‡³å°‘ 6 å­—èŠ‚
+ * @param[in]  length  ç¼“å†²åŒºé•¿åº¦
+ * @param[out] pOut    è§£æåçš„çŠ¶æ€ä¸ç»å¯¹ä½ç½®æ•°æ®
+ * @return EncoderProtocolResult_t è§£æç»“æœ
+ */
+EncoderProtocolResult_t EncoderProtocol_ParseFrameFromBuffer(const uint8_t *pFrame, uint16_t length, EncoderProtocolData_t *pOut);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ENCODER_PROTOCOL_H */
-
+#endif /* ENCODER_PROTOCOL_H */ODER

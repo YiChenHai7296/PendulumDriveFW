@@ -36,6 +36,25 @@
 #define SIMULINK_PENDULUM_SPEED_MIN (-4000)
 #define SIMULINK_PENDULUM_SPEED_MAX 4000
 
+
+
+
+/**
+ * @brief 校验帧头是否为 0x5A 0xA5
+ * @param[in] pBuffer 缓冲区指针
+ * @return true 帧头正确，false 否则
+ */
+bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer);
+
+/**
+ * @brief 在缓冲区中查找帧头位置
+ * @param[in] pBuffer    缓冲区
+ * @param[in] bufferSize 长度
+ * @return 帧头起始下标，未找到返回 -1
+ */
+int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize);
+
+
 /* ===================== 内部小端打包/解包 ===================== */
 
 /**
@@ -229,22 +248,29 @@ static SimulinkProtocolResult_t SimulinkProtocol_AssembleFeedbackFrame(const Sim
 
 /* ===================== 对外接口 ===================== */
 
+/* 读取路径：从 USART2 接收队列取一帧，再解析为控制数据 */
 SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut)
 {
-    const uint8_t *pFrame;
+    uint8_t rxBuf[SIMULINK_CONTROL_FRAME_LEN];
+    uint16_t len = 0U;
 
     if (pOut == NULL)
     {
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
-    pFrame = SimulinkProtocol_GetControlFrame();
-    if (pFrame == NULL)
+    /* 从底层 USART2 接收队列出队一帧 */
+    if (USART2_GetRxData(rxBuf, sizeof(rxBuf), &len) != 0)
     {
-        return SIMULINK_PROTOCOL_ERR_NULL;
+        return SIMULINK_PROTOCOL_ERR_LENGTH;  /* 队列空或无完整帧 */
     }
 
-    return SimulinkProtocol_ParseControlFrame(pFrame, SIMULINK_CONTROL_FRAME_LEN, pOut);
+    if (len != SIMULINK_CONTROL_FRAME_LEN)
+    {
+        return SIMULINK_PROTOCOL_ERR_LENGTH;
+    }
+
+    return SimulinkProtocol_ParseControlFrame(rxBuf, len, pOut);
 }
 
 SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn)
@@ -285,7 +311,7 @@ SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFee
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
 
-    pBuffer = SimulinkProtocol_GetFeedbackTxBuffer();
+    //pBuffer = SimulinkProtocol_GetFeedbackTxBuffer();
     if (pBuffer == NULL)
     {
         return SIMULINK_PROTOCOL_ERR_NULL;

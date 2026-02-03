@@ -23,15 +23,15 @@
 /* USER CODE BEGIN 0 */
 #include "usart.h"
 
-/* ADC²É¼¯Ô­Ê¼Êı¾İ */
-__IO uint16_t au16_ADC1_Vol_Value[2]; //PWM¸ßµçÆ½
+/* ADCé‡‡é›†åŸå§‹æ•°æ® */
+__IO uint16_t au16_ADC1_Vol_Value[2]; //PWMé«˜ç”µå¹³
 __IO uint16_t au16_ADC2_Vol_Value[1];
 
 
-/* ADC²âÊÔÊäÈëµçÑ¹Öµ */
+/* ADCæµ‹è¯•è¾“å…¥ç”µå‹å€¼ */
 float f_TEST_VALUE = 1.6;
 
-/* ADCÎó²î¼ÆËã */
+/* ADCè¯¯å·®è®¡ç®— */
 
 extern unsigned char u8DebugRxBuff[100];
 
@@ -342,7 +342,7 @@ float ADC_Read_MotorVol(void)
 {
     float f_ADC1_Vol_Result[2];
     float f_ADC2_Vol_Result[2];
-    float f_Motor_Vol = 0; //Êä³öµçÑ¹Öµ
+    float f_Motor_Vol = 0; //è¾“å‡ºç”µå‹å€¼
     
     f_ADC1_Vol_Result[0] = (float)au16_ADC1_Vol_Value[0]*(float)3.3/4096;
     f_ADC2_Vol_Result[0]  = (float)au16_ADC2_Vol_Value[0]*(float)3.3/4096;
@@ -362,50 +362,50 @@ void ADC_TEST()
 
     unsigned char u8StopFlag = 0;
 
-    float        fTargetValue  = 0.0;     //²âÊÔµçÑ¹
-    float        fMotorVol     = 0.0;     //µ±Ç°²É¼¯µçÑ¹
-    float        fSingleVolErr = 0.0;     //µ¥´ÎÎó²î
-    float        fAverVolErr   = 0.0;     //Æ½¾ùÎó²î
-    unsigned int u32_Temp_i    = 0.0;     //²É¼¯¼ÆÊı
-    float        fMaxVolErr    = 0.0;     //×î´óÎó²î
-    float        fTotalVolErr  = 0.0;     //×ÜÎó²î
+    float        fTargetValue  = 0.0;     //æµ‹è¯•ç”µå‹
+    float        fMotorVol     = 0.0;     //å½“å‰é‡‡é›†ç”µå‹
+    float        fSingleVolErr = 0.0;     //å•æ¬¡è¯¯å·®
+    float        fAverVolErr   = 0.0;     //å¹³å‡è¯¯å·®
+    unsigned int u32_Temp_i    = 0.0;     //é‡‡é›†è®¡æ•°
+    float        fMaxVolErr    = 0.0;     //æœ€å¤§è¯¯å·®
+    float        fTotalVolErr  = 0.0;     //æ€»è¯¯å·®
 
 
-    HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100); //Çå³ı´®¿Ú»º³åÇø
+    HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100); //æ¸…é™¤ä¸²å£ç¼“å†²åŒº
 
-    printf("\n ÇëÊäÈë²âÊÔÄ¿±êµçÑ¹£º(ÕûÊıÎ»)\n");
+    printf("\n è¯·è¾“å…¥æµ‹è¯•ç›®æ ‡ç”µå‹ï¼š(æ•´æ•°ä½)\n");
     while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,1000));
     u8TargeValueInt = u8DebugRxBuff[0]-0x30;
 
     HAL_Delay(500);
     
-    printf("\n ÇëÊäÈë²âÊÔÄ¿±êµçÑ¹£º(ËÄÎ»Ğ¡ÊıÎ»)\n");
+    printf("\n è¯·è¾“å…¥æµ‹è¯•ç›®æ ‡ç”µå‹ï¼š(å››ä½å°æ•°ä½)\n");
     while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,4,1000));
     u16TargeValueFloat = (u8DebugRxBuff[0]-0x30)*1000+(u8DebugRxBuff[1]-0x30)*100+(u8DebugRxBuff[2]-0x30)*10+(u8DebugRxBuff[3]-0x30);
 
     fTargetValue = u8TargeValueInt + u16TargeValueFloat/10000.0;
 
-    printf("\n Ä¿±êµçÑ¹£º%f £¬¿ªÊ¼²âÊÔ£¡\n",fTargetValue);
+    printf("\n ç›®æ ‡ç”µå‹ï¼š%f ï¼Œå¼€å§‹æµ‹è¯•ï¼\n",fTargetValue);
 
     
     while(!u8StopFlag)
     {
-        /* »ñÈ¡µ±Ç°Ê¾Êı */
+        /* è·å–å½“å‰ç¤ºæ•° */
         fMotorVol = ADC_Read_MotorVol();
 
-        /* µ¥´ÎÎó²î¼ÆËã */
+        /* å•æ¬¡è¯¯å·®è®¡ç®— */
         fSingleVolErr = fTargetValue - fMotorVol;
         if(fSingleVolErr < 0)
         {
             fSingleVolErr = 0 - fSingleVolErr;
         }
-        /* ÅĞ¶Ï×î´óÎó²î */
+        /* åˆ¤æ–­æœ€å¤§è¯¯å·® */
         if(fSingleVolErr > fMaxVolErr)
         {
             fMaxVolErr = fSingleVolErr;
         }
 
-        /* ¼ÆËãÆ½¾ùÎó²î */
+        /* è®¡ç®—å¹³å‡è¯¯å·® */
         fTotalVolErr += fSingleVolErr;
         u32_Temp_i++;
         fAverVolErr = fTotalVolErr/u32_Temp_i;
@@ -418,7 +418,7 @@ void ADC_TEST()
         {
             u8StopFlag = 1;
 
-            HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,100,100);//Çå³ı´®¿Ú»º³åÇø
+            HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,100,100);//æ¸…é™¤ä¸²å£ç¼“å†²åŒº
         }
         
     }

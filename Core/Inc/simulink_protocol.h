@@ -12,6 +12,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "usart.h"
 
 #define NULL ((void *)0)
 
@@ -55,6 +56,8 @@ typedef struct
 /** 反馈帧总长度（字节），便于调用方分配缓冲区 */
 #define SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE 32U
 
+
+
 /**
  * @brief 解帧：从底层获取一帧控制帧并解析，结果填入 pOut
  *        原始帧数据由底层提供（见 SimulinkProtocol_GetControlFrame）
@@ -71,31 +74,8 @@ SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlD
  */
 SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn);
 
-/**
- * @brief 校验帧头是否为 0x5A 0xA5
- * @param[in] pBuffer 缓冲区指针
- * @return true 帧头正确，false 否则
- */
-bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer);
 
-/**
- * @brief 在缓冲区中查找帧头位置
- * @param[in] pBuffer    缓冲区
- * @param[in] bufferSize 长度
- * @return 帧头起始下标，未找到返回 -1
- */
-int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize);
 
-/**
- * 以下由底层驱动实现，协议层解帧/组帧时调用，顶层不直接使用。
- * 控制帧：至少 SIMULINK_PROTOCOL_CONTROL_FRAME_SIZE 字节；
- * 反馈发送缓冲：至少 SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE 字节。
- */
-const uint8_t *SimulinkProtocol_GetControlFrame(void);
-uint8_t *SimulinkProtocol_GetFeedbackTxBuffer(void);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* SIMULINK_PROTOCOL_H */

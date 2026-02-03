@@ -1,5 +1,8 @@
 softscalependulumdriveboard\simulink_protocol.o: ..\Core\Src\simulink_protocol.c
 softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/simulink_protocol.h
+softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/main.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/stm32g4xx_hal_conf.h
@@ -8,7 +11,6 @@ softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g474xx.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/CMSIS/Include/core_cm4.h
-softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/CMSIS/Include/cmsis_version.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -39,4 +41,5 @@ softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
-softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/RingFrameQueue.h

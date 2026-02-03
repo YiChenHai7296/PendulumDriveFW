@@ -26,27 +26,38 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+
+
+
+
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "RingFrameQueue.h"  // Çı¶¯²ãĞèÒª¶ÓÁĞÀàĞÍ¶¨Òå
+
+/* ======================== 1.å¤´æ–‡ä»¶ä¾èµ– ======================== */
+#include "main.h"
+#include <string.h>
+#include "RingFrameQueue.h"  /* ç¯å½¢é˜Ÿåˆ—ï¼Œæ”¶å‘ç”¨ */
+#include "stm32g4xx_hal_uart_ex.h"
+
+
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart4;
-
 extern UART_HandleTypeDef huart5;
-
 extern UART_HandleTypeDef huart1;
-
 extern UART_HandleTypeDef huart2;
-
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
+
+/* ======================== 2.å®å®šä¹‰(å¯¹å¤–å¯è§) ======================== */
 #define DEBUG_UART &huart3
 
 
 /* USER CODE END Private defines */
+
+
 
 void MX_UART4_Init(void);
 void MX_UART5_Init(void);
@@ -56,48 +67,47 @@ void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-/* ===================== USART2 Ğ­ÒéÍ¨ĞÅ½Ó¿Ú£¨Çı¶¯²ã£©===================== */
-/**
-  * @brief  USART2·¢ËÍÊı¾İ£¨Çı¶¯²ã½Ó¿Ú£©
-  * @param  pData Òª·¢ËÍµÄÊı¾İÖ¸Õë
-  * @param  length Êı¾İ³¤¶È£¨×Ö½Ú£©
-  * @param  timeout ³¬Ê±Ê±¼ä£¨ºÁÃë£©
-  * @retval HAL_StatusTypeDef HAL×´Ì¬
-  * @note   ×èÈûÊ½·¢ËÍ£¬ÊÊÓÃÓÚĞ­ÒéÖ¡·¢ËÍ
-  */
-HAL_StatusTypeDef USART2_SendData(const uint8_t *pData, uint16_t length, uint32_t timeout);
+/* ======================== 3.ç±»å‹å®šä¹‰ ======================== */
+
+
+/* ======================== 4.å¯¹å¤–å˜é‡å£°æ˜ ======================== */
+
+
+
+/* ======================== 5.æ¥å£å‡½æ•°å£°æ˜ ======================== */
 
 /**
-  * @brief  USART2·¢ËÍÊı¾İ£¨ÖĞ¶Ï·½Ê½£¬Çı¶¯²ã½Ó¿Ú£©
-  * @param  pData Òª·¢ËÍµÄÊı¾İÖ¸Õë
-  * @param  length Êı¾İ³¤¶È£¨×Ö½Ú£©
-  * @retval HAL_StatusTypeDef HAL×´Ì¬
-  * @note   ·Ç×èÈûÊ½·¢ËÍ£¬ÊÊÓÃÓÚĞ­ÒéÖ¡·¢ËÍ
+  * @brief  ä» USART2 æ¥æ”¶é˜Ÿåˆ—å‡ºé˜Ÿä¸€å¸§åˆ°æŒ‡å®šç¼“å†²åŒºï¼ˆå¦‚ simulink_protocol ç­‰è°ƒç”¨ï¼‰
+  * @param  pBuf      æ•°æ®å­˜æ”¾çš„ç¼“å†²åŒºæŒ‡é’ˆ
+  * @param  bufMaxLen ç¼“å†²åŒºæœ€å¤§é•¿åº¦ï¼ˆå­—èŠ‚ï¼‰
+  * @param  pOutLen   æœ¬æ¬¡å‡ºé˜Ÿçš„å®é™…é•¿åº¦ï¼Œå¯ä¸º NULL
+  * @retval 0  æˆåŠŸï¼Œ-1 é˜Ÿåˆ—ç©ºæˆ–å‚æ•°æ— æ•ˆ
   */
-HAL_StatusTypeDef USART2_SendData_IT(const uint8_t *pData, uint16_t length);
+int USART2_GetRxData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen);
+
+/* -------- USART3/4/5 ç¼–ç å™¨è§¦å‘ä¸æ•°æ® -------- */
+/**
+  * @brief  å®šæ—¶å‘é€ï¼šå‘ä¸²å£3ã€4ã€5ä¾æ¬¡å‘é€å•å­—èŠ‚ 0x02ï¼ˆåœ¨ TIM1 å®šæ—¶ä¸­æ–­ä¸­è°ƒç”¨ï¼‰
+  */
+void USART345_EncoderTrigger_Send(void);
 
 /**
-  * @brief  USART2·¢ËÍÊı¾İ£¨DMA·½Ê½£¬Çı¶¯²ã½Ó¿Ú£©
-  * @param  pData Òª·¢ËÍµÄÊı¾İÖ¸Õë
-  * @param  length Êı¾İ³¤¶È£¨×Ö½Ú£©
-  * @retval HAL_StatusTypeDef HAL×´Ì¬
-  * @note   ·Ç×èÈûÊ½·¢ËÍ£¬ÊÊÓÃÓÚĞ­ÒéÖ¡·¢ËÍ
+  * @brief  è·å–ç”µæœºç¼–ç å™¨å½“å‰æ•°æ®ï¼ˆUART3ï¼‰ï¼Œ6 å­—èŠ‚æ‹·è´åˆ°å…¥å‚æŒ‡å‘çš„ç¼“å†²åŒº
+  * @param  pOut  å•å­—èŠ‚æ•°ç»„æŒ‡é’ˆï¼ŒæŒ‡å‘è‡³å°‘ 6 å­—èŠ‚çš„ç¼“å†²åŒº
   */
-HAL_StatusTypeDef USART2_SendData_DMA(const uint8_t *pData, uint16_t length);
+void USART3_MotorEncoder_GetData(uint8_t *pOut);
 
-extern unsigned char u8DebugRxBuff[100];
-extern unsigned char au8Uart1SendBuff[100];
-
-extern unsigned char RxCharBuff1[10];
-extern unsigned char RxCharBuff3[10];
-
-/* ===================== USART2 Ğ­ÒéÍ¨ĞÅÇı¶¯²ã½Ó¿Ú£¨¹©Ğ­Òé²ãµ÷ÓÃ£©===================== */
 /**
-  * @brief  »ñÈ¡USART2½ÓÊÕ¶ÓÁĞÖ¸Õë£¨Çı¶¯²ã½Ó¿Ú£¬¹©Ğ­Òé²ãµ÷ÓÃ£©
-  * @retval ½ÓÊÕ¶ÓÁĞÖ¸Õë
-  * @note   Ğ­Òé²ãÍ¨¹ı´Ë½Ó¿Ú·ÃÎÊÇı¶¯²ãµÄ½ÓÊÕ¶ÓÁĞ
+  * @brief  è·å–è¾“å‡ºè½´ç¼–ç å™¨å½“å‰æ•°æ®ï¼ˆUART4ï¼‰ï¼Œ6 å­—èŠ‚æ‹·è´åˆ°å…¥å‚æŒ‡å‘çš„ç¼“å†²åŒº
+  * @param  pOut  å•å­—èŠ‚æ•°ç»„æŒ‡é’ˆï¼ŒæŒ‡å‘è‡³å°‘ 6 å­—èŠ‚çš„ç¼“å†²åŒº
   */
-extern rfq_queue_t UART2_RX_RFQ;
+void USART4_OutputShaftEncoder_GetData(uint8_t *pOut);
+
+/**
+  * @brief  è·å–æ‘†è‡‚ç¼–ç å™¨å½“å‰æ•°æ®ï¼ˆUART5ï¼‰ï¼Œ6 å­—èŠ‚æ‹·è´åˆ°å…¥å‚æŒ‡å‘çš„ç¼“å†²åŒº
+  * @param  pOut  å•å­—èŠ‚æ•°ç»„æŒ‡é’ˆï¼ŒæŒ‡å‘è‡³å°‘ 6 å­—èŠ‚çš„ç¼“å†²åŒº
+  */
+void USART5_SwingArmEncoder_GetData(uint8_t *pOut);
 
 /* USER CODE END Prototypes */
 
@@ -106,4 +116,3 @@ extern rfq_queue_t UART2_RX_RFQ;
 #endif
 
 #endif /* __USART_H__ */
-

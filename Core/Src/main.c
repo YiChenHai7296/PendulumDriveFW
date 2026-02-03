@@ -172,7 +172,7 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
-  /* HRTIMÆô¶¯ */
+  /* HRTIMå¯åŠ¨ */
   HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TA1);
   HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TB1);
   HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_TIMER_A);
@@ -180,7 +180,7 @@ int main(void)
   HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_MASTER);
 
 
-  /* ´®¿ÚÆô¶¯ */
+  /* ä¸²å£å¯åŠ¨ */
   //HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 
   //au8Uart1SendBuff
@@ -198,6 +198,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+unsigned char u8DebugRxBuff[10] = 0;
 
   while (1)
   {
@@ -229,10 +230,10 @@ int main(void)
     //HAL_UART_Transmit(&huart1, tcp_demo_sendbuf, 15, 10000);
 
     printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
-    printf("                          ±àÒëÈÕÆÚ£º%s\n",__DATE__);
-    printf("  1. ADC ²É¼¯¾«¶È²âÊÔ  \n" );
-    printf("  2. PWMÕ¼¿Õ±ÈĞŞ¸Ä²âÊÔ  \n" );
-    printf("  3. CRCĞ£Ñé¼ÆËã²âÊÔ...  \n" );
+    printf("                          ç¼–è¯‘æ—¥æœŸï¼š%s\n",__DATE__);
+    printf("  1. ADC é‡‡é›†ç²¾åº¦æµ‹è¯•  \n" );
+    printf("  2. PWMå ç©ºæ¯”ä¿®æ”¹æµ‹è¯•  \n" );
+    printf("  3. CRCæ ¡éªŒè®¡ç®—æµ‹è¯•...  \n" );
     printf("  ==================================== \n" );
 
     while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,200));
@@ -243,35 +244,35 @@ int main(void)
     {
         case Debug_Menu_WORKING:
         {
-            printf("  ½øÈëÕı³£¹¤×÷Ä£Ê½!  \n");
+            printf("  è¿›å…¥æ­£å¸¸å·¥ä½œæ¨¡å¼!  \n");
             Working_Task();
             break;
         }
     
         case Debug_Menu_ADC_TEST:
         {
-            printf("  ½øÈëADC¾«¶È²âÊÔ£¡  \n" );
+            printf("  è¿›å…¥ADCç²¾åº¦æµ‹è¯•ï¼  \n" );
             ADC_TEST();
             break;
         }
 
         case Debug_Menu_PWM_TEST:
         {
-            printf("  ½øÈëPWM²¨·¢Éú²âÊÔ£¡  \n" );
+            printf("  è¿›å…¥PWMæ³¢å‘ç”Ÿæµ‹è¯•ï¼  \n" );
             PWM_TEST();
             break;
         }
 
         case Debug_Menu_CRC_TEST:
         {
-            printf("  ½øÈëCRCĞ£Ñé¼ÆËã²âÊÔ£¡  \n" );
+            printf("  è¿›å…¥CRCæ ¡éªŒè®¡ç®—æµ‹è¯•ï¼  \n" );
             u32CRC_TEST();
             break;
         }
 
         default:
         {
-            printf("  ¼üÈëÓĞÎó£¬ÇëÖØÊÔ£¡  \n" );
+            printf("  é”®å…¥æœ‰è¯¯ï¼Œè¯·é‡è¯•ï¼  \n" );
         }
     }
 

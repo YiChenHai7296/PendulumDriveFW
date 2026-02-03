@@ -44,5 +44,6 @@ softscalependulumdriveboard\main.o: ../Core/Inc/dma.h
 softscalependulumdriveboard\main.o: ../Core/Inc/hrtim.h
 softscalependulumdriveboard\main.o: ../Core/Inc/tim.h
 softscalependulumdriveboard\main.o: ../Core/Inc/usart.h
+softscalependulumdriveboard\main.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 softscalependulumdriveboard\main.o: ../Core/Inc/RingFrameQueue.h
 softscalependulumdriveboard\main.o: ../Core/Inc/gpio.h

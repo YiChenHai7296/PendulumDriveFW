@@ -1,19 +1,20 @@
 #include "encoder_protocol.h"
+#include "usart.h"
 
-/* �̶�֡���ȣ�CM(1) + SA(1) + AS0~AS2(3) + CRC8(1) */
+/* 固定帧长度：CM(1) + SA(1) + AS0~AS2(3) + CRC8(1) */
 #define ENCODER_FRAME_LENGTH_BYTES   6U
 
-/* ������̶�ֵ 0x02 */
+/* 控制域固定值 0x02 */
 #define ENCODER_CM_VALUE             0x02U
 
-/* SA ״̬λ���� */
+/* SA 状态位定义 */
 #define ENCODER_SA_COUNT_ERROR_BIT   (1U << 4)
 #define ENCODER_SA_MT_BATT_ERR_BIT   (1U << 5)
 
-/* ����λ����Чλ���룺21 bit */
+/* 绝对位置有效位掩码：21 bit */
 #define ENCODER_ABS_POSITION_MASK    0x001FFFFFU
 
-/* �ڲ� CRC8 ���㣺G(x) = x^8 + 1������ʽϵ�� 0x01��MSB ���� */
+/* 内部 CRC8 计算：G(x) = x^8 + 1，多项式系数 0x01，MSB 优先 */
 static uint8_t EncoderProtocol_CalcCRC8(const uint8_t *pData, uint16_t length)
 {
     uint8_t crc = 0x00U;
@@ -44,10 +45,7 @@ static uint8_t EncoderProtocol_CalcCRC8(const uint8_t *pData, uint16_t length)
     return crc;
 }
 
-/* ������ԭʼ 6 �ֽ����ݻ�ȡ�������ɵײ�ʵ�֣�ҵ��㲻�ɼ� */
-extern const uint8_t *EncoderProtocol_GetRawFrame(void);
-
-/* �ڲ�֡�������� */
+/* 内部帧解析函数 */
 static EncoderProtocolResult_t EncoderProtocol_ParseFrame(const uint8_t *pFrame,
                                                           uint16_t length,
                                                           EncoderProtocolData_t *pOut)
@@ -76,24 +74,24 @@ static EncoderProtocolResult_t EncoderProtocol_ParseFrame(const uint8_t *pFrame,
     as2 = pFrame[4];
     crc_recv = pFrame[5];
 
-    /* ��������̶�ֵ */
+    /* 检查控制域固定值 */
     if (cm != ENCODER_CM_VALUE)
     {
         return ENCODER_PROTOCOL_ERR_LENGTH;
     }
 
-    /* ���� CRC8�����������ֽ�Ϊ CM/SA/AS0/AS1/AS2 �� 5 �ֽ� */
+    /* 计算 CRC8，参与计算的字节为 CM/SA/AS0/AS1/AS2 共 5 字节 */
     crc_calc = EncoderProtocol_CalcCRC8(pFrame, 5U);
     if (crc_calc != crc_recv)
     {
         return ENCODER_PROTOCOL_ERR_CRC;
     }
 
-    /* ��ȡ״̬λ */
+    /* 提取状态位 */
     pOut->count_error      = ((sa & ENCODER_SA_COUNT_ERROR_BIT) != 0U);
     pOut->mt_or_batt_error = ((sa & ENCODER_SA_MT_BATT_ERR_BIT) != 0U);
 
-    /* ����λ�����ݣ�AS0 Ϊ����ֽڣ�AS2 Ϊ����ֽڣ��� 3 λΪ 0���� 21 λ��Ч */
+    /* 绝对位置数据：AS0 为最低字节，AS2 为最高字节，高 3 位为 0，仅 21 位有效 */
     raw_position = (uint32_t)as0 |
                    ((uint32_t)as1 << 8) |
                    ((uint32_t)as2 << 16);
@@ -104,20 +102,57 @@ static EncoderProtocolResult_t EncoderProtocol_ParseFrame(const uint8_t *pFrame,
 
 EncoderProtocolResult_t EncoderProtocol_Read(EncoderProtocolData_t *pOut)
 {
-    const uint8_t *pFrame;
+    uint8_t rawBuf[ENCODER_FRAME_LENGTH_BYTES];
 
     if (pOut == NULL)
     {
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
-    /* �ӵײ��ȡһ֡ԭʼ 6 �ֽڱ��������� */
-    //pFrame = EncoderProtocol_GetRawFrame();
-    if (pFrame == NULL)
+    USART3_MotorEncoder_GetData(rawBuf);
+    return EncoderProtocol_ParseFrameFromBuffer(rawBuf, ENCODER_FRAME_LENGTH_BYTES, pOut);
+}
+
+EncoderProtocolResult_t EncoderProtocol_ReadMotor(EncoderProtocolData_t *pOut)
+{
+    uint8_t rawBuf[ENCODER_FRAME_LENGTH_BYTES];
+
+    if (pOut == NULL)
     {
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
-    return EncoderProtocol_ParseFrame(pFrame, ENCODER_FRAME_LENGTH_BYTES, pOut);
+    USART3_MotorEncoder_GetData(rawBuf);
+    return EncoderProtocol_ParseFrameFromBuffer(rawBuf, ENCODER_FRAME_LENGTH_BYTES, pOut);
 }
 
+EncoderProtocolResult_t EncoderProtocol_ReadOutputShaft(EncoderProtocolData_t *pOut)
+{
+    uint8_t rawBuf[ENCODER_FRAME_LENGTH_BYTES];
+
+    if (pOut == NULL)
+    {
+        return ENCODER_PROTOCOL_ERR_NULL;
+    }
+
+    USART4_OutputShaftEncoder_GetData(rawBuf);
+    return EncoderProtocol_ParseFrameFromBuffer(rawBuf, ENCODER_FRAME_LENGTH_BYTES, pOut);
+}
+
+EncoderProtocolResult_t EncoderProtocol_ReadSwingArm(EncoderProtocolData_t *pOut)
+{
+    uint8_t rawBuf[ENCODER_FRAME_LENGTH_BYTES];
+
+    if (pOut == NULL)
+    {
+        return ENCODER_PROTOCOL_ERR_NULL;
+    }
+
+    USART5_SwingArmEncoder_GetData(rawBuf);
+    return EncoderProtocol_ParseFrameFromBuffer(rawBuf, ENCODER_FRAME_LENGTH_BYTES, pOut);
+}
+
+EncoderProtocolResult_t EncoderProtocol_ParseFrameFromBuffer(const uint8_t *pFrame, uint16_t length, EncoderProtocolData_t *pOut)
+{
+    return EncoderProtocol_ParseFrame(pFrame, length, pOut);
+}.h"
