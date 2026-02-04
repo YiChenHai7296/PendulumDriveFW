@@ -41,10 +41,11 @@ typedef struct
 void MotorService_GetFeedbackData(MotorFeedbackData_t *pOut);
 
 /**
- * @brief 电机转速/占空比控制：0~10000 对应 0~100.00%
- * @param duty_permille 目标占空比，范围 0~10000（即 0.00%~100.00%）
+ * @brief 电机转速/占空比控制：-10000~10000 对应 -100.00%~100.00%
+ * @note  占空比正负用于区分电机转向：正为正转，负为反转
+ * @param duty_permille 目标占空比指令，范围 -10000~10000
  * @return 0 成功，非 0 参数非法
  */
-int MotorService_SetDutyCycle(uint16_t duty_permille);
+int MotorService_SetDutyCycle(int16_t duty_permille);
 
 #endif /* MOTOR_SERVICE_H */

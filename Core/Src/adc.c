@@ -24,11 +24,11 @@
 #include "usart.h"
 
 /* ADC采集原始数据 */
-__IO uint16_t au16_ADC1_Vol_Value[2]; //PWM高电平
+__IO uint16_t au16_ADC1_Vol_Value[2]; //PWM高电�?
 __IO uint16_t au16_ADC2_Vol_Value[1];
 
 
-/* ADC测试输入电压值 */
+/* ADC测试输入电压�? */
 float f_TEST_VALUE = 1.6;
 
 /* ADC误差计算 */
@@ -342,7 +342,7 @@ float ADC_Read_MotorVol(void)
 {
     float f_ADC1_Vol_Result[2];
     float f_ADC2_Vol_Result[2];
-    float f_Motor_Vol = 0; //输出电压值
+    float f_Motor_Vol = 0; //输出电压�?
     
     f_ADC1_Vol_Result[0] = (float)au16_ADC1_Vol_Value[0]*(float)3.3/4096;
     f_ADC2_Vol_Result[0]  = (float)au16_ADC2_Vol_Value[0]*(float)3.3/4096;
@@ -353,7 +353,7 @@ float ADC_Read_MotorVol(void)
 }
 
 /**
-  * @brief  将 ADC1、ADC2 当前采集的原始数据各取一字节，打包成两字节数组通过 pOut 返回
+  * @brief  �? ADC1、ADC2 当前采集的原始数据各取一字节，打包成两字节数组�?�过 pOut 返回
   * @param  pOut  指向至少 2 字节的缓冲区，pOut[0]=ADC1 原始值低字节，pOut[1]=ADC2 原始值低字节
   */
 void ADC_GetMotorVol(uint8_t *pOut)
@@ -377,25 +377,25 @@ void ADC_TEST()
     float        fSingleVolErr = 0.0;     //单次误差
     float        fAverVolErr   = 0.0;     //平均误差
     unsigned int u32_Temp_i    = 0.0;     //采集计数
-    float        fMaxVolErr    = 0.0;     //最大误差
-    float        fTotalVolErr  = 0.0;     //总误差
+    float        fMaxVolErr    = 0.0;     //�?大误�?
+    float        fTotalVolErr  = 0.0;     //总误�?
 
 
-    HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100); //清除串口缓冲区
+    HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100); //清除串口缓冲�?
 
-    printf("\n 请输入测试目标电压：(整数位)\n");
+    printf("\n 请输入测试目标电压：(整数�?)\n");
     while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,1000));
     u8TargeValueInt = u8DebugRxBuff[0]-0x30;
 
     HAL_Delay(500);
     
-    printf("\n 请输入测试目标电压：(四位小数位)\n");
+    printf("\n 请输入测试目标电压：(四位小数�?)\n");
     while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,4,1000));
     u16TargeValueFloat = (u8DebugRxBuff[0]-0x30)*1000+(u8DebugRxBuff[1]-0x30)*100+(u8DebugRxBuff[2]-0x30)*10+(u8DebugRxBuff[3]-0x30);
 
     fTargetValue = u8TargeValueInt + u16TargeValueFloat/10000.0;
 
-    printf("\n 目标电压：%f ，开始测试！\n",fTargetValue);
+    printf("\n 目标电压�?%f ，开始测试！\n",fTargetValue);
 
     
     while(!u8StopFlag)
@@ -409,7 +409,7 @@ void ADC_TEST()
         {
             fSingleVolErr = 0 - fSingleVolErr;
         }
-        /* 判断最大误差 */
+        /* 判断�?大误�? */
         if(fSingleVolErr > fMaxVolErr)
         {
             fMaxVolErr = fSingleVolErr;
@@ -428,7 +428,7 @@ void ADC_TEST()
         {
             u8StopFlag = 1;
 
-            HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,100,100);//清除串口缓冲区
+            HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,100,100);//清除串口缓冲�?
         }
         
     }

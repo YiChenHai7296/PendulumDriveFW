@@ -248,6 +248,18 @@ static SimulinkProtocolResult_t SimulinkProtocol_AssembleFeedbackFrame(const Sim
 
 /* ===================== 对外接口 ===================== */
 
+static uint8_t s_feedback_tx_buf[SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE];
+
+uint8_t *SimulinkProtocol_GetFeedbackTxBuffer(void)
+{
+    return s_feedback_tx_buf;
+}
+
+uint16_t SimulinkProtocol_GetFeedbackTxLength(void)
+{
+    return (uint16_t)SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE;
+}
+
 /* 读取路径：从 USART2 接收队列取一帧，再解析为控制数据 */
 SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut)
 {
@@ -276,6 +288,7 @@ SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlD
 SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn)
 {
     uint8_t *pBuffer;
+    SimulinkProtocolResult_t res;
 
     if (pIn == NULL)
     {
@@ -311,13 +324,26 @@ SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFee
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
 
-    //pBuffer = SimulinkProtocol_GetFeedbackTxBuffer();
+    pBuffer = SimulinkProtocol_GetFeedbackTxBuffer();
     if (pBuffer == NULL)
     {
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
-    return SimulinkProtocol_AssembleFeedbackFrame(pIn, pBuffer, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
+    /* 先在内部缓冲区中组帧 */
+    res = SimulinkProtocol_AssembleFeedbackFrame(pIn, pBuffer, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
+    if (res != SIMULINK_PROTOCOL_OK)
+    {
+        return res;
+    }
+
+    /* 通过 USART2 + DMA 发送反馈帧 */
+    if (USART2_SendData_DMA(pBuffer, SIMULINK_FEEDBACK_FRAME_LEN) != 0)
+    {
+        return SIMULINK_PROTOCOL_ERR_SEND;
+    }
+
+    return SIMULINK_PROTOCOL_OK;
 }
 
 bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer)

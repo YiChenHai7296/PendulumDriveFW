@@ -35,6 +35,9 @@ extern "C" {
 extern HRTIM_HandleTypeDef hhrtim1;
 
 /* USER CODE BEGIN Private defines */
+/* 电机方向控制宏：正转 / 反转 */
+#define MOTOR_DIR_FORWARD  0U
+#define MOTOR_DIR_REVERSE  1U
 
 /* USER CODE END Private defines */
 
@@ -44,6 +47,8 @@ void HAL_HRTIM_MspPostInit(HRTIM_HandleTypeDef *hhrtim);
 
 /* USER CODE BEGIN Prototypes */
 unsigned char PWM_Set_TargePulse(unsigned short u16ExpectedValue);
+void PWM_DirControl(uint8_t dir);
+void PWM_Enable(FunctionalState NewState);
 
 /* USER CODE END Prototypes */
 

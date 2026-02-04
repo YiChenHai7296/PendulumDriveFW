@@ -25,7 +25,8 @@ typedef enum
     SIMULINK_PROTOCOL_ERR_NULL,   /**< 指针为空 */
     SIMULINK_PROTOCOL_ERR_LENGTH, /**< 帧长度不足或非法 */
     SIMULINK_PROTOCOL_ERR_CRC,    /**< CRC 校验失败 */
-    SIMULINK_PROTOCOL_ERR_RANGE   /**< 参数超出约定范围 */
+    SIMULINK_PROTOCOL_ERR_RANGE,  /**< 参数超出约定范围 */
+    SIMULINK_PROTOCOL_ERR_SEND    /**< 底层发送失败 */
 } SimulinkProtocolResult_t;
 
 /**
@@ -73,6 +74,18 @@ SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlD
  * @return 打包结果
  */
 SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn);
+
+/**
+ * @brief 获取反馈帧发送缓冲区（由协议栈维护）
+ * @return 指向长度为 SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE 的缓冲区
+ */
+uint8_t *SimulinkProtocol_GetFeedbackTxBuffer(void);
+
+/**
+ * @brief 获取反馈帧发送长度（字节）
+ * @return 固定为 SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE
+ */
+uint16_t SimulinkProtocol_GetFeedbackTxLength(void);
 
 
 

@@ -230,9 +230,9 @@ unsigned char u8DebugRxBuff[10] = 0;
     //HAL_UART_Transmit(&huart1, tcp_demo_sendbuf, 15, 10000);
 
     printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
-    printf("                          编译日期：%s\n",__DATE__);
+    printf("                          编译日期�?%s\n",__DATE__);
     printf("  1. ADC 采集精度测试  \n" );
-    printf("  2. PWM占空比修改测试  \n" );
+    printf("  2. PWM占空比修改测�?  \n" );
     printf("  3. CRC校验计算测试...  \n" );
     printf("  ==================================== \n" );
 
@@ -251,7 +251,7 @@ unsigned char u8DebugRxBuff[10] = 0;
     
         case Debug_Menu_ADC_TEST:
         {
-            printf("  进入ADC精度测试！  \n" );
+            printf("  进入ADC精度测试�?  \n" );
             ADC_TEST();
             break;
         }
@@ -265,14 +265,14 @@ unsigned char u8DebugRxBuff[10] = 0;
 
         case Debug_Menu_CRC_TEST:
         {
-            printf("  进入CRC校验计算测试！  \n" );
+            printf("  进入CRC校验计算测试�?  \n" );
             u32CRC_TEST();
             break;
         }
 
         default:
         {
-            printf("  键入有误，请重试！  \n" );
+            printf("  键入有误，请重试�?  \n" );
         }
     }
 

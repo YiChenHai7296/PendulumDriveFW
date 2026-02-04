@@ -133,16 +133,41 @@ void MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
 
 /**
  * @brief 设置电机占空比
- * @param duty_permille 占空比（0~10000，对应0.00%~100.00%）
+ * @param duty_permille 占空比指令（-10000~10000，对应 -100.00%~100.00%）
+ * @note  占空比正负用于区分转向：正为正转，负为反转
  * @return 0成功，-1参数非法
  */
-int MotorService_SetDutyCycle(uint16_t duty_permille)
+int MotorService_SetDutyCycle(int16_t duty_permille)
 {
-    if (duty_permille > 10000U)
+    uint16_t duty_u16 = 0U;
+
+    /* 合法范围：-10000~10000 */
+    if (duty_permille < -10000 || duty_permille > 10000)
     {
         return -1;
     }
-    return (int)PWM_Set_TargePulse((unsigned short)duty_permille);
+
+    /* 根据占空比正负决定电机方向，并取绝对值作为占空比大小 */
+    if (duty_permille > 0)
+    {
+        /* 正占空比：电机正转 */
+        PWM_DirControl(MOTOR_DIR_FORWARD);
+        duty_u16 = (uint16_t)duty_permille;
+    }
+
+    else if (duty_permille < 0)
+    {
+        /* 负占空比：电机反转 */
+        PWM_DirControl(MOTOR_DIR_REVERSE);
+        duty_u16 = (uint16_t)(-duty_permille);
+    }
+    else
+    {
+        /* 占空比为 0：保持当前方向，输出 0 占空比 */
+        duty_u16 = 0U;
+    }
+
+    return (int)PWM_Set_TargePulse((unsigned short)duty_u16);
 }
 
 /* ======================== 7. 私有函数实现 ======================== */
