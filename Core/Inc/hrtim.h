@@ -43,6 +43,7 @@ void MX_HRTIM1_Init(void);
 void HAL_HRTIM_MspPostInit(HRTIM_HandleTypeDef *hhrtim);
 
 /* USER CODE BEGIN Prototypes */
+unsigned char PWM_Set_TargePulse(unsigned short u16ExpectedValue);
 
 /* USER CODE END Prototypes */
 

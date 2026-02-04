@@ -352,8 +352,18 @@ float ADC_Read_MotorVol(void)
     return f_Motor_Vol;
 }
 
-
-
+/**
+  * @brief  将 ADC1、ADC2 当前采集的原始数据各取一字节，打包成两字节数组通过 pOut 返回
+  * @param  pOut  指向至少 2 字节的缓冲区，pOut[0]=ADC1 原始值低字节，pOut[1]=ADC2 原始值低字节
+  */
+void ADC_GetMotorVol(uint8_t *pOut)
+{
+    if (pOut != NULL)
+    {
+        pOut[0] = (uint8_t)(au16_ADC1_Vol_Value[0] & 0xFFU);
+        pOut[1] = (uint8_t)(au16_ADC2_Vol_Value[0] & 0xFFU);
+    }
+}
 
 void ADC_TEST()
 {

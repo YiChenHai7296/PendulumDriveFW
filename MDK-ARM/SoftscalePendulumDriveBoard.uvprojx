@@ -409,9 +409,9 @@
               <FilePath>..\Core\Src\simulink_protocol.c</FilePath>
             </File>
             <File>
-              <FileName>encoder_protocol.c</FileName>
+              <FileName>motor_service.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\encoder_protocol.c</FilePath>
+              <FilePath>..\Core\Src\motor_service.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>

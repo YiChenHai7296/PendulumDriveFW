@@ -86,26 +86,31 @@ void MX_USART3_UART_Init(void);
 int USART2_GetRxData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen);
 
 /* -------- USART3/4/5 编码器触发与数据 -------- */
+#define ENCODER_SNAPSHOT_BYTES  12U   /**< 编码器快照长度：前6字节=最新帧，后6字节=上一帧 */
+
 /**
   * @brief  定时发送：向串口3、4、5依次发送单字节 0x02（在 TIM1 定时中断中调用）
   */
 void USART345_EncoderTrigger_Send(void);
 
 /**
-  * @brief  获取电机编码器当前数据（UART3），6 字节拷贝到入参指向的缓冲区
-  * @param  pOut  单字节数组指针，指向至少 6 字节的缓冲区
+  * @brief  获取电机编码器当前数据（UART3），12 字节拷贝到入参指向的缓冲区
+  *         前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   */
 void USART3_MotorEncoder_GetData(uint8_t *pOut);
 
 /**
-  * @brief  获取输出轴编码器当前数据（UART4），6 字节拷贝到入参指向的缓冲区
-  * @param  pOut  单字节数组指针，指向至少 6 字节的缓冲区
+  * @brief  获取输出轴编码器当前数据（UART4），12 字节拷贝到入参指向的缓冲区
+  *         前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   */
 void USART4_OutputShaftEncoder_GetData(uint8_t *pOut);
 
 /**
-  * @brief  获取摆臂编码器当前数据（UART5），6 字节拷贝到入参指向的缓冲区
-  * @param  pOut  单字节数组指针，指向至少 6 字节的缓冲区
+  * @brief  获取摆臂编码器当前数据（UART5），12 字节拷贝到入参指向的缓冲区
+  *         前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   */
 void USART5_SwingArmEncoder_GetData(uint8_t *pOut);
 

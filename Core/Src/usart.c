@@ -27,6 +27,7 @@
 #define UART_3_RX_BUFF_LEN 6
 #define UART2_RX_BUFF_LEN 100
 #define ENCODER_FRAME_LENGTH_BYTES   6U
+#define ENCODER_SNAPSHOT_BYTES       12U   /* 前6字节=最新帧，后6字节=上一帧 */
 
 /* ======================== 2.私有类型定义 ======================== */
 
@@ -40,9 +41,9 @@ unsigned char au8Uart4DMABuff[6] = {0};
 unsigned char au8Uart5DMABuff[6] = {0};
 
 /* 编码器数据快照 */
-unsigned char au8MotorEncoderBuff[6]       = {0};
-unsigned char au8OutputShaftEncoderBuff[6] = {0};
-unsigned char au8SwingArmEncoderBuff[6]    = {0};
+unsigned char au8MotorEncoderBuff[12]       = {0};
+unsigned char au8OutputShaftEncoderBuff[12] = {0};
+unsigned char au8SwingArmEncoderBuff[12]    = {0};
 
 
 unsigned char u8DebugRxBuff[100] = {0};
@@ -878,35 +879,41 @@ void USART345_EncoderTrigger_Send(void)
 }
 
 /**
-  * @brief  获取电机编码器当前数据（UART3），6 字节拷贝到入参指向的缓冲区
+  * @brief  获取电机编码器当前数据（UART3），12 字节拷贝到入参指向的缓冲区
+  *         前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
   */
 void USART3_MotorEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    memcpy(pOut, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
+    memcpy(pOut, au8MotorEncoderBuff, ENCODER_SNAPSHOT_BYTES);
   }
 }
 
 /**
-  * @brief  获取输出轴编码器当前数据（UART4），6 字节拷贝到入参指向的缓冲区
+  * @brief  获取输出轴编码器当前数据（UART4），12 字节拷贝到入参指向的缓冲区
+  *         前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
   */
 void USART4_OutputShaftEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    memcpy(pOut, au8OutputShaftEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
+    memcpy(pOut, au8OutputShaftEncoderBuff, ENCODER_SNAPSHOT_BYTES);
   }
 }
 
 /**
-  * @brief  获取摆臂编码器当前数据（UART5），6 字节拷贝到入参指向的缓冲区
+  * @brief  获取摆臂编码器当前数据（UART5），12 字节拷贝到入参指向的缓冲区
+  *         前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
   */
 void USART5_SwingArmEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    memcpy(pOut, au8SwingArmEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
+    memcpy(pOut, au8SwingArmEncoderBuff, ENCODER_SNAPSHOT_BYTES);
   }
 }
 
@@ -948,7 +955,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     if (Size > 0U)
     {
       uint16_t len = (Size > 6u) ? 6u : Size;
-      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, len);
+      memcpy(au8MotorEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES); /* 旧帧移至后6字节 */
+      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, len);  /* 新帧写入前6字节 */
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, 6);
   }
@@ -957,6 +965,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     if (Size > 0U)
     {
       uint16_t len = (Size > 6u) ? 6u : Size;
+      memcpy(au8OutputShaftEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8OutputShaftEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
       memcpy(au8OutputShaftEncoderBuff, au8Uart4DMABuff, len);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
@@ -966,6 +975,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     if (Size > 0U)
     {
       uint16_t len = (Size > 6u) ? 6u : Size;
+      memcpy(au8SwingArmEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8SwingArmEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
       memcpy(au8SwingArmEncoderBuff, au8Uart5DMABuff, len);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);

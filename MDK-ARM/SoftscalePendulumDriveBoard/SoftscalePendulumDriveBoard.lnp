@@ -3,7 +3,7 @@
 "softscalependulumdriveboard\ringframequeue.o"
 "softscalependulumdriveboard\debug.o"
 "softscalependulumdriveboard\simulink_protocol.o"
-"softscalependulumdriveboard\encoder_protocol.o"
+"softscalependulumdriveboard\motor_service.o"
 "softscalependulumdriveboard\main.o"
 "softscalependulumdriveboard\gpio.o"
 "softscalependulumdriveboard\adc.o"
