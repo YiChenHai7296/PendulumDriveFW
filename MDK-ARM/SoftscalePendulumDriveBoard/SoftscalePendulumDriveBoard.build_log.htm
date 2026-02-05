@@ -27,35 +27,64 @@ Project File Date:  02/05/2026
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-compiling main.c...
-../Core/Src/main.c(73): warning:  #1295-D: Deprecated declaration u32CRC_TEST - give arg types
-  unsigned int u32CRC_TEST();
-../Core/Src/main.c(90): warning:  #223-D: function "printf" declared implicitly
-    printf("CRC:0x%x \n",crc);
-../Core/Src/main.c(98): warning:  #188-D: enumerated type mixed with another type
-  HAL_StatusTypeDef StatusU5 = 0;
-../Core/Src/main.c(206): warning:  #223-D: function "MotorService_InitMotor" declared implicitly
-    MotorService_InitMotor();
-../Core/Src/main.c(209): warning:  #223-D: function "printf" declared implicitly
-    printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
-../Core/Src/main.c(213): warning:  #223-D: function "StateMachine_MainLoop" declared implicitly
-    StateMachine_MainLoop();
-../Core/Src/main.c(132): warning:  #177-D: variable "i"  was declared but never referenced
-    int i = 655356;
-../Core/Src/main.c(133): warning:  #177-D: variable "crc"  was declared but never referenced
-    uint32_t crc = 0;
-../Core/Src/main.c(136): warning:  #177-D: variable "crc_Data"  was declared but never referenced
-    uint32_t crc_Data[6] = {0x00010203,0x09080607,0x0002,0x0003,0x0004,0x0005};
-../Core/Src/main.c(137): warning:  #177-D: variable "j"  was declared but never referenced
-    int j = 0;
-../Core/Src/main.c(141): warning:  #177-D: variable "p_TEST"  was declared but never referenced
-    uint32_t *p_TEST = &TEST;
-../Core/Src/main.c: 11 warnings, 0 errors
+compiling motor_service.c...
+compiling hrtim.c...
+../Core/Src/hrtim.c(319): warning:  #186-D: pointless comparison of unsigned integer with zero
+      if(u16ExpectedValue < 0 || u16ExpectedValue > 10000)
+../Core/Src/hrtim.c(336): warning:  #223-D: function "printf" declared implicitly
+          printf("占空比参数越界：%d\n",u16T2Pulse);
+../Core/Src/hrtim.c(363): warning:  #223-D: function "printf" declared implicitly
+          printf("\n 设定占空�? %.2f %% 失败\n",(float)u16TargePulse/100.0f);
+../Core/Src/hrtim.c(363): warning:  #870-D: invalid multibyte character sequence
+          printf("\n 设定占空�? %.2f %% 失败\n",(float)u16TargePulse/100.0f);
+../Core/Src/hrtim.c(366): warning:  #223-D: function "printf" declared implicitly
+        printf("\n 设定占空�? %.2f %% 成功\n",(float)u16TargePulse/100.0f);
+../Core/Src/hrtim.c(366): warning:  #870-D: invalid multibyte character sequence
+        printf("\n 设定占空�? %.2f %% 成功\n",(float)u16TargePulse/100.0f);
+../Core/Src/hrtim.c(399): warning:  #223-D: function "printf" declared implicitly
+    printf("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
+../Core/Src/hrtim.c: 7 warnings, 0 errors
+compiling State_Machine.c...
+../Core/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
+  #endif /* __STATE_MACHINE__ */
+..\Core\Src\State_Machine.c(85): warning:  #177-D: function "StateMachine_OnDutyWriteFailed"  was declared but never referenced
+  static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误�? */
+..\Core\Src\State_Machine.c: 2 warnings, 0 errors
+compiling adc.c...
+../Core/Src/adc.c(386): warning:  #223-D: function "printf" declared implicitly
+      printf("\n 请输入测试目标电压：(整数部分)\n");
+../Core/Src/adc.c: 1 warning, 0 errors
 compiling usart.c...
+compiling simulink_protocol.c...
+..\Core\Src\simulink_protocol.c(219): warning:  #177-D: function "SimulinkProtocol_UnpackInt32LE"  was declared but never referenced
+  static int32_t SimulinkProtocol_UnpackInt32LE(const uint8_t *pBuf)
+..\Core\Src\simulink_protocol.c: 1 warning, 0 errors
+compiling main.c...
+../Core/Src/main.c(76): warning:  #1295-D: Deprecated declaration u32CRC_TEST - give arg types
+  unsigned int u32CRC_TEST();
+../Core/Src/main.c(93): warning:  #223-D: function "printf" declared implicitly
+    printf("CRC:0x%x \n",crc);
+../Core/Src/main.c(101): warning:  #188-D: enumerated type mixed with another type
+  HAL_StatusTypeDef StatusU5 = 0;
+../Core/Src/main.c(212): warning:  #223-D: function "printf" declared implicitly
+    printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
+../Core/Src/main.c(216): warning:  #223-D: function "StateMachine_MainLoop" declared implicitly
+    StateMachine_MainLoop();
+../Core/Src/main.c(135): warning:  #177-D: variable "i"  was declared but never referenced
+    int i = 655356;
+../Core/Src/main.c(136): warning:  #177-D: variable "crc"  was declared but never referenced
+    uint32_t crc = 0;
+../Core/Src/main.c(139): warning:  #177-D: variable "crc_Data"  was declared but never referenced
+    uint32_t crc_Data[6] = {0x00010203,0x09080607,0x0002,0x0003,0x0004,0x0005};
+../Core/Src/main.c(140): warning:  #177-D: variable "j"  was declared but never referenced
+    int j = 0;
+../Core/Src/main.c(144): warning:  #177-D: variable "p_TEST"  was declared but never referenced
+    uint32_t *p_TEST = &TEST;
+../Core/Src/main.c: 10 warnings, 0 errors
 linking...
-Program Size: Code=32488 RO-data=592 RW-data=88 ZI-data=8104  
+Program Size: Code=32984 RO-data=592 RW-data=88 ZI-data=8104  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 11 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 21 Warning(s).
 
 <h2>Software Packages used:</h2>
 

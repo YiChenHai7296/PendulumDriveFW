@@ -43,7 +43,7 @@ extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN Private defines */
 
 
-#define ENCODER_SNAPSHOT_BYTES  12U   /**< 前6字节=最新帧，后6字节=上一帧 */
+#define ENCODER_SNAPSHOT_BYTES  12U   /**< 编码器快照长度：前6字节=最新帧，后6字节=上一帧 */
 
 #define DEBUG_UART &huart3
 /* USER CODE END Private defines */
@@ -56,19 +56,19 @@ void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 /**
-  * @brief  从 USART2 接收队列出队一帧到指定缓冲区（供 simulink_protocol 等调用）
+  * @brief  从 USART2 接收队列出队一帧到指定缓冲区（如 simulink_protocol 等调用）
   * @param  pBuf      数据存放的缓冲区指针
   * @param  bufMaxLen 缓冲区最大长度（字节）
   * @param  pOutLen   本次出队的实际长度，可为 NULL
-  * @retval 0  成功，-1 队列空或参数无效
+  * @retval 0  成功；-1 队列空或参数无效
   */
-int Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen);
+int USART2_GetRxData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen);
 
 /**
   * @brief  通过 USART2 使用 DMA 发送一帧数据
   * @param  pBuf  待发送的数据缓冲区指针
   * @param  len   待发送的数据长度（字节）
-  * @retval 0 成功，-1 参数非法或底层发送失败
+  * @retval 0 成功；-1 参数非法或底层发送失败
   */
 int Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len);
 

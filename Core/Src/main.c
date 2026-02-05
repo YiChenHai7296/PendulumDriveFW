@@ -25,6 +25,9 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "simulink_protocol.h"
+#include "motor_service.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

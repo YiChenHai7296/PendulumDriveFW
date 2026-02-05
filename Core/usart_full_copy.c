@@ -803,7 +803,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   * @param  pOutLen   本次出队的实际长度，可为 NULL
   * @retval 0  成功；-1 队列空或参数 pBuf/bufMaxLen 无效
   */
-int Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
+int USART2_GetRxData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
 {
   if (pBuf == NULL || bufMaxLen == 0U)
   {

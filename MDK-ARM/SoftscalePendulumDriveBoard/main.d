@@ -47,3 +47,6 @@ softscalependulumdriveboard\main.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\main.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 softscalependulumdriveboard\main.o: ../Core/Inc/RingFrameQueue.h
 softscalependulumdriveboard\main.o: ../Core/Inc/gpio.h
+softscalependulumdriveboard\main.o: ../Core/Inc/simulink_protocol.h
+softscalependulumdriveboard\main.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+softscalependulumdriveboard\main.o: ../Core/Inc/motor_service.h

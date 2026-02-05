@@ -27,12 +27,12 @@
 #define ENCODER_FRAME_LENGTH_BYTES   6U
 #define ENCODER_SNAPSHOT_BYTES       12U   /* 前6字节=最新帧，后6字节=上一帧 */
 
-/* UART3/4/5 编码器 DMA 接收缓冲 */
+/* DMA原始缓冲区 */
 unsigned char au8Uart3DMABuff[6] = {0};
 unsigned char au8Uart4DMABuff[6] = {0};
 unsigned char au8Uart5DMABuff[6] = {0};
 
-/* 编码器快照缓冲（各12字节） */
+/* 编码器数据快照 */
 unsigned char au8MotorEncoderBuff[12]       = {0};
 unsigned char au8OutputShaftEncoderBuff[12] = {0};
 unsigned char au8SwingArmEncoderBuff[12]    = {0};
@@ -801,9 +801,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   * @param  pBuf      数据存放的缓冲区指针
   * @param  bufMaxLen 缓冲区最大长度（字节）
   * @param  pOutLen   本次出队的实际长度，可为 NULL
-  * @retval 0  成功；-1 队列空或参数 pBuf/bufMaxLen 无效
+  * @retval 0  成功；-1 队列空或 pBuf/bufMaxLen 无效
   */
-int Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
+int USART2_GetRxData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
 {
   if (pBuf == NULL || bufMaxLen == 0U)
   {
@@ -838,7 +838,7 @@ int Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *p
   * @param  len   待发送的数据长度（字节）
   * @retval 0 成功；-1 参数非法或底层发送失败
   */
-int Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
+int USART2_SendData_DMA(const uint8_t *pBuf, uint16_t len)
 {
   if (pBuf == NULL || len == 0U)
   {
@@ -854,12 +854,12 @@ int Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
 }
 
 /**
-  * @brief  定时向串口 3、4、5、2 依次 DMA 发送单字节 0x02（在 TIM1 定时中断中调用）
-  * @note   注意 3/4/5 共用一个静态缓冲；DMA 未完成时勿重复调用
+  * @brief  定时发送：向串口3、4、5依次 DMA 发送单字节 0x02（供 TIM1 定时中断调用）
+  * @note   串口3、4、5均使用 DMA 发送，非阻塞；使用静态缓冲区供 DMA 使用且生命周期有效
   */
-void EncoderTrigger_Send(void)
+void USART345_EncoderTrigger_Send(void)
 {
-  static uint8_t u8TimedSendByte = 0x02;  /* 单字节 0x02 用于 DMA 触发编码器 */
+  static uint8_t u8TimedSendByte = 0x02;  /* 静态缓冲区，供 DMA 使用且生命周期有效 */
 
   (void)HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte, 1);
   (void)HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte, 1);
@@ -870,10 +870,10 @@ void EncoderTrigger_Send(void)
 }
 
 /**
-  * @brief  获取电机编码器当前数据（UART3），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pOut  指向至少 12 字节的缓冲区
+  * @brief  获取电机编码器当前数据（UART3），12 字节拷贝到入参指向的缓冲区；前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
   */
-void MotorEncoder_GetData(uint8_t *pOut)
+void USART3_MotorEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
@@ -882,10 +882,10 @@ void MotorEncoder_GetData(uint8_t *pOut)
 }
 
 /**
-  * @brief  获取输出轴编码器当前数据（UART4），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pOut  指向至少 12 字节的缓冲区
+  * @brief  获取输出轴编码器当前数据（UART4），12 字节拷贝到入参指向的缓冲区；前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
   */
-void OutputShaftEncoder_GetData(uint8_t *pOut)
+void USART4_OutputShaftEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
@@ -894,10 +894,10 @@ void OutputShaftEncoder_GetData(uint8_t *pOut)
 }
 
 /**
-  * @brief  获取摆臂编码器当前数据（UART5），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pOut  指向至少 12 字节的缓冲区
+  * @brief  获取摆臂编码器当前数据（UART5），12 字节拷贝到入参指向的缓冲区；前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
   */
-void SwingArmEncoder_GetData(uint8_t *pOut)
+void USART5_SwingArmEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
@@ -909,16 +909,16 @@ void SwingArmEncoder_GetData(uint8_t *pOut)
 
 
 /**
-  * @brief  HAL 接收事件回调：UART1~5 的 DMA+IDLE 接收
+  * @brief  HAL 接收事件回调，用于 UART1~5（DMA+IDLE）
   * @param  huart UART 句柄
-  * @param  Size  本帧接收长度（字节）
-  * @note   通过 HAL_UARTEx_GetRxEventType(huart)：IDLE=空闲中断，TC=传输完成，HT=半传输等
+  * @param  Size  本次接收长度
+  * 使用 HAL_UARTEx_GetRxEventType(huart)：IDLE=帧提前结束，TC=满缓冲，HT=半缓冲（忽略，不重启）
   */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
   HAL_UART_RxEventTypeTypeDef ev = HAL_UARTEx_GetRxEventType(huart);
 
-  /* 仅处理 IDLE 与 TC，忽略 HT 等其余事件类型 */
+  /* 仅 IDLE 或 TC 视为帧结束；HT 为半缓冲，帧未结束，不重启 */
   if (ev != HAL_UART_RXEVENT_IDLE && ev != HAL_UART_RXEVENT_TC)
     return;
 
@@ -943,8 +943,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     if (Size > 0U)
     {
       uint16_t len = (Size > 6u) ? 6u : Size;
-      memcpy(au8MotorEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES); /* 旧帧后6字节 */
-      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, len);  /* 新帧前6字节 */
+      memcpy(au8MotorEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES); /* 旧帧移至后6字节 */
+      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, len);  /* 新帧写入前6字节 */
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, 6);
   }
