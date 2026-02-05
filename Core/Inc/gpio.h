@@ -33,6 +33,10 @@ extern "C" {
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
+#define MotorEnableControl_Pin GPIO_PIN_5
+#define MotorEnableControl_GPIO_Port GPIOB
+#define MotorDirectionControl_Pin GPIO_PIN_6
+#define MotorDirectionControl_GPIO_Port GPIOB
 
 /* USER CODE END Private defines */
 

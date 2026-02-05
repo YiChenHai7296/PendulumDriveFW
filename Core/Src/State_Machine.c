@@ -25,19 +25,15 @@
 /* 无 */
 
 /* ======================== 5. 私有函数声明 ======================== */
-static void StateMachine_OnDutyWriteFailed(int duty_ret, const SimulinkProtocolControlData_t *pCtrl);
+static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret, const SimulinkProtocolControlData_t *pCtrl);
 
 /* ======================== 6. 接口函数实现 ======================== */
 
 void StateMachine_MainLoop(void)
 {
-    SimulinkProtocolControlData_t  ctrl;
-    SimulinkProtocolFeedbackData_t fb_tx;
-    MotorFeedbackData_t            fb;
-    uint8_t *pTxBuf;
-    uint16_t txLen;
-    uint16_t duty_permille;
-    int duty_ret;
+    SimulinkProtocolControlData_t  ctrl;      /* 解帧得到的控制帧数据（PWM、电流设定等） */
+    SimulinkProtocolFeedbackData_t fb_tx;     /* 待发送的 Simulink 反馈帧载荷 */
+    MotorFeedbackData_t            fb;        /* 电机反馈原始数据（位置、转速、电流等） */
 
     /* 阻塞循环：等待控制帧 -> 设置占空比 -> 采集反馈 -> 组帧发送 */
     for (;;)
@@ -50,16 +46,18 @@ void StateMachine_MainLoop(void)
         }
 
         /* 2) 根据控制帧 PWM(-10000~10000) 设置占空比 */
-        duty_ret = MotorService_SetDutyCycle(ctrl.pwm);
-        if (duty_ret != 0)
+        if (MotorService_SetDutyCycle(ctrl.pwm) != MOTOR_SVC_OK)
         {
-            /* 3) 写入失败：错误处理逻辑预留（此处留空） */
-            StateMachine_OnDutyWriteFailed(duty_ret, &ctrl);
+            //StateMachine_OnDutyWriteFailed(motorRet, &ctrl);
             continue;
         }
 
         /* 4) 写入成功：获取电机反馈数据 */
-        MotorService_GetFeedbackData(&fb);
+        if (MotorService_GetFeedbackData(&fb) != MOTOR_SVC_OK)
+        {
+            /* 编码器解析失败：可选进入安全态或上报，此处继续使用已有 fb 并组帧 */
+            continue;
+        }
 
         /* 5) 填充 Simulink 反馈载荷并组帧 */
         fb_tx.motor_current     = fb.motor_current;
@@ -84,9 +82,10 @@ void StateMachine_MainLoop(void)
 
 /* ======================== 7. 私有函数实现 ======================== */
 
-static void StateMachine_OnDutyWriteFailed(int duty_ret, const SimulinkProtocolControlData_t *pCtrl)
+static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误码 */
+                                          const SimulinkProtocolControlData_t *pCtrl)  /* 失败时的控制帧 */
 {
-    (void)duty_ret;
+    (void)ret;
     (void)pCtrl;
     /* TODO: 错误处理占位（记录错误码/进入安全状态/上报错误帧等） */
-}*/
+}

@@ -17,6 +17,20 @@
 
 /* ======================== 3. 类型定义 ======================== */
 /**
+ * @brief 电机服务操作结果枚举
+ */
+typedef enum
+{
+    MOTOR_SVC_OK = 0,               /**< 成功 */
+    MOTOR_SVC_ERR_PARAM,            /**< 参数非法（占空比超范围等） */
+    MOTOR_SVC_ERR_DRIVER,           /**< 驱动层返回失败 */
+    MOTOR_SVC_ERR_ENCODER_MOTOR,    /**< 电机编码器解析失败 */
+    MOTOR_SVC_ERR_ENCODER_SHAFT,    /**< 输出轴编码器解析失败 */
+    MOTOR_SVC_ERR_ENCODER_SWING,    /**< 摆臂编码器解析失败 */
+    MOTOR_SVC_ERR_NULL              /**< 指针为空 */
+} MotorServiceResult_t;
+
+/**
  * @brief 电机反馈数据结构（与 Simulink 反馈帧字段一致，便于组帧上报）
  */
 typedef struct
@@ -35,17 +49,31 @@ typedef struct
 
 /* ======================== 5. 接口函数声明 ======================== */
 /**
+ * @brief 电机初始化：使能电机、方向设为正向、占空比设为 0
+ * @note  应在系统上电或需要重新初始化电机时调用
+ */
+void MotorService_InitMotor(void);
+
+
+/**
+ * @brief 关闭电机: 电机失能、方向设为正向、占空比设为 0
+ */
+void MotorService_CloseMotor(void);
+
+
+/**
  * @brief 获取电机反馈数据：刷新编码器与电流，填位置/转速/电流到 pOut，供上位机或 Simulink 组帧
  * @param[out] pOut 反馈数据结构，与 SimulinkProtocolFeedbackData_t 布局一致
+ * @return 操作结果，编码器解析失败时 pOut 可能包含无效数据
  */
-void MotorService_GetFeedbackData(MotorFeedbackData_t *pOut);
+MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut);
 
 /**
  * @brief 电机转速/占空比控制：-10000~10000 对应 -100.00%~100.00%
  * @note  占空比正负用于区分电机转向：正为正转，负为反转
  * @param duty_permille 目标占空比指令，范围 -10000~10000
- * @return 0 成功，非 0 参数非法
+ * @return 操作结果
  */
-int MotorService_SetDutyCycle(int16_t duty_permille);
+MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille);
 
 #endif /* MOTOR_SERVICE_H */

@@ -79,28 +79,78 @@ static float MotorService_GetMotorCurrent(void);
 /* ======================== 6. 接口函数实现 ======================== */
 
 /**
+ * @brief 电机初始化：使能电机、方向设为正向、占空比设为 0
+ */
+void MotorService_InitMotor(void)
+{
+    PWM_Enable(ENABLE);
+    PWM_DirControl(MOTOR_DIR_FORWARD);
+    (void)MotorService_SetDutyCycle(0);
+}
+
+/**
+ * @brief 关闭电机: 电机失能、方向设为正向、占空比设为 0
+ */
+void MotorService_CloseMotor(void)
+{
+    PWM_Enable(DISABLE);
+    PWM_DirControl(MOTOR_DIR_FORWARD);
+    (void)MotorService_SetDutyCycle(0);
+}
+
+
+/**
+ * @brief 将编码器协议结果映射为电机服务错误码
+ */
+static MotorServiceResult_t MotorService_MapEncoderResult(EncoderProtocolResult_t encRes,
+                                                         MotorServiceResult_t encoderErr)
+{
+    if (encRes == ENCODER_PROTOCOL_OK)
+    {
+        return MOTOR_SVC_OK;
+    }
+    return encoderErr;
+}
+
+/**
  * @brief 获取电机反馈数据
  * @details 读取三个编码器的位置数据，计算转速，读取电机电流，统一填入反馈结构体
  * @param pOut 反馈数据输出缓冲区
+ * @return 操作结果，任一编码器解析失败时返回对应错误码，pOut 可能包含部分有效数据
  */
-void MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
+MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
 {
     EncoderProtocolDataDual_t motor_dual;
     EncoderProtocolDataDual_t shaft_dual;
     EncoderProtocolDataDual_t swing_dual;
+    EncoderProtocolResult_t  encRes;
     float current_A;
     float speed_f;
     int32_t val;
 
     if (pOut == NULL)
     {
-        return;
+        return MOTOR_SVC_ERR_NULL;
     }
 
     /* 读取三个编码器的双帧数据 */
-    (void)EncoderProtocol_ReadMotor(&motor_dual);
-    (void)EncoderProtocol_ReadOutputShaft(&shaft_dual);
-    (void)EncoderProtocol_ReadSwingArm(&swing_dual);
+    encRes = EncoderProtocol_ReadMotor(&motor_dual);
+    if (encRes != ENCODER_PROTOCOL_OK)
+    {
+        return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
+    }
+
+    encRes = EncoderProtocol_ReadOutputShaft(&shaft_dual);
+    if (encRes != ENCODER_PROTOCOL_OK)
+    {
+        return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SHAFT);
+    }
+
+    encRes = EncoderProtocol_ReadSwingArm(&swing_dual);
+    if (encRes != ENCODER_PROTOCOL_OK)
+    {
+        return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SWING);
+    }
 
     /* 读取并转换电机电流，限制在有效范围内 */
     current_A = MotorService_GetMotorCurrent();
@@ -129,22 +179,25 @@ void MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
 
     speed_f = EncoderSpeed_CalcSwingArm(&swing_dual);
     pOut->pendulum_speed = (int32_t)speed_f;
+
+    return MOTOR_SVC_OK;
 }
 
 /**
  * @brief 设置电机占空比
  * @param duty_permille 占空比指令（-10000~10000，对应 -100.00%~100.00%）
  * @note  占空比正负用于区分转向：正为正转，负为反转
- * @return 0成功，-1参数非法
+ * @return 操作结果
  */
-int MotorService_SetDutyCycle(int16_t duty_permille)
+MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
 {
     uint16_t duty_u16 = 0U;
+    unsigned char pwmRet;
 
     /* 合法范围：-10000~10000 */
     if (duty_permille < -10000 || duty_permille > 10000)
     {
-        return -1;
+        return MOTOR_SVC_ERR_PARAM;
     }
 
     /* 根据占空比正负决定电机方向，并取绝对值作为占空比大小 */
@@ -154,7 +207,6 @@ int MotorService_SetDutyCycle(int16_t duty_permille)
         PWM_DirControl(MOTOR_DIR_FORWARD);
         duty_u16 = (uint16_t)duty_permille;
     }
-
     else if (duty_permille < 0)
     {
         /* 负占空比：电机反转 */
@@ -167,7 +219,8 @@ int MotorService_SetDutyCycle(int16_t duty_permille)
         duty_u16 = 0U;
     }
 
-    return (int)PWM_Set_TargePulse((unsigned short)duty_u16);
+    pwmRet = PWM_Set_TargePulse((unsigned short)duty_u16);
+    return (pwmRet == 0U) ? MOTOR_SVC_OK : MOTOR_SVC_ERR_DRIVER;
 }
 
 /* ======================== 7. 私有函数实现 ======================== */
@@ -246,7 +299,7 @@ static EncoderProtocolResult_t EncoderProtocol_ReadMotor(EncoderProtocolDataDual
     }
 
     /* 从USART3获取12字节快照（前6=最新帧，后6=上一帧） */
-    USART3_MotorEncoder_GetData(rawBuf);
+    MotorEncoder_GetData(rawBuf);
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -272,7 +325,7 @@ static EncoderProtocolResult_t EncoderProtocol_ReadOutputShaft(EncoderProtocolDa
     }
 
     /* 从USART4获取12字节快照（前6=最新帧，后6=上一帧） */
-    USART4_OutputShaftEncoder_GetData(rawBuf);
+    OutputShaftEncoder_GetData(rawBuf);
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -298,7 +351,7 @@ static EncoderProtocolResult_t EncoderProtocol_ReadSwingArm(EncoderProtocolDataD
     }
 
     /* 从USART5获取12字节快照（前6=最新帧，后6=上一帧） */
-    USART5_SwingArmEncoder_GetData(rawBuf);
+    SwingArmEncoder_GetData(rawBuf);
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
     if (resLatest != ENCODER_PROTOCOL_OK)

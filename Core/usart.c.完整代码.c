@@ -21,19 +21,11 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
-/* ======================== 1.私有宏定义 ======================== */
 #define UART_1_RX_BUFF_LEN 100
 #define UART_3_RX_BUFF_LEN 6
 #define UART2_RX_BUFF_LEN 100
 #define ENCODER_FRAME_LENGTH_BYTES   6U
 #define ENCODER_SNAPSHOT_BYTES       12U   /* 前6字节=最新帧，后6字节=上一帧 */
-
-/* ======================== 2.私有类型定义 ======================== */
-
-
-
-/* ======================== 3.私有变量 ======================== */
 
 /* DMA原始缓冲区 */
 unsigned char au8Uart3DMABuff[6] = {0};
@@ -58,25 +50,6 @@ unsigned char au8Uart2RecvBuff[UART2_RX_BUFF_LEN] = {0};
 /* 接收队列 */
 rfq_queue_t UART1_RX_RFQ;
 rfq_queue_t UART2_RX_RFQ;
-
-
-/* ======================== 4.对外变量定义 ======================== */
-
-
-
-
-
-
-/* ======================== 5.私有函数声明 ======================== */
-
-
-
-
-
-
-/* ===================== USART2 协议相关 ===================== */
-
-
 
 /* USER CODE END 0 */
 
@@ -823,15 +796,12 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-
-
-/* ======================== 6.函数实现 ======================== */
 /**
-  * @brief  从 USART2 接收队列出队一帧到指定缓冲区（供 simulink_protocol 等调用）
+  * @brief  从 USART2 接收队列出队一帧到指定缓冲区（如 simulink_protocol 等调用）
   * @param  pBuf      数据存放的缓冲区指针
   * @param  bufMaxLen 缓冲区最大长度（字节）
   * @param  pOutLen   本次出队的实际长度，可为 NULL
-  * @retval 0  成功，-1 队列空或 pBuf/bufMaxLen 无效
+  * @retval 0  成功；-1 队列空或 pBuf/bufMaxLen 无效
   */
 int USART2_GetRxData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
 {
@@ -866,7 +836,7 @@ int USART2_GetRxData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
   * @brief  通过 USART2 使用 DMA 发送一帧数据
   * @param  pBuf  待发送的数据缓冲区指针
   * @param  len   待发送的数据长度（字节）
-  * @retval 0 成功，-1 参数非法或底层发送失败
+  * @retval 0 成功；-1 参数非法或底层发送失败
   */
 int USART2_SendData_DMA(const uint8_t *pBuf, uint16_t len)
 {
@@ -885,7 +855,7 @@ int USART2_SendData_DMA(const uint8_t *pBuf, uint16_t len)
 
 /**
   * @brief  定时发送：向串口3、4、5依次 DMA 发送单字节 0x02（供 TIM1 定时中断调用）
-  * @note   串口3、4、5均使用 DMA 发送，非阻塞；使用静态缓冲区，供 DMA 使用
+  * @note   串口3、4、5均使用 DMA 发送，非阻塞；使用静态缓冲区供 DMA 使用且生命周期有效
   */
 void USART345_EncoderTrigger_Send(void)
 {
@@ -894,15 +864,15 @@ void USART345_EncoderTrigger_Send(void)
   (void)HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte, 1);
   (void)HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte, 1);
   (void)HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte, 1);
-	
-	(void)HAL_UART_Transmit_DMA(&huart2, &u8TimedSendByte, 1);
-	
+
+  (void)HAL_UART_Transmit_DMA(&huart2, &u8TimedSendByte, 1);
+
 }
 
 /**
-  * @brief  获取电机编码器当前数据（UART3），12 字节拷贝到入参指向的缓冲区
-  *         前6字节=最新帧，后6字节=上一帧
-  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区 */
+  * @brief  获取电机编码器当前数据（UART3），12 字节拷贝到入参指向的缓冲区；前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
+  */
 void USART3_MotorEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
@@ -912,9 +882,9 @@ void USART3_MotorEncoder_GetData(uint8_t *pOut)
 }
 
 /**
-  * @brief  获取输出轴编码器当前数据（UART4），12 字节拷贝到入参指向的缓冲区
-  *         前6字节=最新帧，后6字节=上一帧
-  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区 */
+  * @brief  获取输出轴编码器当前数据（UART4），12 字节拷贝到入参指向的缓冲区；前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
+  */
 void USART4_OutputShaftEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
@@ -924,9 +894,9 @@ void USART4_OutputShaftEncoder_GetData(uint8_t *pOut)
 }
 
 /**
-  * @brief  获取摆臂编码器当前数据（UART5），12 字节拷贝到入参指向的缓冲区
-  *         前6字节=最新帧，后6字节=上一帧
-  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区 */
+  * @brief  获取摆臂编码器当前数据（UART5），12 字节拷贝到入参指向的缓冲区；前6字节=最新帧，后6字节=上一帧
+  * @param  pOut  单字节数组指针，指向至少 12 字节的缓冲区
+  */
 void USART5_SwingArmEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
@@ -948,7 +918,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
   HAL_UART_RxEventTypeTypeDef ev = HAL_UARTEx_GetRxEventType(huart);
 
-  /* 仅 IDLE 和 TC 视为帧结束；HT 为半缓冲，帧未结束，不重启） */
+  /* 仅 IDLE 或 TC 视为帧结束；HT 为半缓冲，帧未结束，不重启 */
   if (ev != HAL_UART_RXEVENT_IDLE && ev != HAL_UART_RXEVENT_TC)
     return;
 

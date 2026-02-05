@@ -124,9 +124,11 @@ void Working_Task()
   */
 int main(void)
 {
+  //#define STACK_CANARY 0xDEADBEEF
+  //volatile uint32_t stack_canary = STACK_CANARY;
 
   /* USER CODE BEGIN 1 */
-  uint8_t tcp_demo_sendbuf[80]="G4 Uart Test \n";
+  //uint8_t tcp_demo_sendbuf[80]="G4 Uart Test \n";
   int i = 655356;
   uint32_t crc = 0;
 
@@ -188,7 +190,7 @@ int main(void)
 
 
 
-  HAL_UART_Receive_IT(&huart5, (uint8_t *)tcp_demo_sendbuf, 1); 
+//  HAL_UART_Receive_IT(&huart5, (uint8_t *)tcp_demo_sendbuf, 1); 
   //HAL_UART_Transmit_IT(&huart1,"\n uart4send uart5recv 123",26);
 
   //HAL_UART_Transmit_IT(&huart2,(const uint8_t *)"\n CRC:",7);
@@ -198,8 +200,21 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-unsigned char u8DebugRxBuff[10] = 0;
+  //unsigned char u8DebugRxBuff[10] = 0;
 
+
+  MotorService_InitMotor();
+
+
+  printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
+  printf("                          编译日期:%s\n",__DATE__);
+
+
+  StateMachine_MainLoop();
+
+}
+
+#if 0 
   while (1)
   {
     /* USER CODE END WHILE */
@@ -230,9 +245,9 @@ unsigned char u8DebugRxBuff[10] = 0;
     //HAL_UART_Transmit(&huart1, tcp_demo_sendbuf, 15, 10000);
 
     printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
-    printf("                          编译日期�?%s\n",__DATE__);
+    printf("                          编译日期:%s\n",__DATE__);
     printf("  1. ADC 采集精度测试  \n" );
-    printf("  2. PWM占空比修改测�?  \n" );
+    printf("  2. PWM占空比修改测�?  \n" );
     printf("  3. CRC校验计算测试...  \n" );
     printf("  ==================================== \n" );
 
@@ -251,7 +266,7 @@ unsigned char u8DebugRxBuff[10] = 0;
     
         case Debug_Menu_ADC_TEST:
         {
-            printf("  进入ADC精度测试�?  \n" );
+            printf("  进入ADC精度测试  \n" );
             ADC_TEST();
             break;
         }
@@ -265,14 +280,14 @@ unsigned char u8DebugRxBuff[10] = 0;
 
         case Debug_Menu_CRC_TEST:
         {
-            printf("  进入CRC校验计算测试�?  \n" );
+            printf("  进入CRC校验计算测试  \n" );
             u32CRC_TEST();
             break;
         }
 
         default:
         {
-            printf("  键入有误，请重试�?  \n" );
+            printf("  键入有误，请重试  \n" );
         }
     }
 
@@ -297,7 +312,7 @@ crc = HAL_CRC_Accumulate(&hcrc,crc_Data,24);
   }
   /* USER CODE END 3 */
 }
-
+#endif
 /**
   * @brief System Clock Configuration
   * @retval None
