@@ -130,6 +130,12 @@ int main(void)
   //#define STACK_CANARY 0xDEADBEEF
   //volatile uint32_t stack_canary = STACK_CANARY;
 
+   #define STACK_MAGIC 0xDEADBEEF
+  // STM32G474 栈: Stack_Mem @ 0x20001C00, __initial_sp @ 0x20002000
+  volatile uint32_t *stack_bottom = (volatile uint32_t *)0x20001C00;
+  *stack_bottom = STACK_MAGIC;
+
+
   /* USER CODE BEGIN 1 */
   //uint8_t tcp_demo_sendbuf[80]="G4 Uart Test \n";
   int i = 655356;
@@ -152,6 +158,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+  __disable_irq();
 
   /* USER CODE END Init */
 
@@ -320,6 +327,8 @@ crc = HAL_CRC_Accumulate(&hcrc,crc_Data,24);
   * @brief System Clock Configuration
   * @retval None
   */
+
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -343,6 +352,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
+    volatile uint32_t err = 1;  // Osc 失败
     Error_Handler();
   }
 
@@ -357,6 +367,7 @@ void SystemClock_Config(void)
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
+    volatile uint32_t err = 2;  // ClockConfig 失败
     Error_Handler();
   }
 }
@@ -376,6 +387,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+		printf("err\n");
   }
   /* USER CODE END Error_Handler_Debug */
 }

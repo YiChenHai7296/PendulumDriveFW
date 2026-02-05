@@ -120,7 +120,8 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>?</Name>
+          <Name>p
+(</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -159,7 +160,7 @@
           <Type>0</Type>
           <LineNumber>819</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244564</Address>
+          <Address>134244576</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -175,7 +176,7 @@
           <Type>0</Type>
           <LineNumber>49</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244666</Address>
+          <Address>134244678</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -191,7 +192,7 @@
           <Type>0</Type>
           <LineNumber>56</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244678</Address>
+          <Address>134244690</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -207,7 +208,7 @@
           <Type>0</Type>
           <LineNumber>71</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244720</Address>
+          <Address>134244732</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -223,7 +224,7 @@
           <Type>0</Type>
           <LineNumber>42</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244656</Address>
+          <Address>134244668</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -239,7 +240,7 @@
           <Type>0</Type>
           <LineNumber>80</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244444</Address>
+          <Address>134244456</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -255,7 +256,7 @@
           <Type>0</Type>
           <LineNumber>85</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244452</Address>
+          <Address>134244464</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -271,7 +272,7 @@
           <Type>0</Type>
           <LineNumber>90</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244468</Address>
+          <Address>134244480</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -287,7 +288,7 @@
           <Type>0</Type>
           <LineNumber>269</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244248</Address>
+          <Address>134244260</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -303,7 +304,7 @@
           <Type>0</Type>
           <LineNumber>274</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244258</Address>
+          <Address>134244270</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -319,7 +320,7 @@
           <Type>0</Type>
           <LineNumber>279</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244268</Address>
+          <Address>134244280</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -335,7 +336,7 @@
           <Type>0</Type>
           <LineNumber>284</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244296</Address>
+          <Address>134244308</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -351,7 +352,7 @@
           <Type>0</Type>
           <LineNumber>289</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244312</Address>
+          <Address>134244324</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -367,7 +368,7 @@
           <Type>0</Type>
           <LineNumber>294</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244328</Address>
+          <Address>134244340</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -383,7 +384,7 @@
           <Type>0</Type>
           <LineNumber>92</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244476</Address>
+          <Address>134244488</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -397,9 +398,9 @@
         <Bp>
           <Number>15</Number>
           <Type>0</Type>
-          <LineNumber>216</LineNumber>
+          <LineNumber>364</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134250514</Address>
+          <Address>134244860</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -408,10 +409,90 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>../Core/Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/main.c\216</Expression>
+          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/main.c\364</Expression>
         </Bp>
         <Bp>
           <Number>16</Number>
+          <Type>0</Type>
+          <LineNumber>349</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134244822</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>../Core/Src/main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/main.c\349</Expression>
+        </Bp>
+        <Bp>
+          <Number>17</Number>
+          <Type>0</Type>
+          <LineNumber>142</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134250402</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>../Core/Src/main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/main.c\142</Expression>
+        </Bp>
+        <Bp>
+          <Number>18</Number>
+          <Type>0</Type>
+          <LineNumber>50</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\Core\Src\State_Machine.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>19</Number>
+          <Type>0</Type>
+          <LineNumber>57</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\Core\Src\State_Machine.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>20</Number>
+          <Type>0</Type>
+          <LineNumber>72</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\Core\Src\State_Machine.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>21</Number>
           <Type>0</Type>
           <LineNumber>126</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -422,7 +503,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>../Core/Src/main.c</Filename>
+          <Filename>startup_stm32g474xx.s</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
@@ -448,7 +529,30 @@
           <WinNumber>1</WinNumber>
           <ItemText>UART2_RX_RFQ</ItemText>
         </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>err</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RCC_OscInitStruct</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>stack_bottom</ItemText>
+        </Ww>
       </WatchWindow1>
+      <MemoryWindow1>
+        <Mm>
+          <WinNumber>1</WinNumber>
+          <SubType>0</SubType>
+          <ItemText>0x20001C00</ItemText>
+          <AccSizeX>0</AccSizeX>
+        </Mm>
+      </MemoryWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>

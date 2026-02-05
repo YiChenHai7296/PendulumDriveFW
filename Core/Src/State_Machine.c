@@ -41,6 +41,7 @@ void StateMachine_MainLoop(void)
         /* 1) 等待并解帧：从 USART2 接收队列取一帧控制帧 */
         if (SimulinkProtocol_UnpackControl(&ctrl) != SIMULINK_PROTOCOL_OK)
         {
+						//printf("error\n");
             /* 队列空 / 帧不完整 / CRC错误：继续等待下一帧 */
             continue;
         }
