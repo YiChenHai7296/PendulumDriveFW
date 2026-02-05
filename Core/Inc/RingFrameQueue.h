@@ -35,7 +35,7 @@ extern "C" {
  * 超过该长度的帧会被截断（或可自行改为返回错误）
  */
 #ifndef RFQ_FRAME_MAX_LEN
-#define RFQ_FRAME_MAX_LEN     256
+#define RFQ_FRAME_MAX_LEN     10
 #endif
 
 /*

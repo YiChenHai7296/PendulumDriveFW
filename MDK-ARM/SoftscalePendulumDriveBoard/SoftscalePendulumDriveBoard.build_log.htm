@@ -27,16 +27,14 @@ Project File Date:  02/05/2026
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-compiling State_Machine.c...
-../Core/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
-  #endif /* __STATE_MACHINE__ */
-..\Core\Src\State_Machine.c(86): warning:  #177-D: function "StateMachine_OnDutyWriteFailed"  was declared but never referenced
-  static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误�? */
-..\Core\Src\State_Machine.c: 2 warnings, 0 errors
+compiling usart.c...
+../Core/Src/usart.c(862): warning:  #177-D: variable "u8TimedSendByte"  was declared but never referenced
+    static uint8_t u8TimedSendByte = 0x02;  /* 单字�? 0x02 用于 DMA 触发编码�? */
+../Core/Src/usart.c: 1 warning, 0 errors
 linking...
-Program Size: Code=32488 RO-data=592 RW-data=88 ZI-data=8104  
+Program Size: Code=32920 RO-data=592 RW-data=92 ZI-data=4164  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 2 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 

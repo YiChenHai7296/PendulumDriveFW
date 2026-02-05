@@ -76,8 +76,9 @@ int RFQ_Push(rfq_queue_t *q, const uint8_t *data, uint16_t len)
 int RFQ_Pop(rfq_queue_t *q, rfq_frame_t *out)
 {
     if (q == NULL || out == NULL)
+    {
         return -1;
-
+    }
     /* 队列为空，无法读取 */
     if (q->count == 0)
     {

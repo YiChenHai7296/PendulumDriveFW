@@ -34,10 +34,16 @@ void StateMachine_MainLoop(void)
     SimulinkProtocolControlData_t  ctrl;      /* 解帧得到的控制帧数据（PWM、电流设定等） */
     SimulinkProtocolFeedbackData_t fb_tx;     /* 待发送的 Simulink 反馈帧载荷 */
     MotorFeedbackData_t            fb;        /* 电机反馈原始数据（位置、转速、电流等） */
-
+    static int temp = 0;
     /* 阻塞循环：等待控制帧 -> 设置占空比 -> 采集反馈 -> 组帧发送 */
     for (;;)
     {
+        temp++;
+        if(temp == 1000000)
+        {
+          printf("temp = 1000000\n");
+          temp = 0;
+        }
         /* 1) 等待并解帧：从 USART2 接收队列取一帧控制帧 */
         if (SimulinkProtocol_UnpackControl(&ctrl) != SIMULINK_PROTOCOL_OK)
         {

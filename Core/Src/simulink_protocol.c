@@ -84,14 +84,15 @@ SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlD
 
     if (Simulink_ControlFrame_GetData(rxBuf, sizeof(rxBuf), &len) != 0)
     {
+       // printf("data err \n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
-
+#if 1
     if (len != SIMULINK_CONTROL_FRAME_LEN)
     {
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
-
+#endif
     return SimulinkProtocol_ParseControlFrame(rxBuf, len, pOut);
 }
 
@@ -298,20 +299,22 @@ static SimulinkProtocolResult_t SimulinkProtocol_ParseControlFrame(const uint8_t
 
     crc_recv  = (uint16_t)pFrame[offset] | ((uint16_t)pFrame[offset + 1] << 8);
     crc_calc  = SimulinkProtocol_CalcCRC16(pFrame, offset);
+		#if 1
     if (crc_calc != crc_recv)
     {
         return SIMULINK_PROTOCOL_ERR_CRC;
     }
-
+#endif
     if (pOut->pwm < SIMULINK_PWM_MIN || pOut->pwm > SIMULINK_PWM_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
+		#if 0
     if (pOut->current < SIMULINK_CURRENT_MIN || pOut->current > SIMULINK_CURRENT_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-
+#endif
     return SIMULINK_PROTOCOL_OK;
 }
 
