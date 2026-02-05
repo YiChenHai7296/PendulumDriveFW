@@ -120,7 +120,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,25 +156,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>371</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134221168</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Core/Src/main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/main.c\371</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
           <LineNumber>819</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245092</Address>
+          <Address>134244608</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -187,11 +170,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\819</Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>1</Number>
           <Type>0</Type>
           <LineNumber>49</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245194</Address>
+          <Address>134244710</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -203,11 +186,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/State_Machine.c\49</Expression>
         </Bp>
         <Bp>
-          <Number>3</Number>
+          <Number>2</Number>
           <Type>0</Type>
           <LineNumber>56</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245206</Address>
+          <Address>134244722</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -219,11 +202,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/State_Machine.c\56</Expression>
         </Bp>
         <Bp>
-          <Number>4</Number>
+          <Number>3</Number>
           <Type>0</Type>
           <LineNumber>71</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245248</Address>
+          <Address>134244764</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -235,11 +218,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/State_Machine.c\71</Expression>
         </Bp>
         <Bp>
-          <Number>5</Number>
+          <Number>4</Number>
           <Type>0</Type>
           <LineNumber>42</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245184</Address>
+          <Address>134244700</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -251,11 +234,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/State_Machine.c\42</Expression>
         </Bp>
         <Bp>
-          <Number>6</Number>
+          <Number>5</Number>
           <Type>0</Type>
           <LineNumber>80</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244972</Address>
+          <Address>134244488</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -267,11 +250,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\80</Expression>
         </Bp>
         <Bp>
-          <Number>7</Number>
+          <Number>6</Number>
           <Type>0</Type>
           <LineNumber>85</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244980</Address>
+          <Address>134244496</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -283,11 +266,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\85</Expression>
         </Bp>
         <Bp>
-          <Number>8</Number>
+          <Number>7</Number>
           <Type>0</Type>
           <LineNumber>90</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244996</Address>
+          <Address>134244512</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -299,11 +282,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\90</Expression>
         </Bp>
         <Bp>
-          <Number>9</Number>
+          <Number>8</Number>
           <Type>0</Type>
           <LineNumber>269</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244776</Address>
+          <Address>134244292</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -315,11 +298,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\269</Expression>
         </Bp>
         <Bp>
-          <Number>10</Number>
+          <Number>9</Number>
           <Type>0</Type>
           <LineNumber>274</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244786</Address>
+          <Address>134244302</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -331,11 +314,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\274</Expression>
         </Bp>
         <Bp>
-          <Number>11</Number>
+          <Number>10</Number>
           <Type>0</Type>
           <LineNumber>279</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244796</Address>
+          <Address>134244312</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -347,11 +330,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\279</Expression>
         </Bp>
         <Bp>
-          <Number>12</Number>
+          <Number>11</Number>
           <Type>0</Type>
           <LineNumber>284</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244824</Address>
+          <Address>134244340</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -363,11 +346,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\284</Expression>
         </Bp>
         <Bp>
-          <Number>13</Number>
+          <Number>12</Number>
           <Type>0</Type>
           <LineNumber>289</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244840</Address>
+          <Address>134244356</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -379,11 +362,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\289</Expression>
         </Bp>
         <Bp>
-          <Number>14</Number>
+          <Number>13</Number>
           <Type>0</Type>
           <LineNumber>294</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244856</Address>
+          <Address>134244372</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -395,11 +378,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\294</Expression>
         </Bp>
         <Bp>
-          <Number>15</Number>
+          <Number>14</Number>
           <Type>0</Type>
           <LineNumber>126</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134250896</Address>
+          <Address>134250412</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -411,11 +394,11 @@
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/main.c\126</Expression>
         </Bp>
         <Bp>
-          <Number>16</Number>
+          <Number>15</Number>
           <Type>0</Type>
           <LineNumber>92</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245004</Address>
+          <Address>134244520</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -425,22 +408,6 @@
           <Filename>..\Core\Src\simulink_protocol.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/simulink_protocol.c\92</Expression>
-        </Bp>
-        <Bp>
-          <Number>17</Number>
-          <Type>0</Type>
-          <LineNumber>135</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134250914</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Core/Src/main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/main.c\135</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
