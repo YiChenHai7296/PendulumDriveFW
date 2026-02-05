@@ -861,11 +861,11 @@ void EncoderTrigger_Send(void)
 {
   static uint8_t u8TimedSendByte = 0x02;  /* 单字节 0x02 用于 DMA 触发编码器 */
 
-  (void)HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte, 1);
-  (void)HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte, 1);
-  (void)HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte, 1);
+  //(void)HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte, 1);
+  //(void)HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte, 1);
+  //(void)HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte, 1);
 
-  (void)HAL_UART_Transmit_DMA(&huart2, &u8TimedSendByte, 1);
+  //(void)HAL_UART_Transmit_DMA(&huart2, &u8TimedSendByte, 1);
 
 }
 
@@ -921,7 +921,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   /* 仅处理 IDLE 与 TC，忽略 HT 等其余事件类型 */
   if (ev != HAL_UART_RXEVENT_IDLE && ev != HAL_UART_RXEVENT_TC)
     return;
-
+	#if 0
   if (huart->Instance == USART1)
   {
     if (Size > 0U)
@@ -938,6 +938,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart2, au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
   }
+
   else if (huart->Instance == USART3)
   {
     if (Size > 0U)
@@ -968,6 +969,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
   }
+	#endif
 }
 
 /* USER CODE END 1 */
