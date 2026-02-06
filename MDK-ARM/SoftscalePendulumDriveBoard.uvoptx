@@ -156,6 +156,22 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
+          <LineNumber>48</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134245112</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Core\Src\State_Machine.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/State_Machine.c\48</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
           <LineNumber>936</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>134234986</Address>
@@ -168,6 +184,22 @@
           <Filename>../Core/Src/usart.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\936</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>817</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134244978</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>../Core/Src/usart.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\817</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

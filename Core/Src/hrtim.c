@@ -25,9 +25,9 @@
 
 extern unsigned char u8DebugRxBuff[100];
 
-/* PWM 占空比目标�?�，范围�?0~10000 */
+/* PWM 占空比目标值，范围 0~10000 */
 unsigned short u16TargePulse = 0;
-/* PWM 占空比更新标�? */
+/* PWM 占空比更新标志 */
 unsigned char u8FlagPulse = 0;
 
 
@@ -279,8 +279,8 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
 
 /**
  * @brief PWM 使能控制接口函数
- * @param NewState 使能状�?�宏：ENABLE / DISABLE
- * @note  使能时将 MotorEnableControl_Pin �? 1，失能时�? 0
+ * @param NewState 使能状态宏：ENABLE / DISABLE
+ * @note  使能时将 MotorEnableControl_Pin 置 1，失能时置 0
  */
 void PWM_Enable(FunctionalState NewState)
 {
@@ -297,9 +297,9 @@ void PWM_Enable(FunctionalState NewState)
 
 
 /**
- * @brief 电机方向控制接口函数：控制电机方向引�?
+ * @brief 电机方向控制接口函数：控制电机方向引脚
  * @param dir 方向宏：MOTOR_DIR_FORWARD 正转，MOTOR_DIR_REVERSE 反转
- * @note  正转时将 MotorDirectionControl_Pin �? 0，反转时�? 1
+ * @note  正转时将 MotorDirectionControl_Pin 置 0，反转时置 1
  */
 void PWM_DirControl(uint8_t dir)
 {
@@ -330,14 +330,14 @@ unsigned char PWM_Set_TargePulse(unsigned short u16ExpectedValue)
 
 unsigned char User_Func_SetPulse(unsigned short u16T2Pulse)
 {
-    /* �?查占空比参数是否在允许范围内 */
+    /* 检查占空比参数是否在允许范围内 */
     if(u16T2Pulse<9 || u16T2Pulse>17000)
     {
         printf("占空比参数越界：%d\n",u16T2Pulse);
         return 1;
     }
 
-    /* 更新 HRTIM 定时器比较寄存器，对�? PWM 占空�? */
+    /* 更新 HRTIM 定时器比较寄存器，对应 PWM 占空比 */
     //TIM1->CCR1 = u16T2Pulse-1;
     //TIM1->CCR2 = u16T2Pulse/2-1;
     //TIM1->CCR3 = (1000 - 1 - u16T2Pulse)/2+u16T2Pulse;
@@ -360,10 +360,10 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,uint32_t TimerI
       u8FlagPulse = 0;
       if(User_Func_SetPulse(u16TargePulse*1.7f))
       {
-        printf("\n 设定占空�? %.2f %% 失败\n",(float)u16TargePulse/100.0f);
+        printf("\n 设定占空比 %.2f %% 失败\n",(float)u16TargePulse/100.0f);
         return;
       }
-      printf("\n 设定占空�? %.2f %% 成功\n",(float)u16TargePulse/100.0f);
+      printf("\n 设定占空比 %.2f %% 成功\n",(float)u16TargePulse/100.0f);
 
     }
   
@@ -371,7 +371,7 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,uint32_t TimerI
   static int i = 0;
   unsigned short au16T4PulseTest[4]={2000,6000,10000,14000};
   static int temp1 = 0;
-		/* 测试占空比循环变�? */
+		/* 测试占空比循环变化 */
       //User_Func_SetPulse(au16T4PulseTest[i]);
       temp1++;
       if(temp1==1000)
@@ -392,10 +392,10 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,uint32_t TimerI
 void PWM_TEST(void)
 {
 
-  /* 预读�?帧调试串口数�? */
+  /* 预读一帧调试串口数据 */
   HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100);
 
-  /* 提示输入占空比�?�（00000 ~ 10000 对应 0.00% ~ 100.00%�? */
+  /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
   printf("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
   while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,5,1000));
   u16TargePulse = (u8DebugRxBuff[0]-0x30)*10000 + (u8DebugRxBuff[1]-0x30)*1000 + (u8DebugRxBuff[2]-0x30)*100 + (u8DebugRxBuff[3]-0x30)*10 + u8DebugRxBuff[4]-0x30;

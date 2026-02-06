@@ -25,13 +25,12 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "simulink_protocol.h"
-#include "motor_service.h"
-
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "simulink_protocol.h"
+#include "State_Machine.h"
+#include "motor_service.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -127,13 +126,6 @@ void Working_Task()
   */
 int main(void)
 {
-  //#define STACK_CANARY 0xDEADBEEF
-  //volatile uint32_t stack_canary = STACK_CANARY;
-
-   #define STACK_MAGIC 0xDEADBEEF
-  // STM32G474 栈: Stack_Mem @ 0x20001C00, __initial_sp @ 0x20002000
-  volatile uint32_t *stack_bottom = (volatile uint32_t *)0x20001C00;
-  *stack_bottom = STACK_MAGIC;
 
   /* USER CODE BEGIN 1 */
   //uint8_t tcp_demo_sendbuf[80]="G4 Uart Test \n";
@@ -222,7 +214,7 @@ int main(void)
 
   StateMachine_MainLoop();
 
-}
+
 
 #if 0 
   while (1)
@@ -257,7 +249,7 @@ int main(void)
     printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
     printf("                          编译日期:%s\n",__DATE__);
     printf("  1. ADC 采集精度测试  \n" );
-    printf("  2. PWM占空比修改测�??  \n" );
+    printf("  2. PWM占空比修改测�??  \n" );
     printf("  3. CRC校验计算测试...  \n" );
     printf("  ==================================== \n" );
 
@@ -320,9 +312,10 @@ crc = HAL_CRC_Accumulate(&hcrc,crc_Data,24);
 
 
   }
+	#endif
   /* USER CODE END 3 */
 }
-#endif
+
 /**
   * @brief System Clock Configuration
   * @retval None

@@ -274,16 +274,19 @@ static SimulinkProtocolResult_t SimulinkProtocol_ParseControlFrame(const uint8_t
 
     if (length < SIMULINK_CONTROL_FRAME_LEN)
     {
+        printf("指令长度非法！\n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
     if (pFrame[offset++] != SIMULINK_HEAD_BYTE0 || pFrame[offset++] != SIMULINK_HEAD_BYTE1)
     {
+        printf("指令帧头错误！\n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
     if (pFrame[offset++] != SIMULINK_TYPE_CONTROL)
     {
+        printf("指令类型错误！\n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
@@ -302,16 +305,19 @@ static SimulinkProtocolResult_t SimulinkProtocol_ParseControlFrame(const uint8_t
 		#if 1
     if (crc_calc != crc_recv)
     {
+        printf("crc校验有误，接收值 %x , 计算值 %x \n",crc_recv,crc_calc);
         return SIMULINK_PROTOCOL_ERR_CRC;
     }
 #endif
     if (pOut->pwm < SIMULINK_PWM_MIN || pOut->pwm > SIMULINK_PWM_MAX)
     {
+        printf("pwm参数范围有误： %x  \n",pOut->pwm);
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-		#if 0
+		#if 1
     if (pOut->current < SIMULINK_CURRENT_MIN || pOut->current > SIMULINK_CURRENT_MAX)
     {
+        printf("pwm参数范围有误： %x  \n",pOut->current);
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
 #endif

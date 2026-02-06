@@ -3,9 +3,9 @@
 <title>Static Call Graph - [SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Thu Feb 05 20:28:07 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Fri Feb 06 10:59:31 2026
 <BR><P>
-<H3>Maximum Stack Usage =        344 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        336 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 main &rArr; MX_HRTIM1_Init &rArr; HAL_HRTIM_Init &rArr; HAL_HRTIM_MspInit &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 <P>
@@ -577,9 +577,9 @@ Global Symbols
 <P><STRONG><a name="[72]"></a>ADC_DMAConvCplt</STRONG> (Thumb, 146 bytes, Stack size 16 bytes, stm32g4xx_hal_adc.o(i.ADC_DMAConvCplt))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = ADC_DMAConvCplt
 </UL>
-<BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_ErrorCallback
+<BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_REG_IsTriggerSourceSWStart
+<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_ErrorCallback
 <LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_ConvCpltCallback
-<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_REG_IsTriggerSourceSWStart
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> stm32g4xx_hal_adc.o(i.HAL_ADC_Start_DMA)
 </UL>
@@ -600,10 +600,10 @@ Global Symbols
 <P><STRONG><a name="[92]"></a>ADC_Enable</STRONG> (Thumb, 200 bytes, Stack size 16 bytes, stm32g4xx_hal_adc.o(i.ADC_Enable))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = ADC_Enable
 </UL>
-<BR>[Calls]<UL><LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_IsEnabled
+<BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_IsEnabled
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_GetCommonPathInternalCh
 <LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_Enable
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
 <BR>[Called By]<UL><LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_Start_DMA
 </UL>
@@ -789,11 +789,11 @@ Global Symbols
 <P><STRONG><a name="[b8]"></a>HAL_ADC_Start_DMA</STRONG> (Thumb, 306 bytes, Stack size 24 bytes, stm32g4xx_hal_adc.o(i.HAL_ADC_Start_DMA))
 <BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = HAL_ADC_Start_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Start_IT
-<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Enable
+<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Enable
 <LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_REG_StartConversion
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_REG_IsConversionOngoing
 <LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LL_ADC_GetMultimode
+<LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Start_IT
 </UL>
 <BR>[Called By]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_ADC2_Init
 <LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_ADC1_Init
@@ -808,8 +808,8 @@ Global Symbols
 <P><STRONG><a name="[bc]"></a>HAL_CRC_Init</STRONG> (Thumb, 128 bytes, Stack size 8 bytes, stm32g4xx_hal_crc.o(i.HAL_CRC_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = HAL_CRC_Init &rArr; HAL_CRCEx_Polynomial_Set
 </UL>
-<BR>[Calls]<UL><LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CRC_MspInit
-<LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CRCEx_Polynomial_Set
+<BR>[Calls]<UL><LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CRCEx_Polynomial_Set
+<LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CRC_MspInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_CRC_Init
 </UL>
@@ -1125,9 +1125,9 @@ Global Symbols
 <P><STRONG><a name="[da]"></a>HAL_Init</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, stm32g4xx_hal.o(i.HAL_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = HAL_Init &rArr; HAL_InitTick &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
+<BR>[Calls]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_MspInit
+<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
 <LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriorityGrouping
-<LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_MspInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -1135,8 +1135,8 @@ Global Symbols
 <P><STRONG><a name="[dc]"></a>HAL_InitTick</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, stm32g4xx_hal.o(i.HAL_InitTick))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = HAL_InitTick &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
-<LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
+<BR>[Calls]<UL><LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
+<LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
@@ -1165,10 +1165,10 @@ Global Symbols
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__NVIC_GetPriorityGrouping
 </UL>
 <BR>[Called By]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_DMA_Init
-<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
 <LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_MspInit
 <LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_MspInit
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_HRTIM_MspInit
+<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
 </UL>
 
 <P><STRONG><a name="[db]"></a>HAL_NVIC_SetPriorityGrouping</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, stm32g4xx_hal_cortex.o(i.HAL_NVIC_SetPriorityGrouping))
@@ -1437,9 +1437,9 @@ Global Symbols
 <P><STRONG><a name="[107]"></a>HAL_UART_IRQHandler</STRONG> (Thumb, 962 bytes, Stack size 32 bytes, stm32g4xx_hal_uart.o(i.HAL_UART_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 132<LI>Call Chain = HAL_UART_IRQHandler &rArr; HAL_UARTEx_RxEventCallback &rArr; HAL_UARTEx_ReceiveToIdle_DMA &rArr; UART_Start_Receive_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
+<BR>[Calls]<UL><LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
-<LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndTransmit_IT
 <LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndRxTransfer
 <LI><a href="#[10a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
@@ -1794,7 +1794,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[158]"></a>SimulinkProtocol_UnpackControl</STRONG> (Thumb, 58 bytes, Stack size 24 bytes, simulink_protocol.o(i.SimulinkProtocol_UnpackControl))
-<BR><BR>[Stack]<UL><LI>Max Depth = 68<LI>Call Chain = SimulinkProtocol_UnpackControl &rArr; SimulinkProtocol_ParseControlFrame &rArr; SimulinkProtocol_CalcCRC16
+<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = SimulinkProtocol_UnpackControl &rArr; SimulinkProtocol_ParseControlFrame &rArr; __2printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Simulink_ControlFrame_GetData
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_ParseControlFrame
@@ -1976,6 +1976,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 <LI><a href="#[15b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StateMachine_MainLoop
+<LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_ParseControlFrame
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_Func_SetPulse
 <LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_HRTIM_Compare1EventCallback
 </UL>
@@ -1997,8 +1998,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> printfa.o(i.__0printf)
 </UL>
-<P><STRONG><a name="[6f]"></a>main</STRONG> (Thumb, 166 bytes, Stack size 56 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 344<LI>Call Chain = main &rArr; MX_HRTIM1_Init &rArr; HAL_HRTIM_Init &rArr; HAL_HRTIM_MspInit &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
+<P><STRONG><a name="[6f]"></a>main</STRONG> (Thumb, 156 bytes, Stack size 48 bytes, main.o(i.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 336<LI>Call Chain = main &rArr; MX_HRTIM1_Init &rArr; HAL_HRTIM_Init &rArr; HAL_HRTIM_MspInit &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
 <BR>[Calls]<UL><LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART3_UART_Init
 <LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART2_UART_Init
@@ -2058,11 +2059,12 @@ Local Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[14f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_AssembleFeedbackFrame
 </UL>
 
-<P><STRONG><a name="[156]"></a>SimulinkProtocol_ParseControlFrame</STRONG> (Thumb, 172 bytes, Stack size 32 bytes, simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame))
-<BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = SimulinkProtocol_ParseControlFrame &rArr; SimulinkProtocol_CalcCRC16
+<P><STRONG><a name="[156]"></a>SimulinkProtocol_ParseControlFrame</STRONG> (Thumb, 244 bytes, Stack size 32 bytes, simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame))
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = SimulinkProtocol_ParseControlFrame &rArr; __2printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_UnpackInt16LE
 <LI><a href="#[152]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_CalcCRC16
+<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_UnpackControl
 </UL>
@@ -2269,8 +2271,8 @@ Local Symbols
 <P><STRONG><a name="[e1]"></a>__NVIC_SetPriority</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, stm32g4xx_hal_cortex.o(i.__NVIC_SetPriority))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = __NVIC_SetPriority
 </UL>
-<BR>[Called By]<UL><LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
-<LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
+<BR>[Called By]<UL><LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
+<LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
 </UL>
 
 <P><STRONG><a name="[d7]"></a>HRTIM_ForceRegistersUpdate</STRONG> (Thumb, 148 bytes, Stack size 0 bytes, stm32g4xx_hal_hrtim.o(i.HRTIM_ForceRegistersUpdate))
