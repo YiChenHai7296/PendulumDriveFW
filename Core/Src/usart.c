@@ -861,9 +861,9 @@ void EncoderTrigger_Send(void)
 {
   static uint8_t u8TimedSendByte = 0x02;  /* 单字节 0x02 用于 DMA 触发编码器 */
 
-  //(void)HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte, 1);
-  //(void)HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte, 1);
-  //(void)HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte, 1);
+  (void)HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte, 1);
+  (void)HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte, 1);
+  (void)HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte, 1);
 
   //(void)HAL_UART_Transmit_DMA(&huart2, &u8TimedSendByte, 1);
 

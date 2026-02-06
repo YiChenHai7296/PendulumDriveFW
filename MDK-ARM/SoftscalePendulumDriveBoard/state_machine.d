@@ -1,5 +1,5 @@
-softscalependulumdriveboard\state_machine.o: ..\Core\Src\State_Machine.c
-softscalependulumdriveboard\state_machine.o: ../Core/Inc/State_Machine.h
+softscalependulumdriveboard\state_machine.o: ..\User\App\Src\State_Machine.c
+softscalependulumdriveboard\state_machine.o: ../User/App/Inc/State_Machine.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/main.h
 softscalependulumdriveboard\state_machine.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/stm32g4xx_hal_conf.h
@@ -39,11 +39,11 @@ softscalependulumdriveboard\state_machine.o: ../Drivers/STM32G4xx_HAL_Driver/Inc
 softscalependulumdriveboard\state_machine.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h
 softscalependulumdriveboard\state_machine.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h
 softscalependulumdriveboard\state_machine.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
-softscalependulumdriveboard\state_machine.o: ../Core/Inc/simulink_protocol.h
+softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/simulink_protocol.h
 softscalependulumdriveboard\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-softscalependulumdriveboard\state_machine.o: ../Core/Inc/RingFrameQueue.h
-softscalependulumdriveboard\state_machine.o: ../Core/Inc/motor_service.h
+softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/RingFrameQueue.h
+softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/motor_service.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/adc.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/hrtim.h

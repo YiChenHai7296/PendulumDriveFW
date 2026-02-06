@@ -57,46 +57,19 @@ typedef struct
 /* ======================== 4. 对外变量声明 ======================== */
 /* 无 */
 
-/* ======================== 5. 接口函数声明 ======================== */
+/* ======================== 5. 接口函数声明（仅解包与组包） ======================== */
 /**
- * @brief 校验帧头是否为 0x5A 0xA5
- * @param[in] pBuffer 缓冲区指针
- * @return true 帧头正确，false 否则
- */
-bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer);
-
-/**
- * @brief 在缓冲区中查找帧头位置
- * @param[in] pBuffer    缓冲区
- * @param[in] bufferSize 长度
- * @return 帧头起始下标，未找到返回 -1
- */
-int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize);
-
-/**
- * @brief 解帧：从底层获取一帧控制帧并解析，结果填入 pOut
+ * @brief 解包：从底层获取一帧控制帧并解析，结果填入 pOut
  * @param[out] pOut 解析得到的控制数据
  * @return 解析结果
  */
 SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut);
 
 /**
- * @brief 组帧：将反馈数据打包为反馈帧并发送
+ * @brief 组包：将反馈数据打包为反馈帧并发送
  * @param[in] pIn 反馈数据
  * @return 打包/发送结果
  */
 SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn);
-
-/**
- * @brief 获取反馈帧发送缓冲区（由协议栈维护）
- * @return 指向长度为 SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE 的缓冲区
- */
-uint8_t *SimulinkProtocol_GetFeedbackTxBuffer(void);
-
-/**
- * @brief 获取反馈帧发送长度（字节）
- * @return 固定为 SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE
- */
-uint16_t SimulinkProtocol_GetFeedbackTxLength(void);
 
 #endif /* SIMULINK_PROTOCOL_H */

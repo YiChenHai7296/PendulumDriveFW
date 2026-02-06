@@ -60,16 +60,11 @@ static SimulinkProtocolResult_t SimulinkProtocol_AssembleFeedbackFrame(const Sim
                                                                        uint16_t bufSize,
                                                                        uint16_t *pOutLen);
 
-/* ======================== 6. 接口函数实现 ======================== */
+/* ======================== 6. 对外接口：解包 / 组包 ======================== */
 
-uint8_t *SimulinkProtocol_GetFeedbackTxBuffer(void)
+static uint8_t *SimulinkProtocol_GetFeedbackTxBuffer(void)
 {
     return s_feedback_tx_buf;
-}
-
-uint16_t SimulinkProtocol_GetFeedbackTxLength(void)
-{
-    return (uint16_t)SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE;
 }
 
 SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut)
@@ -155,7 +150,9 @@ SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFee
     return SIMULINK_PROTOCOL_OK;
 }
 
-bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer)
+/* ======================== 7. 私有函数实现 ======================== */
+
+static bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer)
 {
     if (pBuffer == NULL)
     {
@@ -164,7 +161,7 @@ bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer)
     return (pBuffer[0] == SIMULINK_HEAD_BYTE0 && pBuffer[1] == SIMULINK_HEAD_BYTE1);
 }
 
-int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize)
+static int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize)
 {
     uint16_t i;  /* 遍历下标 */
 
@@ -183,8 +180,6 @@ int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize)
 
     return -1;
 }
-
-/* ======================== 7. 私有函数实现 ======================== */
 
 /**
  * @brief 将 16 位整数按小端序写入缓冲区（低字节在前）

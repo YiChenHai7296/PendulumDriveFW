@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32G474xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../User/App/Inc;../User/Service/Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -391,32 +391,42 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/User/Core</GroupName>
+          <GroupName>Application/User/App</GroupName>
           <Files>
+            <File>
+              <FileName>State_Machine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\App\Src\State_Machine.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Application/User/Service</GroupName>
+          <Files>
+            <File>
+              <FileName>motor_service.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Service\Src\motor_service.c</FilePath>
+            </File>
             <File>
               <FileName>RingFrameQueue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\RingFrameQueue.c</FilePath>
-            </File>
-            <File>
-              <FileName>debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\debug.c</FilePath>
+              <FilePath>..\User\Service\Src\RingFrameQueue.c</FilePath>
             </File>
             <File>
               <FileName>simulink_protocol.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\simulink_protocol.c</FilePath>
+              <FilePath>..\User\Service\Src\simulink_protocol.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Application/User/Core</GroupName>
+          <Files>
             <File>
-              <FileName>motor_service.c</FileName>
+              <FileName>debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\motor_service.c</FilePath>
-            </File>
-            <File>
-              <FileName>State_Machine.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\State_Machine.c</FilePath>
+              <FilePath>..\Core\Src\debug.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
@@ -619,5 +629,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>SoftscalePendulumDriveBoard</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>
