@@ -95,7 +95,7 @@ void MotorService_CloseMotor(void)
 {
     PWM_Enable(DISABLE);
     PWM_DirControl(MOTOR_DIR_FORWARD);
-    (void)MotorService_SetDutyCycle(10);
+    (void)MotorService_SetDutyCycle(0);
 }
 
 

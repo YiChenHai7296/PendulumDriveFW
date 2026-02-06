@@ -120,8 +120,8 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>
-</Name>        </SetRegEntry>
+          <Name>?</Name>
+        </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
           <Key>ARMRTXEVENTFLAGS</Key>
@@ -157,9 +157,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>936</LineNumber>
+          <LineNumber>945</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134234986</Address>
+          <Address>134235094</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -168,14 +168,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>../Core/Src/usart.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\936</Expression>
+          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\945</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>817</LineNumber>
+          <LineNumber>955</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245178</Address>
+          <Address>134235152</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -184,7 +184,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>../Core/Src/usart.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\817</Expression>
+          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\955</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

@@ -64,7 +64,7 @@ void StateMachine_MainLoop(void)
         if (MotorService_GetFeedbackData(&fb) != MOTOR_SVC_OK)
         {
             /* 编码器解析失败：可选进入安全态或上报，此处继续使用已有 fb 并组帧 */
-            #if 0
+            #if 1
             continue;
             #endif
         }
