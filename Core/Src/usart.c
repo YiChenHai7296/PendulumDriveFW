@@ -95,15 +95,15 @@ void MX_UART4_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_SetTxFifoThreshold(&huart4, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart4, UART_TXFIFO_THRESHOLD_1_2) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_SetRxFifoThreshold(&huart4, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart4, UART_RXFIFO_THRESHOLD_1_2) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_DisableFifoMode(&huart4) != HAL_OK)
+  if (HAL_UARTEx_EnableFifoMode(&huart4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -138,15 +138,15 @@ void MX_UART5_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_SetTxFifoThreshold(&huart5, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart5, UART_TXFIFO_THRESHOLD_1_2) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_SetRxFifoThreshold(&huart5, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart5, UART_RXFIFO_THRESHOLD_1_2) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_DisableFifoMode(&huart5) != HAL_OK)
+  if (HAL_UARTEx_EnableFifoMode(&huart5) != HAL_OK)
   {
     Error_Handler();
   }
@@ -274,15 +274,15 @@ void MX_USART3_UART_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_2) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_2) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
+  if (HAL_UARTEx_EnableFifoMode(&huart3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -855,18 +855,56 @@ int Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
 
 /**
   * @brief  定时向串口 3、4、5、2 依次 DMA 发送单字节 0x02（在 TIM1 定时中断中调用）
-  * @note   注意 3/4/5 共用一个静态缓冲；DMA 未完成时勿重复调用
+  * @note   每个串口使用独立的静态缓冲；注意：三个串口都使用 DMA2（不同通道）
+  * @note   尝试改变调用顺序，避免可能的 DMA2 控制器资源冲突
   */
 void EncoderTrigger_Send(void)
 {
-  static uint8_t u8TimedSendByte = 0x02;  /* 单字节 0x02 用于 DMA 触发编码器 */
+  static uint8_t u8TimedSendByte3 = 0x02;  /* 串口3：单字节 0x02 用于 DMA 触发编码器 */
+  static uint8_t u8TimedSendByte4 = 0x02;  /* 串口4：单字节 0x02 用于 DMA 触发编码器 */
+  static uint8_t u8TimedSendByte5 = 0x02;  /* 串口5：单字节 0x02 用于 DMA 触发编码器 */
+  HAL_StatusTypeDef status;
 
-  (void)HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte, 1);
-  (void)HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte, 1);
-  (void)HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte, 1);
+	
+	
+	HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte5, 1);
+	//HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte4, 1);
+	HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte3, 1);
+	
+	
+	#if 0
+	
+	
+  /* 尝试改变调用顺序：先调用串口5，再串口4，最后串口3 */
+  /* 串口5：检查状态并发送 */
+  if (huart5.gState == HAL_UART_STATE_READY && 
+      huart5.hdmatx != NULL && 
+      HAL_DMA_GetState(huart5.hdmatx) == HAL_DMA_STATE_READY)
+  {
+    status = HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte5, 1);
+    (void)status;
+  }
+  
+  /* 串口4：检查状态并发送 */
+  if (huart4.gState == HAL_UART_STATE_READY && 
+      huart4.hdmatx != NULL && 
+      HAL_DMA_GetState(huart4.hdmatx) == HAL_DMA_STATE_READY)
+  {
+    status = HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte4, 1);
+    (void)status;
+  }
+  
+  /* 串口3：检查状态并发送 */
+  if (huart3.gState == HAL_UART_STATE_READY && 
+      huart3.hdmatx != NULL && 
+      HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_READY)
+  {
+   // status = HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte3, 1);
+    (void)status;
+  }
 
   //(void)HAL_UART_Transmit_DMA(&huart2, &u8TimedSendByte, 1);
-
+#endif
 }
 
 /**

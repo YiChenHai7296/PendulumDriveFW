@@ -39,11 +39,13 @@ void StateMachine_MainLoop(void)
     float ADC_test_max = 0;
     float ADC_test_min = 3.3;
     float ADC_diff = 0;
+    float ADC_diff16 = 0;
+    float ADC_diffmx = 0;
     /* 阻塞循环：等待控制帧 -> 设置占空比 -> 采集反馈 -> 组帧发送 */
     for (;;)
     {
         temp++;
-        if(temp == 5000000)
+        if(temp == 2000000)
         {
           printf("等待上位机指令...\n");
           ADC_test_data = ADC_Read_MotorVol();
@@ -57,7 +59,17 @@ void StateMachine_MainLoop(void)
             ADC_test_min = ADC_test_data;
             ADC_diff = ADC_test_max - ADC_test_min;
           }
-          printf("ADC当前读数：%f ,最大值：%f , 最小值：%f , 差值：%f \n",ADC_test_data,ADC_test_max,ADC_test_min,ADC_diff);
+          
+          ADC_diff16 = ADC_test_data - 1.6;
+          if(ADC_diff16<0)
+          {
+            ADC_diff16 = -ADC_diff16;
+          }
+          if(ADC_diffmx < ADC_diff16)
+          {
+            ADC_diffmx = ADC_diff16;
+          }
+          printf("ADC当前读数：%f ,误差 = %f , 最大误差 = %f   |  最大值：%f , 最小值：%f , 差值：%f ,\n",ADC_test_data,ADC_diff16,ADC_diffmx,ADC_test_max,ADC_test_min,ADC_diff);
           
           temp = 0;
         }

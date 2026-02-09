@@ -30,26 +30,16 @@ Build target 'SoftscalePendulumDriveBoard'
 Note: source file '..\User\Service\Src\motor_service.c' - object file renamed from 'SoftscalePendulumDriveBoard\motor_service.o' to 'SoftscalePendulumDriveBoard\motor_service_1.o'.
 Note: source file '..\User\Service\Src\RingFrameQueue.c' - object file renamed from 'SoftscalePendulumDriveBoard\RingFrameQueue.o' to 'SoftscalePendulumDriveBoard\ringframequeue_1.o'.
 Note: source file '..\User\Service\Src\simulink_protocol.c' - object file renamed from 'SoftscalePendulumDriveBoard\simulink_protocol.o' to 'SoftscalePendulumDriveBoard\simulink_protocol_1.o'.
-compiling State_Machine.c...
-../User/App/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
-  #endif /* __STATE_MACHINE__ */
-..\User\App\Src\State_Machine.c(48): warning:  #223-D: function "printf" declared implicitly
-            printf("等待上位机指�?...\n");
-..\User\App\Src\State_Machine.c(48): warning:  #870-D: invalid multibyte character sequence
-            printf("等待上位机指�?...\n");
-..\User\App\Src\State_Machine.c(60): warning:  #870-D: invalid multibyte character sequence
-            printf("ADC当前读数�?%f ,最大值：%f , 最小值：%f , 差值：%f \n",ADC_test_data,ADC_test_max,ADC_test_min,ADC_diff);
-..\User\App\Src\State_Machine.c(79): warning:  #177-D: variable "ADC_test_max"  was declared but never referenced
-          float ADC_test_max = 0;
-..\User\App\Src\State_Machine.c(80): warning:  #177-D: variable "ADC_test_min"  was declared but never referenced
-          float ADC_test_min = 3.3;
-..\User\App\Src\State_Machine.c(125): warning:  #177-D: function "StateMachine_OnDutyWriteFailed"  was declared but never referenced
-  static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误�? */
-..\User\App\Src\State_Machine.c: 7 warnings, 0 errors
+compiling usart.c...
+../Core/Src/usart.c(864): warning:  #177-D: variable "u8TimedSendByte4"  was declared but never referenced
+    static uint8_t u8TimedSendByte4 = 0x02;  /* 串口4：单字节 0x02 用于 DMA 触发编码�? */
+../Core/Src/usart.c(866): warning:  #177-D: variable "status"  was declared but never referenced
+    HAL_StatusTypeDef status;
+../Core/Src/usart.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=33488 RO-data=664 RW-data=92 ZI-data=4164  
+Program Size: Code=34268 RO-data=700 RW-data=92 ZI-data=4164  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 7 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -72,7 +62,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:6.1.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

@@ -2558,7 +2558,6 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   * @param huart UART handle.
   * @retval None
   */
-  
 __weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
   /* Prevent unused argument(s) compilation warning */

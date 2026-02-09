@@ -158,7 +158,7 @@
           <Type>0</Type>
           <LineNumber>156</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134243402</Address>
+          <Address>134244154</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -174,7 +174,7 @@
           <Type>0</Type>
           <LineNumber>501</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134243562</Address>
+          <Address>134244314</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -301,6 +301,31 @@
           <count>22</count>
           <WinNumber>1</WinNumber>
           <ItemText>au16_ADC2_Vol_Value</ItemText>
+        </Ww>
+        <Ww>
+          <count>23</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au8OutputShaftEncoderBuff</ItemText>
+        </Ww>
+        <Ww>
+          <count>24</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au8SwingArmEncoderBuff</ItemText>
+        </Ww>
+        <Ww>
+          <count>25</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au8Uart3DMABuff</ItemText>
+        </Ww>
+        <Ww>
+          <count>26</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au8Uart4DMABuff</ItemText>
+        </Ww>
+        <Ww>
+          <count>27</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au8Uart5DMABuff</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
