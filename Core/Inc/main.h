@@ -57,10 +57,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Encoder_OutputShaft_Enable_Pin GPIO_PIN_13
+#define Encoder_OutputShaft_Enable_GPIO_Port GPIOC
+#define Encoder_Motor_Enable_Pin GPIO_PIN_4
+#define Encoder_Motor_Enable_GPIO_Port GPIOB
 #define MotorEnableControl_Pin GPIO_PIN_5
 #define MotorEnableControl_GPIO_Port GPIOB
 #define MotorDirectionControl_Pin GPIO_PIN_6
 #define MotorDirectionControl_GPIO_Port GPIOB
+#define Encoder_SwingArm_Enable_Pin GPIO_PIN_9
+#define Encoder_SwingArm_Enable_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

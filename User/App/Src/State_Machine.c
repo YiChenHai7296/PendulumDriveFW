@@ -35,6 +35,10 @@ void StateMachine_MainLoop(void)
     SimulinkProtocolFeedbackData_t fb_tx;     /* 待发送的 Simulink 反馈帧载荷 */
     MotorFeedbackData_t            fb;        /* 电机反馈原始数据（位置、转速、电流等） */
     static int temp = 0;
+    float ADC_test_data = 0;
+    float ADC_test_max = 0;
+    float ADC_test_min = 3.3;
+    float ADC_diff = 0;
     /* 阻塞循环：等待控制帧 -> 设置占空比 -> 采集反馈 -> 组帧发送 */
     for (;;)
     {
@@ -42,6 +46,19 @@ void StateMachine_MainLoop(void)
         if(temp == 5000000)
         {
           printf("等待上位机指令...\n");
+          ADC_test_data = ADC_Read_MotorVol();
+          if(ADC_test_data>ADC_test_max)
+          {
+            ADC_test_max = ADC_test_data;
+            ADC_diff = ADC_test_max - ADC_test_min;
+          }
+          if(ADC_test_data<ADC_test_min)
+          {
+            ADC_test_min = ADC_test_data;
+            ADC_diff = ADC_test_max - ADC_test_min;
+          }
+          printf("ADC当前读数：%f ,最大值：%f , 最小值：%f , 差值：%f \n",ADC_test_data,ADC_test_max,ADC_test_min,ADC_diff);
+          
           temp = 0;
         }
         /* 1) 等待并解帧：从 USART2 接收队列取一帧控制帧 */
@@ -59,6 +76,8 @@ void StateMachine_MainLoop(void)
             //StateMachine_OnDutyWriteFailed(motorRet, &ctrl);
             continue;
         }
+        float ADC_test_max = 0;
+        float ADC_test_min = 3.3;
 
         /* 4) 写入成功：获取电机反馈数据 */
         if (MotorService_GetFeedbackData(&fb) != MOTOR_SVC_OK)

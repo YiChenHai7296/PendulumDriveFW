@@ -353,15 +353,15 @@ float ADC_Read_MotorVol(void)
 }
 
 /**
-  * @brief  �? ADC1、ADC2 当前采集的原始数据各取一字节，打包成两字节数组，通过 pOut 返回
-  * @param  pOut  指向至少 2 字节的缓冲区，pOut[0]=ADC1 原始值低字节，pOut[1]=ADC2 原始值低字节
+  * @brief  �? ADC1、ADC2 当前采集的原始数据两字节/通道，12 位有效
+  * @param  pOut  指向至少 2 个 uint16_t 的缓冲区，pOut[0]=ADC1 原始值，pOut[1]=ADC2 原始值
   */
-void ADC_GetMotorVol(uint8_t *pOut)
+void ADC_GetMotorVol(uint16_t *pOut)
 {
     if (pOut != NULL)
     {
-        pOut[0] = (uint8_t)(au16_ADC1_Vol_Value[0] & 0xFFU);
-        pOut[1] = (uint8_t)(au16_ADC2_Vol_Value[0] & 0xFFU);
+        pOut[0] = au16_ADC1_Vol_Value[0];
+        pOut[1] = au16_ADC2_Vol_Value[0];
     }
 }
 

@@ -140,12 +140,13 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
         return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
     }
 
+		#if 0
     encRes = EncoderProtocol_ReadOutputShaft(&shaft_dual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
         return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SHAFT);
     }
-
+#endif
     encRes = EncoderProtocol_ReadSwingArm(&swing_dual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
@@ -482,10 +483,10 @@ static float EncoderSpeed_CalcSwingArm(const EncoderProtocolDataDual_t *pDual)
  */
 static float MotorService_GetMotorVoltage(void)
 {
-    uint8_t rawAdc[2];
+    uint16_t rawAdc[2];
 
     ADC_GetMotorVol(rawAdc);
-    /* 两路ADC低字节平均，转换为电压值（12位ADC，参考电压3.3V） */
+    /* 两路 ADC 原始值（12 位）平均后转换为电压（参考电压 3.3V） */
     return ((float)rawAdc[0] + (float)rawAdc[1]) / 2.0f * 3.3f / 4096.0f;
 }
 

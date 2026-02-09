@@ -115,7 +115,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM1)
   {
-			EncoderTrigger_Send();
+    EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR,ENABLE);
+    EncoderLevelShifter_SetEnable(ENCODER_UART_SWING,ENABLE);
+    EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT,ENABLE);
+    EncoderTrigger_Send();
   }
 }
 

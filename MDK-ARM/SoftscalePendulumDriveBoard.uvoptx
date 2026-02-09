@@ -120,7 +120,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,34 +156,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>945</LineNumber>
+          <LineNumber>156</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134235094</Address>
+          <Address>134243402</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Core/Src/usart.c</Filename>
+          <Filename>..\User\Service\Src\motor_service.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\945</Expression>
+          <Expression>\\SoftscalePendulumDriveBoard\../User/Service/Src/motor_service.c\156</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>955</LineNumber>
+          <LineNumber>501</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134235152</Address>
+          <Address>134243562</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Core/Src/usart.c</Filename>
+          <Filename>..\User\Service\Src\motor_service.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../Core/Src/usart.c\955</Expression>
+          <Expression>\\SoftscalePendulumDriveBoard\../User/Service/Src/motor_service.c\501</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -267,6 +266,41 @@
           <count>15</count>
           <WinNumber>1</WinNumber>
           <ItemText>Size</ItemText>
+        </Ww>
+        <Ww>
+          <count>16</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au8MotorEncoderBuff</ItemText>
+        </Ww>
+        <Ww>
+          <count>17</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>encRes</ItemText>
+        </Ww>
+        <Ww>
+          <count>18</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pFrame</ItemText>
+        </Ww>
+        <Ww>
+          <count>19</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>rawBuf</ItemText>
+        </Ww>
+        <Ww>
+          <count>20</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>current_A</ItemText>
+        </Ww>
+        <Ww>
+          <count>21</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au16_ADC1_Vol_Value</ItemText>
+        </Ww>
+        <Ww>
+          <count>22</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>au16_ADC2_Vol_Value</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -389,7 +423,7 @@
       <GroupNumber>3</GroupNumber>
       <FileNumber>3</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\Service\Src\motor_service.c</PathWithFileName>

@@ -46,7 +46,7 @@ void MX_ADC2_Init(void);
 /* USER CODE BEGIN Prototypes */
 void ADC_TEST(void);
 float ADC_Read_MotorVol(void);
-void ADC_GetMotorVol(uint8_t *pOut);
+void ADC_GetMotorVol(uint16_t *pOut);
 
 /* USER CODE END Prototypes */
 

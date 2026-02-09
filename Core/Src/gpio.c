@@ -52,23 +52,23 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, Encoder_OutputShaft_Enable_Pin|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, MotorEnableControl_Pin|MotorDirectionControl_Pin|GPIO_PIN_7|GPIO_PIN_8
-                          |GPIO_PIN_9, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, Encoder_Motor_Enable_Pin|MotorEnableControl_Pin|MotorDirectionControl_Pin|GPIO_PIN_7
+                          |GPIO_PIN_8|Encoder_SwingArm_Enable_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PC13 PC14 PC15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+  /*Configure GPIO pins : PCPin PC14 PC15 */
+  GPIO_InitStruct.Pin = Encoder_OutputShaft_Enable_Pin|GPIO_PIN_14|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin PB7 PB8
-                           PB9 */
-  GPIO_InitStruct.Pin = MotorEnableControl_Pin|MotorDirectionControl_Pin|GPIO_PIN_7|GPIO_PIN_8
-                          |GPIO_PIN_9;
+  /*Configure GPIO pins : PBPin PBPin PBPin PB7
+                           PB8 PBPin */
+  GPIO_InitStruct.Pin = Encoder_Motor_Enable_Pin|MotorEnableControl_Pin|MotorDirectionControl_Pin|GPIO_PIN_7
+                          |GPIO_PIN_8|Encoder_SwingArm_Enable_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

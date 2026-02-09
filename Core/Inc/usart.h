@@ -90,16 +90,34 @@ void EncoderTrigger_Send(void);
 void MotorEncoder_GetData(uint8_t *pOut);
 
 /**
-  * @brief  获取输出轴编码器当前数据（UART4），12 字节；前6字节=�?新帧，后6字节=上一�?
+  * @brief  获取输出轴编码器当前数据（UART5），12 字节；前6字节=�?新帧，后6字节=上一�?
   * @param  pOut  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   */
 void OutputShaftEncoder_GetData(uint8_t *pOut);
 
 /**
-  * @brief  获取摆臂编码器当前数据（UART5），12 字节；前6字节=�?新帧，后6字节=上一�?
+  * @brief  获取摆杆编码器当前数据（UART4），12 字节；前6字节=�?新帧，后6字节=上一�?
   * @param  pOut  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   */
 void SwingArmEncoder_GetData(uint8_t *pOut);
+
+/**
+  * @brief  编码器串口选择（用于电平转换芯片使能引脚控制）
+  * @note   电机=UART3/PB4，摆杆=UART4/PB9，输出轴=UART5/PC13
+  */
+typedef enum
+{
+  ENCODER_UART_MOTOR   = 3,  /**< 电机编码器串口 (PB4) */
+  ENCODER_UART_SWING   = 4,  /**< 摆杆编码器串口 (PB9) */
+  ENCODER_UART_SHAFT   = 5   /**< 输出轴编码器串口 (PC13) */
+} EncoderUartSel_t;
+
+/**
+  * @brief  控制编码器串口对应电平转换芯片的使能引脚
+  * @param  uart_sel 串口选择：ENCODER_UART_MOTOR(3)/ENCODER_UART_SWING(4)/ENCODER_UART_SHAFT(5)
+  * @param  state    使能状态：ENABLE=使能，DISABLE=失能
+  */
+void EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, FunctionalState state);
 
 /* USER CODE END Prototypes */
 
