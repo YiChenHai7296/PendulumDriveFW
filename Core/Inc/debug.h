@@ -1,10 +1,10 @@
-﻿#ifndef __DEBUG_H
+#ifndef __DEBUG_H
 #define __DEBUG_H
 
 #include "stm32g4xx_hal.h"
 
 /* ===================== Debug 开关 ===================== */
-#define DEBUG_ENABLE        1   // 0: 关闭调试输出  1: 打开
+#define DEBUG_ENABLE        0   // 0: 关闭调试输出  1: 打开
 
 /* ===================== Debug 串口选择 ===================== */
 #define DEBUG_UART_HANDLE   huart2

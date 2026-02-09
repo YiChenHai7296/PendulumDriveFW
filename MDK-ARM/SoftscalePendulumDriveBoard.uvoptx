@@ -158,7 +158,7 @@
           <Type>0</Type>
           <LineNumber>156</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244154</Address>
+          <Address>134244170</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -174,7 +174,7 @@
           <Type>0</Type>
           <LineNumber>501</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244314</Address>
+          <Address>134244330</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -184,6 +184,22 @@
           <Filename>..\User\Service\Src\motor_service.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\SoftscalePendulumDriveBoard\../User/Service/Src/motor_service.c\501</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>95</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134246470</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\User\App\Src\State_Machine.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\SoftscalePendulumDriveBoard\../User/App/Src/State_Machine.c\95</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
