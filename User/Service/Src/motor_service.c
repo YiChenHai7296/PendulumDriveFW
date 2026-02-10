@@ -182,20 +182,8 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
     pOut->motor_speed = (int32_t)speed_f;
 
     speed_f = EncoderSpeed_CalcOutputShaft(&shaft_dual);
-    /* 一阶 IIR 滤波：抑制 ±1 抖动及异常跳变，使匀速时输出稳定 */
-    if (s_axis_speed_filter_init == 0U)
-    {
-        s_axis_speed_filtered = speed_f;
-        s_axis_speed_filter_init = 1U;
-    }
-    else
-    {
-        s_axis_speed_filtered = AXIS_SPEED_FILTER_ALPHA * s_axis_speed_filtered
-                                + (1.0f - AXIS_SPEED_FILTER_ALPHA) * speed_f;
-    }
-    /* 四舍五入：避免依赖 libm */
-    pOut->axis_speed = (int32_t)(s_axis_speed_filtered + (s_axis_speed_filtered >= 0.0f ? 0.5f : -0.5f));
-
+    pOut->axis_speed =  (int32_t)speed_f;
+    
     speed_f = EncoderSpeed_CalcSwingArm(&swing_dual);
     pOut->pendulum_speed = (int32_t)speed_f;
 

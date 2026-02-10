@@ -186,27 +186,12 @@ int main(void)
   /* 串口启动 */
   HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 
-  //au8Uart1SendBuff
-  //HAL_UART_Transmit_IT(&huart1,"\n uart1 send uart5recv 123",26);
-
-
-
-//  HAL_UART_Receive_IT(&huart5, (uint8_t *)tcp_demo_sendbuf, 1); 
-  //HAL_UART_Transmit_IT(&huart1,"\n uart4send uart5recv 123",26);
-
-  //HAL_UART_Transmit_IT(&huart2,(const uint8_t *)"\n CRC:",7);
-
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  //unsigned char u8DebugRxBuff[10] = 0;
-
 
   MotorService_InitMotor();
-
-
 
   printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
   printf("                          编译日期:%s\n",__DATE__);

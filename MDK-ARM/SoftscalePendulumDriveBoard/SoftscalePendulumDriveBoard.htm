@@ -3,7 +3,7 @@
 <title>Static Call Graph - [SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue Feb 10 15:49:05 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue Feb 10 19:08:00 2026
 <BR><P>
 <H3>Maximum Stack Usage =        396 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1499,7 +1499,7 @@ Global Symbols
 <LI><a href="#[114]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
 </UL>
 
-<P><STRONG><a name="[114]"></a>HAL_UARTEx_RxEventCallback</STRONG> (Thumb, 322 bytes, Stack size 24 bytes, usart.o(i.HAL_UARTEx_RxEventCallback))
+<P><STRONG><a name="[114]"></a>HAL_UARTEx_RxEventCallback</STRONG> (Thumb, 310 bytes, Stack size 24 bytes, usart.o(i.HAL_UARTEx_RxEventCallback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 100<LI>Call Chain = HAL_UARTEx_RxEventCallback &rArr; HAL_UARTEx_ReceiveToIdle_DMA &rArr; UART_Start_Receive_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
 </UL>
 <BR>[Calls]<UL><LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RFQ_Push
@@ -1819,7 +1819,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderProtocol_ReadMotor
 </UL>
 
-<P><STRONG><a name="[155]"></a>MotorService_GetFeedbackData</STRONG> (Thumb, 270 bytes, Stack size 72 bytes, motor_service_1.o(i.MotorService_GetFeedbackData))
+<P><STRONG><a name="[155]"></a>MotorService_GetFeedbackData</STRONG> (Thumb, 188 bytes, Stack size 72 bytes, motor_service_1.o(i.MotorService_GetFeedbackData))
 <BR><BR>[Stack]<UL><LI>Max Depth = 172<LI>Call Chain = MotorService_GetFeedbackData &rArr; EncoderProtocol_ReadOutputShaft &rArr; EncoderProtocol_ParseFrame &rArr; EncoderProtocol_CalcCRC8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_MapEncoderResult
