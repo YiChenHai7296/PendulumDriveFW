@@ -45,6 +45,16 @@ extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
+/**
+  * @brief  编码器串口选择（用于电平转换芯片使能引脚控制）
+  * @note   电机=UART3/PB4，摆杆=UART4/PB9，输出轴=UART5/PC13
+  */
+typedef enum
+{
+  ENCODER_UART_MOTOR   = 3,  /**< 电机编码器串口 (PB4) */
+  ENCODER_UART_SWING   = 4,  /**< 摆杆编码器串口 (PB9) */
+  ENCODER_UART_SHAFT   = 5   /**< 输出轴编码器串口 (PC13) */
+} EncoderUartSel_t;
 
 
 #define ENCODER_SNAPSHOT_BYTES  12U   /**< �?6字节=�?新帧，后6字节=上一�? */
@@ -83,6 +93,9 @@ int Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len);
   */
 void EncoderTrigger_Send(void);
 
+/** 仅向指定编码器串口发送 0x02 触发，用于 TIM1 分相（更新/比较1/比较2 各一路） */
+void EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
+
 /**
   * @brief  获取电机编码器当前数据（UART3），12 字节；前6字节=�?新帧，后6字节=上一�?
   * @param  pOut  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
@@ -101,16 +114,7 @@ void OutputShaftEncoder_GetData(uint8_t *pOut);
   */
 void SwingArmEncoder_GetData(uint8_t *pOut);
 
-/**
-  * @brief  编码器串口选择（用于电平转换芯片使能引脚控制）
-  * @note   电机=UART3/PB4，摆杆=UART4/PB9，输出轴=UART5/PC13
-  */
-typedef enum
-{
-  ENCODER_UART_MOTOR   = 3,  /**< 电机编码器串口 (PB4) */
-  ENCODER_UART_SWING   = 4,  /**< 摆杆编码器串口 (PB9) */
-  ENCODER_UART_SHAFT   = 5   /**< 输出轴编码器串口 (PC13) */
-} EncoderUartSel_t;
+
 
 /**
   * @brief  控制编码器串口对应电平转换芯片的使能引脚

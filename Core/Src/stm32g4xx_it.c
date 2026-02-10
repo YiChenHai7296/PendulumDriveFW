@@ -22,6 +22,7 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,15 +62,12 @@ extern DMA_HandleTypeDef hdma_adc2;
 extern HRTIM_HandleTypeDef hhrtim1;
 extern TIM_HandleTypeDef htim1;
 extern DMA_HandleTypeDef hdma_uart4_rx;
-extern DMA_HandleTypeDef hdma_uart4_tx;
 extern DMA_HandleTypeDef hdma_uart5_rx;
-extern DMA_HandleTypeDef hdma_uart5_tx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart2_rx;
 extern DMA_HandleTypeDef hdma_usart2_tx;
 extern DMA_HandleTypeDef hdma_usart3_rx;
-extern DMA_HandleTypeDef hdma_usart3_tx;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart1;
@@ -274,20 +272,6 @@ void DMA1_Channel4_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel5 global interrupt.
-  */
-void DMA1_Channel5_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
-
-  /* USER CODE END DMA1_Channel5_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart3_rx);
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel5_IRQn 1 */
-}
-
-/**
   * @brief This function handles DMA1 channel6 global interrupt.
   */
 void DMA1_Channel6_IRQHandler(void)
@@ -295,24 +279,10 @@ void DMA1_Channel6_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel6_IRQn 0 */
 
   /* USER CODE END DMA1_Channel6_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_uart4_rx);
+  HAL_DMA_IRQHandler(&hdma_usart2_tx);
   /* USER CODE BEGIN DMA1_Channel6_IRQn 1 */
 
   /* USER CODE END DMA1_Channel6_IRQn 1 */
-}
-
-/**
-  * @brief This function handles DMA1 channel7 global interrupt.
-  */
-void DMA1_Channel7_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel7_IRQn 0 */
-
-  /* USER CODE END DMA1_Channel7_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_uart5_rx);
-  /* USER CODE BEGIN DMA1_Channel7_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel7_IRQn 1 */
 }
 
 /**
@@ -327,6 +297,20 @@ void TIM1_UP_TIM16_IRQHandler(void)
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM1 capture compare interrupt.
+  */
+void TIM1_CC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_CC_IRQn 0 */
+
+  /* USER CODE END TIM1_CC_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  /* USER CODE BEGIN TIM1_CC_IRQn 1 */
+
+  /* USER CODE END TIM1_CC_IRQn 1 */
 }
 
 /**
@@ -368,7 +352,12 @@ void USART3_IRQHandler(void)
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
-
+  /* 编码器触发单字节发送完成：清 TC、关 TCIE；电平转换高=发/低=收，拉低以切到接收 */
+  if ((USART3->ISR & USART_ISR_TC) != 0u) {
+    __HAL_UART_CLEAR_FLAG(&huart3, UART_CLEAR_TCF);
+    CLEAR_BIT(USART3->CR1, USART_CR1_TCIE);
+    EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, DISABLE);
+  }
   /* USER CODE END USART3_IRQn 1 */
 }
 
@@ -382,7 +371,11 @@ void UART4_IRQHandler(void)
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
-
+  if ((UART4->ISR & USART_ISR_TC) != 0u) {
+    __HAL_UART_CLEAR_FLAG(&huart4, UART_CLEAR_TCF);
+    CLEAR_BIT(UART4->CR1, USART_CR1_TCIE);
+    EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, DISABLE);
+  }
   /* USER CODE END UART4_IRQn 1 */
 }
 
@@ -396,7 +389,11 @@ void UART5_IRQHandler(void)
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN UART5_IRQn 1 */
-
+  if ((UART5->ISR & USART_ISR_TC) != 0u) {
+    __HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_TCF);
+    CLEAR_BIT(UART5->CR1, USART_CR1_TCIE);
+    EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, DISABLE);
+  }
   /* USER CODE END UART5_IRQn 1 */
 }
 
@@ -408,7 +405,7 @@ void DMA2_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA2_Channel1_IRQn 0 */
 
   /* USER CODE END DMA2_Channel1_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart2_tx);
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
   /* USER CODE BEGIN DMA2_Channel1_IRQn 1 */
 
   /* USER CODE END DMA2_Channel1_IRQn 1 */
@@ -422,7 +419,7 @@ void DMA2_Channel2_IRQHandler(void)
   /* USER CODE BEGIN DMA2_Channel2_IRQn 0 */
 
   /* USER CODE END DMA2_Channel2_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart3_tx);
+  HAL_DMA_IRQHandler(&hdma_uart4_rx);
   /* USER CODE BEGIN DMA2_Channel2_IRQn 1 */
 
   /* USER CODE END DMA2_Channel2_IRQn 1 */
@@ -436,24 +433,10 @@ void DMA2_Channel3_IRQHandler(void)
   /* USER CODE BEGIN DMA2_Channel3_IRQn 0 */
 
   /* USER CODE END DMA2_Channel3_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_uart5_tx);
+  HAL_DMA_IRQHandler(&hdma_uart5_rx);
   /* USER CODE BEGIN DMA2_Channel3_IRQn 1 */
 
   /* USER CODE END DMA2_Channel3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles DMA2 channel4 global interrupt.
-  */
-void DMA2_Channel4_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Channel4_IRQn 0 */
-
-  /* USER CODE END DMA2_Channel4_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_uart4_tx);
-  /* USER CODE BEGIN DMA2_Channel4_IRQn 1 */
-
-  /* USER CODE END DMA2_Channel4_IRQn 1 */
 }
 
 /**

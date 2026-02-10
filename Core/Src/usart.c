@@ -59,15 +59,12 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_uart4_rx;
-DMA_HandleTypeDef hdma_uart4_tx;
 DMA_HandleTypeDef hdma_uart5_rx;
-DMA_HandleTypeDef hdma_uart5_tx;
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
 DMA_HandleTypeDef hdma_usart2_rx;
 DMA_HandleTypeDef hdma_usart2_tx;
 DMA_HandleTypeDef hdma_usart3_rx;
-DMA_HandleTypeDef hdma_usart3_tx;
 
 /* UART4 init function */
 void MX_UART4_Init(void)
@@ -330,7 +327,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
     /* UART4 DMA Init */
     /* UART4_RX Init */
-    hdma_uart4_rx.Instance = DMA1_Channel6;
+    hdma_uart4_rx.Instance = DMA2_Channel2;
     hdma_uart4_rx.Init.Request = DMA_REQUEST_UART4_RX;
     hdma_uart4_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_uart4_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -338,30 +335,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_uart4_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_uart4_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_uart4_rx.Init.Mode = DMA_NORMAL;
-    hdma_uart4_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_uart4_rx.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_uart4_rx) != HAL_OK)
     {
       Error_Handler();
     }
 
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_uart4_rx);
-
-    /* UART4_TX Init */
-    hdma_uart4_tx.Instance = DMA2_Channel4;
-    hdma_uart4_tx.Init.Request = DMA_REQUEST_UART4_TX;
-    hdma_uart4_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_uart4_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_uart4_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_uart4_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_uart4_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_uart4_tx.Init.Mode = DMA_NORMAL;
-    hdma_uart4_tx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_uart4_tx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(uartHandle,hdmatx,hdma_uart4_tx);
 
     /* UART4 interrupt Init */
     HAL_NVIC_SetPriority(UART4_IRQn, 0, 0);
@@ -410,7 +390,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
     /* UART5 DMA Init */
     /* UART5_RX Init */
-    hdma_uart5_rx.Instance = DMA1_Channel7;
+    hdma_uart5_rx.Instance = DMA2_Channel3;
     hdma_uart5_rx.Init.Request = DMA_REQUEST_UART5_RX;
     hdma_uart5_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_uart5_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -418,30 +398,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_uart5_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_uart5_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_uart5_rx.Init.Mode = DMA_NORMAL;
-    hdma_uart5_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_uart5_rx.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_uart5_rx) != HAL_OK)
     {
       Error_Handler();
     }
 
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_uart5_rx);
-
-    /* UART5_TX Init */
-    hdma_uart5_tx.Instance = DMA2_Channel3;
-    hdma_uart5_tx.Init.Request = DMA_REQUEST_UART5_TX;
-    hdma_uart5_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_uart5_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_uart5_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_uart5_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_uart5_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_uart5_tx.Init.Mode = DMA_NORMAL;
-    hdma_uart5_tx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_uart5_tx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(uartHandle,hdmatx,hdma_uart5_tx);
 
     /* UART5 interrupt Init */
     HAL_NVIC_SetPriority(UART5_IRQn, 0, 0);
@@ -516,7 +479,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart1_tx);
 
     /* USART1 interrupt Init */
-    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
@@ -571,7 +534,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart2_rx);
 
     /* USART2_TX Init */
-    hdma_usart2_tx.Instance = DMA2_Channel1;
+    hdma_usart2_tx.Instance = DMA1_Channel6;
     hdma_usart2_tx.Init.Request = DMA_REQUEST_USART2_TX;
     hdma_usart2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_usart2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -588,7 +551,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart2_tx);
 
     /* USART2 interrupt Init */
-    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USART2_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
@@ -626,7 +589,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
     /* USART3 DMA Init */
     /* USART3_RX Init */
-    hdma_usart3_rx.Instance = DMA1_Channel5;
+    hdma_usart3_rx.Instance = DMA2_Channel1;
     hdma_usart3_rx.Init.Request = DMA_REQUEST_USART3_RX;
     hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -634,30 +597,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart3_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
     {
       Error_Handler();
     }
 
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart3_rx);
-
-    /* USART3_TX Init */
-    hdma_usart3_tx.Instance = DMA2_Channel2;
-    hdma_usart3_tx.Init.Request = DMA_REQUEST_USART3_TX;
-    hdma_usart3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_usart3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart3_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart3_tx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart3_tx);
 
     /* USART3 interrupt Init */
     HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
@@ -687,7 +633,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     /* UART4 DMA DeInit */
     HAL_DMA_DeInit(uartHandle->hdmarx);
-    HAL_DMA_DeInit(uartHandle->hdmatx);
 
     /* UART4 interrupt Deinit */
     HAL_NVIC_DisableIRQ(UART4_IRQn);
@@ -713,7 +658,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     /* UART5 DMA DeInit */
     HAL_DMA_DeInit(uartHandle->hdmarx);
-    HAL_DMA_DeInit(uartHandle->hdmatx);
 
     /* UART5 interrupt Deinit */
     HAL_NVIC_DisableIRQ(UART5_IRQn);
@@ -785,7 +729,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     /* USART3 DMA DeInit */
     HAL_DMA_DeInit(uartHandle->hdmarx);
-    HAL_DMA_DeInit(uartHandle->hdmatx);
 
     /* USART3 interrupt Deinit */
     HAL_NVIC_DisableIRQ(USART3_IRQn);
@@ -796,6 +739,18 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+/* #region agent log */
+/* 调试用全局变量：在调试器中观察，用于分析 UART5 DMA 卡住问题 */
+volatile uint32_t dbg_uart5_rx_evt_count = 0U;      /* UART5 RxEvent 回调调用次数 */
+volatile uint32_t dbg_uart5_restart_ok_count = 0U; /* UART5 重启 DMA 成功次数 */
+volatile uint32_t dbg_uart5_restart_fail_count = 0U;/* UART5 重启 DMA 失败(HAL_BUSY)次数 */
+volatile uint32_t dbg_uart5_last_rxstate = 0U;     /* UART5 重启前的 RxState */
+volatile uint32_t dbg_uart5_last_tick = 0U;        /* UART5 上次回调时的 tick */
+volatile uint32_t dbg_uart2_rx_evt_count = 0U;     /* USART2 RxEvent 回调次数(100ms 指令帧) */
+volatile uint32_t dbg_uart5_error_count = 0U;      /* UART5 ErrorCallback 调用次数(DMA/UART 错误) */
+volatile uint32_t dbg_uart5_last_error_code = 0U;  /* 最新的 ErrorCode: ORE=0x08, FE=0x04, NE=0x02, DMA=0x10, RTO=0x20 */
+/* #endregion */
+
 /**
   * @brief  从 USART2 接收队列出队一帧到指定缓冲区（如 simulink_protocol 等调用）
   * @param  pBuf      数据存放的缓冲区指针
@@ -854,24 +809,59 @@ int Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
 }
 
 /**
-  * @brief  定时向串口 3、4、5、2 依次 DMA 发送单字节 0x02（在 TIM1 定时中断中调用）
-  * @note   每个串口使用独立的静态缓冲；注意：三个串口都使用 DMA2（不同通道）
-  * @note   尝试改变调用顺序，避免可能的 DMA2 控制器资源冲突
+  * @brief  仅向指定编码器串口发送单字节 0x02 触发（用于 TIM1 分相：更新/比较1/比较2 各触发一路）
+  * @param  uart_sel ENCODER_UART_MOTOR(3) / ENCODER_UART_SWING(4) / ENCODER_UART_SHAFT(5)
+  */
+void EncoderTrigger_SendOne(EncoderUartSel_t uart_sel)
+{
+  EncoderLevelShifter_SetEnable(uart_sel, ENABLE);
+  switch (uart_sel)
+  {
+    case ENCODER_UART_MOTOR:
+      USART3->CR1 |= USART_CR1_TCIE;
+      USART3->TDR  = 0x02;
+      break;
+    case ENCODER_UART_SWING:
+      UART4->CR1  |= USART_CR1_TCIE;
+      UART4->TDR  = 0x02;
+      break;
+    case ENCODER_UART_SHAFT:
+      UART5->CR1  |= USART_CR1_TCIE;
+      UART5->TDR  = 0x02;
+      break;
+    default:
+      break;
+  }
+}
+
+/**
+  * @brief  定时向串口 3、4、5 发送单字节 0x02 触发编码器（三路同时，保留兼容）
+  * @note   使用直接写 TDR；分相触发请用 TIM1 更新+比较1+比较2 分别调用 EncoderTrigger_SendOne。
   */
 void EncoderTrigger_Send(void)
 {
-  static uint8_t u8TimedSendByte3 = 0x02;  /* 串口3：单字节 0x02 用于 DMA 触发编码器 */
-  static uint8_t u8TimedSendByte4 = 0x02;  /* 串口4：单字节 0x02 用于 DMA 触发编码器 */
-  static uint8_t u8TimedSendByte5 = 0x02;  /* 串口5：单字节 0x02 用于 DMA 触发编码器 */
-  HAL_StatusTypeDef status;
+  /*
+   * 只写 TDR，不修改 CR3，避免影响接收 DMA。
+   * 写 TDR 后开启发送完成中断（TCIE），发完一字节会进 UART 中断，在 it.c 里清 TC、关 TCIE 并关电平转换使能。
+   */
+  USART3->CR1 |= USART_CR1_TCIE;
+  USART3->TDR  = 0x02;
 
-	
-	
-	HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte5, 1);
-	//HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte4, 1);
-	HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte3, 1);
-	
-	
+  UART4->CR1  |= USART_CR1_TCIE;
+  UART4->TDR  = 0x02;
+
+  UART5->CR1  |= USART_CR1_TCIE;
+  UART5->TDR  = 0x02;
+
+	#if 0
+  /* 以下为原 DMA 方式（会与多通道同时启动冲突，仅作参考） */
+  static uint8_t u8TimedSendByte3 = 0x02;
+  static uint8_t u8TimedSendByte4 = 0x02;
+  static uint8_t u8TimedSendByte5 = 0x02;
+  HAL_UART_Transmit_DMA(&huart5, &u8TimedSendByte5, 1);
+  HAL_UART_Transmit_DMA(&huart4, &u8TimedSendByte4, 1);
+  HAL_UART_Transmit_DMA(&huart3, &u8TimedSendByte3, 1);
+	#endif
 	#if 0
 	
 	
@@ -915,7 +905,9 @@ void MotorEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
+    __disable_irq();
     memcpy(pOut, au8MotorEncoderBuff, ENCODER_SNAPSHOT_BYTES);
+    __enable_irq();
   }
 }
 
@@ -927,7 +919,10 @@ void OutputShaftEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
+    /* 临界区：防止 UART5 RxEventCallback 在读取中途更新快照，导致 [latest,previous] 不一致 -> 速度计算错误 */
+    __disable_irq();
     memcpy(pOut, au8OutputShaftEncoderBuff, ENCODER_SNAPSHOT_BYTES);
+    __enable_irq();
   }
 }
 
@@ -939,14 +934,16 @@ void SwingArmEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
+    __disable_irq();
     memcpy(pOut, au8SwingArmEncoderBuff, ENCODER_SNAPSHOT_BYTES);
+    __enable_irq();
   }
 }
 
 /**
-  * @brief  控制编码器串口对应电平转换芯片的使能引脚
+  * @brief  控制编码器串口对应电平转换芯片的使能引脚（高=发送使能，低=接收使能）
   * @param  uart_sel 串口选择：ENCODER_UART_MOTOR(3)=PB4，ENCODER_UART_SWING(4)=PB9，ENCODER_UART_SHAFT(5)=PC13
-  * @param  state    使能状态：ENABLE=使能，DISABLE=失能
+  * @param  state    ENABLE=高电平可发送，DISABLE=低电平可接收
   */
 void EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, FunctionalState state)
 {
@@ -988,6 +985,35 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   }
 }
 
+/* #region agent log */
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == UART5)
+  {
+    dbg_uart5_error_count++;
+    dbg_uart5_last_error_code = (uint32_t)huart->ErrorCode;  /* 记录错误类型供分析 */
+    /* 错误后 HAL 会停止 DMA 接收，必须在此处重启，否则 UART5 将永久停止 */
+    huart->ErrorCode = HAL_UART_ERROR_NONE;
+    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF | UART_CLEAR_NEF | UART_CLEAR_PEF | UART_CLEAR_FEF);
+    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
+  }
+  else if (huart->Instance == USART3)
+  {
+    /* 编码器 UART3 同样在错误后需重启 DMA */
+    huart->ErrorCode = HAL_UART_ERROR_NONE;
+    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF | UART_CLEAR_NEF | UART_CLEAR_PEF | UART_CLEAR_FEF);
+    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, 6);
+  }
+  else if (huart->Instance == UART4)
+  {
+    /* 编码器 UART4 同样在错误后需重启 DMA */
+    huart->ErrorCode = HAL_UART_ERROR_NONE;
+    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF | UART_CLEAR_NEF | UART_CLEAR_PEF | UART_CLEAR_FEF);
+    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
+  }
+}
+/* #endregion */
+
 
 
 
@@ -1005,6 +1031,12 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   if (ev != HAL_UART_RXEVENT_IDLE && ev != HAL_UART_RXEVENT_TC)
   {
     return;
+  }
+  if (huart->Instance == USART2)
+  {
+    /* #region agent log */
+    dbg_uart2_rx_evt_count++;
+    /* #endregion */
   }
   if (huart->Instance == USART1)
   {
@@ -1025,35 +1057,48 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 
   else if (huart->Instance == USART3)
   {
-    if (Size > 0U)
+    if (Size >= 6U)
     {
-      uint16_t len = (Size > 6u) ? 6u : Size;
-      memcpy(au8MotorEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES); /* 旧帧后6字节 */
-      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, len);  /* 新帧前6字节 */
+      __disable_irq();
+      memcpy(au8MotorEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
+      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, 6);
+      __enable_irq();
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, 6);
   }
   else if (huart->Instance == UART4)
   {
-    /* 串口4：摆杆编码器 */
-    if (Size > 0U)
+    if (Size >= 6U)
     {
-      uint16_t len = (Size > 6u) ? 6u : Size;
+      __disable_irq();
       memcpy(au8SwingArmEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8SwingArmEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
-      memcpy(au8SwingArmEncoderBuff, au8Uart4DMABuff, len);
+      memcpy(au8SwingArmEncoderBuff, au8Uart4DMABuff, 6);
+      __enable_irq();
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
   }
   else if (huart->Instance == UART5)
   {
-    /* 串口5：输出轴编码器 */
-    if (Size > 0U)
+    /* #region agent log */
+    dbg_uart5_rx_evt_count++;
+    dbg_uart5_last_rxstate = (uint32_t)huart5.RxState;
+    dbg_uart5_last_tick = HAL_GetTick();
+    /* #endregion */
+    /* 串口5：输出轴编码器；仅完整帧更新，避免部分帧污染快照导致速度跳变 */
+    if (Size >= 6U)
     {
-      uint16_t len = (Size > 6u) ? 6u : Size;
+      __disable_irq();
       memcpy(au8OutputShaftEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8OutputShaftEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
-      memcpy(au8OutputShaftEncoderBuff, au8Uart5DMABuff, len);
+      memcpy(au8OutputShaftEncoderBuff, au8Uart5DMABuff, 6);
+      __enable_irq();
     }
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
+    /* #region agent log */
+    {
+      HAL_StatusTypeDef st = HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
+      if (st == HAL_OK) { dbg_uart5_restart_ok_count++; }
+      else { dbg_uart5_restart_fail_count++; }
+    }
+    /* #endregion */
   }
 }
 

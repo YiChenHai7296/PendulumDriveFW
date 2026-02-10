@@ -56,7 +56,10 @@ typedef enum
 } EncoderBits_t;
 
 /* ======================== 3. 私有变量 ======================== */
-/* 无 */
+/* 输出轴速度滤波：抑制 ±1 抖动及异常跳变（如 -3 与 -30 交替） */
+#define AXIS_SPEED_FILTER_ALPHA  0.6f   /* 滤波系数：越大越平滑，0=无滤波 */
+static float s_axis_speed_filtered = 0.0f;
+static uint8_t s_axis_speed_filter_init = 0U;
 
 /* ======================== 4. 对外变量定义 ======================== */
 /* 无 */
@@ -140,18 +143,22 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
         return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
     }
 #if 0
+    encRes = EncoderProtocol_ReadSwingArm(&swing_dual);
+    if (encRes != ENCODER_PROTOCOL_OK)
+    {
+        return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SWING);
+    }
+    
+    
+#endif
+
     encRes = EncoderProtocol_ReadOutputShaft(&shaft_dual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
         return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SHAFT);
     }
 
-    encRes = EncoderProtocol_ReadSwingArm(&swing_dual);
-    if (encRes != ENCODER_PROTOCOL_OK)
-    {
-        return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SWING);
-    }
-#endif
+
     /* 读取并转换电机电流，限制在有效范围内 */
     current_A = MotorService_GetMotorCurrent();
     val = (int32_t)(current_A * MOTOR_CURRENT_TO_FEEDBACK_A);
@@ -175,7 +182,19 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
     pOut->motor_speed = (int32_t)speed_f;
 
     speed_f = EncoderSpeed_CalcOutputShaft(&shaft_dual);
-    pOut->axis_speed = (int32_t)speed_f;
+    /* 一阶 IIR 滤波：抑制 ±1 抖动及异常跳变，使匀速时输出稳定 */
+    if (s_axis_speed_filter_init == 0U)
+    {
+        s_axis_speed_filtered = speed_f;
+        s_axis_speed_filter_init = 1U;
+    }
+    else
+    {
+        s_axis_speed_filtered = AXIS_SPEED_FILTER_ALPHA * s_axis_speed_filtered
+                                + (1.0f - AXIS_SPEED_FILTER_ALPHA) * speed_f;
+    }
+    /* 四舍五入：避免依赖 libm */
+    pOut->axis_speed = (int32_t)(s_axis_speed_filtered + (s_axis_speed_filtered >= 0.0f ? 0.5f : -0.5f));
 
     speed_f = EncoderSpeed_CalcSwingArm(&swing_dual);
     pOut->pendulum_speed = (int32_t)speed_f;
@@ -324,7 +343,7 @@ static EncoderProtocolResult_t EncoderProtocol_ReadOutputShaft(EncoderProtocolDa
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
-    /* 从USART4获取12字节快照（前6=最新帧，后6=上一帧） */
+    /* 从 UART5 获取 12 字节快照（前6=最新帧，后6=上一帧） */
     OutputShaftEncoder_GetData(rawBuf);
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
@@ -336,6 +355,9 @@ static EncoderProtocolResult_t EncoderProtocol_ReadOutputShaft(EncoderProtocolDa
     {
         return resPrev;
     }
+    /* 输出轴为 20 位编码器，屏蔽高位；否则第 21 位干扰会导致速度跳变（如 -3 与 -30 交替） */
+    pOut->latest.absolute_position   &= 0x000FFFFFU;
+    pOut->previous.absolute_position &= 0x000FFFFFU;
     return ENCODER_PROTOCOL_OK;
 }
 
@@ -367,11 +389,13 @@ static EncoderProtocolResult_t EncoderProtocol_ReadSwingArm(EncoderProtocolDataD
 
 /**
  * @brief 计算编码器角速度（基于前后两帧位置差）
- * @details 编码器位置范围0~max对应0~360°，自动处理过零情况
+ * @details 编码器位置范围0~max对应0~360°，自动处理过零情况。
+ *          正转（位置增加）：delta_raw>0 且不过零 → 速度为正；
+ *          反转（位置减少）：delta_raw<0 且不过零 → 速度为负，符合设计。
  * @param pos_prev 上一帧位置
  * @param pos_curr 当前帧位置
  * @param bits 编码器位数（21/20/17）
- * @return 角速度（°/s），采样间隔1ms
+ * @return 角速度（°/s），正=正转、负=反转，采样间隔1ms
  */
 static float EncoderSpeed_Calc(uint32_t pos_prev, uint32_t pos_curr, EncoderBits_t bits)
 {
@@ -419,13 +443,28 @@ static float EncoderSpeed_Calc(uint32_t pos_prev, uint32_t pos_curr, EncoderBits
     }
     else
     {
-        /* 正常情况 */
+        /* 正常情况：delta_raw>0 正转，delta_raw<0 反转，直接使用 */
         delta = delta_raw;
     }
-
     /* 转换为角速度（°/s）：delta / (max+1) * 360° / 0.001s */
     speed_deg_s = (float)delta * 360000.0f / (float)(max_val + 1U);
     return speed_deg_s;
+
+    #if 0
+    if(delta>0)
+    {
+      /* 转换为角速度（°/s）：delta / (max+1) * 360° / 0.001s */
+      speed_deg_s = (float)delta * 360000.0f / (float)(max_val + 1U);
+      return speed_deg_s;
+    }
+    else
+    {
+      delta = -delta;
+      /* 转换为角速度（°/s）：delta / (max+1) * 360° / 0.001s */
+      speed_deg_s = -(float)delta * 360000.0f / (float)(max_val + 1U);
+      return speed_deg_s;
+    }
+    #endif
 }
 
 /**

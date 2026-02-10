@@ -184,7 +184,7 @@ int main(void)
 
 
   /* 串口启动 */
-  //HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 
   //au8Uart1SendBuff
   //HAL_UART_Transmit_IT(&huart1,"\n uart1 send uart5recv 123",26);
