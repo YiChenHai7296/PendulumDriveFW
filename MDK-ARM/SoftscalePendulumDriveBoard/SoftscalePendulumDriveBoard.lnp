@@ -1,9 +1,9 @@
 --cpu=Cortex-M4.fp.sp
 "softscalependulumdriveboard\startup_stm32g474xx.o"
 "softscalependulumdriveboard\state_machine.o"
-"softscalependulumdriveboard\ringframequeue_1.o"
-"softscalependulumdriveboard\simulink_protocol_1.o"
-"softscalependulumdriveboard\motor_service_1.o"
+"softscalependulumdriveboard\ringframequeue.o"
+"softscalependulumdriveboard\simulink_protocol.o"
+"softscalependulumdriveboard\motor_service.o"
 "softscalependulumdriveboard\debug.o"
 "softscalependulumdriveboard\main.o"
 "softscalependulumdriveboard\gpio.o"

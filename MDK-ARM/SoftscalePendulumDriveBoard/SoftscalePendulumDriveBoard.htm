@@ -3,7 +3,7 @@
 <title>Static Call Graph - [SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Wed Feb 11 12:46:28 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Wed Feb 11 13:01:51 2026
 <BR><P>
 <H3>Maximum Stack Usage =        396 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1794,7 +1794,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderProtocol_ReadMotor
 </UL>
 
-<P><STRONG><a name="[155]"></a>MotorService_GetFeedbackData</STRONG> (Thumb, 188 bytes, Stack size 72 bytes, motor_service_1.o(i.MotorService_GetFeedbackData))
+<P><STRONG><a name="[155]"></a>MotorService_GetFeedbackData</STRONG> (Thumb, 188 bytes, Stack size 72 bytes, motor_service.o(i.MotorService_GetFeedbackData))
 <BR><BR>[Stack]<UL><LI>Max Depth = 172<LI>Call Chain = MotorService_GetFeedbackData &rArr; EncoderProtocol_ReadOutputShaft &rArr; EncoderProtocol_ParseFrame &rArr; EncoderProtocol_CalcCRC8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_MapEncoderResult
@@ -1808,7 +1808,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StateMachine_MainLoop
 </UL>
 
-<P><STRONG><a name="[15a]"></a>MotorService_InitMotor</STRONG> (Thumb, 22 bytes, Stack size 8 bytes, motor_service_1.o(i.MotorService_InitMotor))
+<P><STRONG><a name="[15a]"></a>MotorService_InitMotor</STRONG> (Thumb, 22 bytes, Stack size 8 bytes, motor_service.o(i.MotorService_InitMotor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = MotorService_InitMotor &rArr; MotorService_SetDutyCycle &rArr; PWM_DirControl
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWM_Enable
@@ -1818,7 +1818,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[15d]"></a>MotorService_SetDutyCycle</STRONG> (Thumb, 72 bytes, Stack size 16 bytes, motor_service_1.o(i.MotorService_SetDutyCycle))
+<P><STRONG><a name="[15d]"></a>MotorService_SetDutyCycle</STRONG> (Thumb, 72 bytes, Stack size 16 bytes, motor_service.o(i.MotorService_SetDutyCycle))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = MotorService_SetDutyCycle &rArr; PWM_DirControl
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWM_Set_TargePulse
@@ -1859,16 +1859,16 @@ Global Symbols
 <P><STRONG><a name="[8]"></a>PendSV_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32g4xx_it.o(i.PendSV_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32g474xx.o(RESET)
 </UL>
-<P><STRONG><a name="[152]"></a>RFQ_Init</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, ringframequeue_1.o(i.RFQ_Init))
+<P><STRONG><a name="[152]"></a>RFQ_Init</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, ringframequeue.o(i.RFQ_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[153]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART2_UART_Init
 <LI><a href="#[150]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART1_UART_Init
 </UL>
 
-<P><STRONG><a name="[16b]"></a>RFQ_Pop</STRONG> (Thumb, 84 bytes, Stack size 0 bytes, ringframequeue_1.o(i.RFQ_Pop))
+<P><STRONG><a name="[16b]"></a>RFQ_Pop</STRONG> (Thumb, 84 bytes, Stack size 0 bytes, ringframequeue.o(i.RFQ_Pop))
 <BR><BR>[Called By]<UL><LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Simulink_ControlFrame_GetData
 </UL>
 
-<P><STRONG><a name="[116]"></a>RFQ_Push</STRONG> (Thumb, 102 bytes, Stack size 24 bytes, ringframequeue_1.o(i.RFQ_Push))
+<P><STRONG><a name="[116]"></a>RFQ_Push</STRONG> (Thumb, 102 bytes, Stack size 24 bytes, ringframequeue.o(i.RFQ_Push))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = RFQ_Push &rArr; RFQ_Memcpy
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RFQ_Memcpy
@@ -1879,7 +1879,7 @@ Global Symbols
 <P><STRONG><a name="[6]"></a>SVC_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32g4xx_it.o(i.SVC_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32g474xx.o(RESET)
 </UL>
-<P><STRONG><a name="[164]"></a>SimulinkProtocol_PackFeedback</STRONG> (Thumb, 198 bytes, Stack size 16 bytes, simulink_protocol_1.o(i.SimulinkProtocol_PackFeedback))
+<P><STRONG><a name="[164]"></a>SimulinkProtocol_PackFeedback</STRONG> (Thumb, 198 bytes, Stack size 16 bytes, simulink_protocol.o(i.SimulinkProtocol_PackFeedback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = SimulinkProtocol_PackFeedback &rArr; Simulink_Feedback_Send &rArr; HAL_UART_Transmit_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
 </UL>
 <BR>[Calls]<UL><LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Simulink_Feedback_Send
@@ -1889,7 +1889,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StateMachine_MainLoop
 </UL>
 
-<P><STRONG><a name="[169]"></a>SimulinkProtocol_UnpackControl</STRONG> (Thumb, 58 bytes, Stack size 24 bytes, simulink_protocol_1.o(i.SimulinkProtocol_UnpackControl))
+<P><STRONG><a name="[169]"></a>SimulinkProtocol_UnpackControl</STRONG> (Thumb, 58 bytes, Stack size 24 bytes, simulink_protocol.o(i.SimulinkProtocol_UnpackControl))
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = SimulinkProtocol_UnpackControl &rArr; SimulinkProtocol_ParseControlFrame &rArr; __2printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Simulink_ControlFrame_GetData
@@ -2144,13 +2144,13 @@ Global Symbols
 <H3>
 Local Symbols
 </H3>
-<P><STRONG><a name="[15f]"></a>RFQ_Memcpy</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, ringframequeue_1.o(i.RFQ_Memcpy))
+<P><STRONG><a name="[15f]"></a>RFQ_Memcpy</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, ringframequeue.o(i.RFQ_Memcpy))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = RFQ_Memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RFQ_Push
 </UL>
 
-<P><STRONG><a name="[160]"></a>SimulinkProtocol_AssembleFeedbackFrame</STRONG> (Thumb, 202 bytes, Stack size 32 bytes, simulink_protocol_1.o(i.SimulinkProtocol_AssembleFeedbackFrame))
+<P><STRONG><a name="[160]"></a>SimulinkProtocol_AssembleFeedbackFrame</STRONG> (Thumb, 202 bytes, Stack size 32 bytes, simulink_protocol.o(i.SimulinkProtocol_AssembleFeedbackFrame))
 <BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = SimulinkProtocol_AssembleFeedbackFrame &rArr; SimulinkProtocol_CalcCRC16
 </UL>
 <BR>[Calls]<UL><LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_PackInt32LE
@@ -2160,26 +2160,26 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[164]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_PackFeedback
 </UL>
 
-<P><STRONG><a name="[163]"></a>SimulinkProtocol_CalcCRC16</STRONG> (Thumb, 68 bytes, Stack size 12 bytes, simulink_protocol_1.o(i.SimulinkProtocol_CalcCRC16))
+<P><STRONG><a name="[163]"></a>SimulinkProtocol_CalcCRC16</STRONG> (Thumb, 68 bytes, Stack size 12 bytes, simulink_protocol.o(i.SimulinkProtocol_CalcCRC16))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = SimulinkProtocol_CalcCRC16
 </UL>
 <BR>[Called By]<UL><LI><a href="#[167]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_ParseControlFrame
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_AssembleFeedbackFrame
 </UL>
 
-<P><STRONG><a name="[165]"></a>SimulinkProtocol_GetFeedbackTxBuffer</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, simulink_protocol_1.o(i.SimulinkProtocol_GetFeedbackTxBuffer))
+<P><STRONG><a name="[165]"></a>SimulinkProtocol_GetFeedbackTxBuffer</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, simulink_protocol.o(i.SimulinkProtocol_GetFeedbackTxBuffer))
 <BR><BR>[Called By]<UL><LI><a href="#[164]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_PackFeedback
 </UL>
 
-<P><STRONG><a name="[161]"></a>SimulinkProtocol_PackInt16LE</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, simulink_protocol_1.o(i.SimulinkProtocol_PackInt16LE))
+<P><STRONG><a name="[161]"></a>SimulinkProtocol_PackInt16LE</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, simulink_protocol.o(i.SimulinkProtocol_PackInt16LE))
 <BR><BR>[Called By]<UL><LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_AssembleFeedbackFrame
 </UL>
 
-<P><STRONG><a name="[162]"></a>SimulinkProtocol_PackInt32LE</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, simulink_protocol_1.o(i.SimulinkProtocol_PackInt32LE))
+<P><STRONG><a name="[162]"></a>SimulinkProtocol_PackInt32LE</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, simulink_protocol.o(i.SimulinkProtocol_PackInt32LE))
 <BR><BR>[Called By]<UL><LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_AssembleFeedbackFrame
 </UL>
 
-<P><STRONG><a name="[167]"></a>SimulinkProtocol_ParseControlFrame</STRONG> (Thumb, 244 bytes, Stack size 32 bytes, simulink_protocol_1.o(i.SimulinkProtocol_ParseControlFrame))
+<P><STRONG><a name="[167]"></a>SimulinkProtocol_ParseControlFrame</STRONG> (Thumb, 244 bytes, Stack size 32 bytes, simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = SimulinkProtocol_ParseControlFrame &rArr; __2printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[168]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_UnpackInt16LE
@@ -2189,17 +2189,17 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[169]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_UnpackControl
 </UL>
 
-<P><STRONG><a name="[168]"></a>SimulinkProtocol_UnpackInt16LE</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, simulink_protocol_1.o(i.SimulinkProtocol_UnpackInt16LE))
+<P><STRONG><a name="[168]"></a>SimulinkProtocol_UnpackInt16LE</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, simulink_protocol.o(i.SimulinkProtocol_UnpackInt16LE))
 <BR><BR>[Called By]<UL><LI><a href="#[167]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimulinkProtocol_ParseControlFrame
 </UL>
 
-<P><STRONG><a name="[9f]"></a>EncoderProtocol_CalcCRC8</STRONG> (Thumb, 68 bytes, Stack size 12 bytes, motor_service_1.o(i.EncoderProtocol_CalcCRC8))
+<P><STRONG><a name="[9f]"></a>EncoderProtocol_CalcCRC8</STRONG> (Thumb, 68 bytes, Stack size 12 bytes, motor_service.o(i.EncoderProtocol_CalcCRC8))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = EncoderProtocol_CalcCRC8
 </UL>
 <BR>[Called By]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderProtocol_ParseFrame
 </UL>
 
-<P><STRONG><a name="[9e]"></a>EncoderProtocol_ParseFrame</STRONG> (Thumb, 118 bytes, Stack size 56 bytes, motor_service_1.o(i.EncoderProtocol_ParseFrame))
+<P><STRONG><a name="[9e]"></a>EncoderProtocol_ParseFrame</STRONG> (Thumb, 118 bytes, Stack size 56 bytes, motor_service.o(i.EncoderProtocol_ParseFrame))
 <BR><BR>[Stack]<UL><LI>Max Depth = 68<LI>Call Chain = EncoderProtocol_ParseFrame &rArr; EncoderProtocol_CalcCRC8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderProtocol_CalcCRC8
@@ -2208,7 +2208,7 @@ Local Symbols
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderProtocol_ReadMotor
 </UL>
 
-<P><STRONG><a name="[a0]"></a>EncoderProtocol_ReadMotor</STRONG> (Thumb, 60 bytes, Stack size 32 bytes, motor_service_1.o(i.EncoderProtocol_ReadMotor))
+<P><STRONG><a name="[a0]"></a>EncoderProtocol_ReadMotor</STRONG> (Thumb, 60 bytes, Stack size 32 bytes, motor_service.o(i.EncoderProtocol_ReadMotor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 100<LI>Call Chain = EncoderProtocol_ReadMotor &rArr; EncoderProtocol_ParseFrame &rArr; EncoderProtocol_CalcCRC8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorEncoder_GetData
@@ -2217,7 +2217,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetFeedbackData
 </UL>
 
-<P><STRONG><a name="[a2]"></a>EncoderProtocol_ReadOutputShaft</STRONG> (Thumb, 76 bytes, Stack size 32 bytes, motor_service_1.o(i.EncoderProtocol_ReadOutputShaft))
+<P><STRONG><a name="[a2]"></a>EncoderProtocol_ReadOutputShaft</STRONG> (Thumb, 76 bytes, Stack size 32 bytes, motor_service.o(i.EncoderProtocol_ReadOutputShaft))
 <BR><BR>[Stack]<UL><LI>Max Depth = 100<LI>Call Chain = EncoderProtocol_ReadOutputShaft &rArr; EncoderProtocol_ParseFrame &rArr; EncoderProtocol_CalcCRC8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OutputShaftEncoder_GetData
@@ -2226,7 +2226,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetFeedbackData
 </UL>
 
-<P><STRONG><a name="[a5]"></a>EncoderSpeed_Calc</STRONG> (Thumb, 128 bytes, Stack size 20 bytes, motor_service_1.o(i.EncoderSpeed_Calc))
+<P><STRONG><a name="[a5]"></a>EncoderSpeed_Calc</STRONG> (Thumb, 128 bytes, Stack size 20 bytes, motor_service.o(i.EncoderSpeed_Calc))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = EncoderSpeed_Calc
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderSpeed_CalcSwingArm
@@ -2234,7 +2234,7 @@ Local Symbols
 <LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderSpeed_CalcMotor
 </UL>
 
-<P><STRONG><a name="[a4]"></a>EncoderSpeed_CalcMotor</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, motor_service_1.o(i.EncoderSpeed_CalcMotor))
+<P><STRONG><a name="[a4]"></a>EncoderSpeed_CalcMotor</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, motor_service.o(i.EncoderSpeed_CalcMotor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = EncoderSpeed_CalcMotor &rArr; EncoderSpeed_Calc
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderSpeed_Calc
@@ -2242,7 +2242,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetFeedbackData
 </UL>
 
-<P><STRONG><a name="[a6]"></a>EncoderSpeed_CalcOutputShaft</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, motor_service_1.o(i.EncoderSpeed_CalcOutputShaft))
+<P><STRONG><a name="[a6]"></a>EncoderSpeed_CalcOutputShaft</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, motor_service.o(i.EncoderSpeed_CalcOutputShaft))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = EncoderSpeed_CalcOutputShaft &rArr; EncoderSpeed_Calc
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderSpeed_Calc
@@ -2250,7 +2250,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetFeedbackData
 </UL>
 
-<P><STRONG><a name="[a7]"></a>EncoderSpeed_CalcSwingArm</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, motor_service_1.o(i.EncoderSpeed_CalcSwingArm))
+<P><STRONG><a name="[a7]"></a>EncoderSpeed_CalcSwingArm</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, motor_service.o(i.EncoderSpeed_CalcSwingArm))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = EncoderSpeed_CalcSwingArm &rArr; EncoderSpeed_Calc
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EncoderSpeed_Calc
@@ -2258,7 +2258,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetFeedbackData
 </UL>
 
-<P><STRONG><a name="[157]"></a>MotorService_GetMotorCurrent</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, motor_service_1.o(i.MotorService_GetMotorCurrent))
+<P><STRONG><a name="[157]"></a>MotorService_GetMotorCurrent</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, motor_service.o(i.MotorService_GetMotorCurrent))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = MotorService_GetMotorCurrent &rArr; MotorService_GetMotorVoltage
 </UL>
 <BR>[Calls]<UL><LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetMotorVoltage
@@ -2266,7 +2266,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetFeedbackData
 </UL>
 
-<P><STRONG><a name="[158]"></a>MotorService_GetMotorVoltage</STRONG> (Thumb, 62 bytes, Stack size 8 bytes, motor_service_1.o(i.MotorService_GetMotorVoltage))
+<P><STRONG><a name="[158]"></a>MotorService_GetMotorVoltage</STRONG> (Thumb, 62 bytes, Stack size 8 bytes, motor_service.o(i.MotorService_GetMotorVoltage))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = MotorService_GetMotorVoltage
 </UL>
 <BR>[Calls]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GetMotorVol
@@ -2274,7 +2274,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetMotorCurrent
 </UL>
 
-<P><STRONG><a name="[156]"></a>MotorService_MapEncoderResult</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, motor_service_1.o(i.MotorService_MapEncoderResult))
+<P><STRONG><a name="[156]"></a>MotorService_MapEncoderResult</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, motor_service.o(i.MotorService_MapEncoderResult))
 <BR><BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_GetFeedbackData
 </UL>
 

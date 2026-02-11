@@ -35,52 +35,52 @@ Section Cross References
     state_machine.o(i.StateMachine_MainLoop) refers to f2d.o(.text) for __aeabi_f2d
     state_machine.o(i.StateMachine_MainLoop) refers to dadd.o(.text) for __aeabi_dsub
     state_machine.o(i.StateMachine_MainLoop) refers to d2f.o(.text) for __aeabi_d2f
-    state_machine.o(i.StateMachine_MainLoop) refers to simulink_protocol_1.o(i.SimulinkProtocol_UnpackControl) for SimulinkProtocol_UnpackControl
-    state_machine.o(i.StateMachine_MainLoop) refers to motor_service_1.o(i.MotorService_SetDutyCycle) for MotorService_SetDutyCycle
-    state_machine.o(i.StateMachine_MainLoop) refers to motor_service_1.o(i.MotorService_GetFeedbackData) for MotorService_GetFeedbackData
-    state_machine.o(i.StateMachine_MainLoop) refers to simulink_protocol_1.o(i.SimulinkProtocol_PackFeedback) for SimulinkProtocol_PackFeedback
+    state_machine.o(i.StateMachine_MainLoop) refers to simulink_protocol.o(i.SimulinkProtocol_UnpackControl) for SimulinkProtocol_UnpackControl
+    state_machine.o(i.StateMachine_MainLoop) refers to motor_service.o(i.MotorService_SetDutyCycle) for MotorService_SetDutyCycle
+    state_machine.o(i.StateMachine_MainLoop) refers to motor_service.o(i.MotorService_GetFeedbackData) for MotorService_GetFeedbackData
+    state_machine.o(i.StateMachine_MainLoop) refers to simulink_protocol.o(i.SimulinkProtocol_PackFeedback) for SimulinkProtocol_PackFeedback
     state_machine.o(i.StateMachine_MainLoop) refers to state_machine.o(.data) for temp
     state_machine.o(i.StateMachine_MainLoop) refers to state_machine.o(.conststring) for .conststring
-    ringframequeue_1.o(i.RFQ_Push) refers to ringframequeue_1.o(i.RFQ_Memcpy) for RFQ_Memcpy
-    simulink_protocol_1.o(i.SimulinkProtocol_AssembleFeedbackFrame) refers to simulink_protocol_1.o(i.SimulinkProtocol_PackInt16LE) for SimulinkProtocol_PackInt16LE
-    simulink_protocol_1.o(i.SimulinkProtocol_AssembleFeedbackFrame) refers to simulink_protocol_1.o(i.SimulinkProtocol_PackInt32LE) for SimulinkProtocol_PackInt32LE
-    simulink_protocol_1.o(i.SimulinkProtocol_AssembleFeedbackFrame) refers to simulink_protocol_1.o(i.SimulinkProtocol_CalcCRC16) for SimulinkProtocol_CalcCRC16
-    simulink_protocol_1.o(i.SimulinkProtocol_GetFeedbackTxBuffer) refers to simulink_protocol_1.o(.bss) for s_feedback_tx_buf
-    simulink_protocol_1.o(i.SimulinkProtocol_PackFeedback) refers to simulink_protocol_1.o(i.SimulinkProtocol_GetFeedbackTxBuffer) for SimulinkProtocol_GetFeedbackTxBuffer
-    simulink_protocol_1.o(i.SimulinkProtocol_PackFeedback) refers to simulink_protocol_1.o(i.SimulinkProtocol_AssembleFeedbackFrame) for SimulinkProtocol_AssembleFeedbackFrame
-    simulink_protocol_1.o(i.SimulinkProtocol_PackFeedback) refers to usart.o(i.Simulink_Feedback_Send) for Simulink_Feedback_Send
-    simulink_protocol_1.o(i.SimulinkProtocol_ParseControlFrame) refers to printfa.o(i.__0printf) for __2printf
-    simulink_protocol_1.o(i.SimulinkProtocol_ParseControlFrame) refers to simulink_protocol_1.o(i.SimulinkProtocol_UnpackInt16LE) for SimulinkProtocol_UnpackInt16LE
-    simulink_protocol_1.o(i.SimulinkProtocol_ParseControlFrame) refers to simulink_protocol_1.o(i.SimulinkProtocol_CalcCRC16) for SimulinkProtocol_CalcCRC16
-    simulink_protocol_1.o(i.SimulinkProtocol_UnpackControl) refers to usart.o(i.Simulink_ControlFrame_GetData) for Simulink_ControlFrame_GetData
-    simulink_protocol_1.o(i.SimulinkProtocol_UnpackControl) refers to simulink_protocol_1.o(i.SimulinkProtocol_ParseControlFrame) for SimulinkProtocol_ParseControlFrame
-    motor_service_1.o(i.EncoderProtocol_ParseFrame) refers to motor_service_1.o(i.EncoderProtocol_CalcCRC8) for EncoderProtocol_CalcCRC8
-    motor_service_1.o(i.EncoderProtocol_ReadMotor) refers to usart.o(i.MotorEncoder_GetData) for MotorEncoder_GetData
-    motor_service_1.o(i.EncoderProtocol_ReadMotor) refers to motor_service_1.o(i.EncoderProtocol_ParseFrame) for EncoderProtocol_ParseFrame
-    motor_service_1.o(i.EncoderProtocol_ReadOutputShaft) refers to usart.o(i.OutputShaftEncoder_GetData) for OutputShaftEncoder_GetData
-    motor_service_1.o(i.EncoderProtocol_ReadOutputShaft) refers to motor_service_1.o(i.EncoderProtocol_ParseFrame) for EncoderProtocol_ParseFrame
-    motor_service_1.o(i.EncoderProtocol_ReadSwingArm) refers to usart.o(i.SwingArmEncoder_GetData) for SwingArmEncoder_GetData
-    motor_service_1.o(i.EncoderProtocol_ReadSwingArm) refers to motor_service_1.o(i.EncoderProtocol_ParseFrame) for EncoderProtocol_ParseFrame
-    motor_service_1.o(i.EncoderSpeed_CalcMotor) refers to motor_service_1.o(i.EncoderSpeed_Calc) for EncoderSpeed_Calc
-    motor_service_1.o(i.EncoderSpeed_CalcOutputShaft) refers to motor_service_1.o(i.EncoderSpeed_Calc) for EncoderSpeed_Calc
-    motor_service_1.o(i.EncoderSpeed_CalcSwingArm) refers to motor_service_1.o(i.EncoderSpeed_Calc) for EncoderSpeed_Calc
-    motor_service_1.o(i.MotorService_CloseMotor) refers to hrtim.o(i.PWM_Enable) for PWM_Enable
-    motor_service_1.o(i.MotorService_CloseMotor) refers to hrtim.o(i.PWM_DirControl) for PWM_DirControl
-    motor_service_1.o(i.MotorService_CloseMotor) refers to motor_service_1.o(i.MotorService_SetDutyCycle) for MotorService_SetDutyCycle
-    motor_service_1.o(i.MotorService_GetFeedbackData) refers to motor_service_1.o(i.EncoderProtocol_ReadMotor) for EncoderProtocol_ReadMotor
-    motor_service_1.o(i.MotorService_GetFeedbackData) refers to motor_service_1.o(i.MotorService_MapEncoderResult) for MotorService_MapEncoderResult
-    motor_service_1.o(i.MotorService_GetFeedbackData) refers to motor_service_1.o(i.EncoderProtocol_ReadOutputShaft) for EncoderProtocol_ReadOutputShaft
-    motor_service_1.o(i.MotorService_GetFeedbackData) refers to motor_service_1.o(i.MotorService_GetMotorCurrent) for MotorService_GetMotorCurrent
-    motor_service_1.o(i.MotorService_GetFeedbackData) refers to motor_service_1.o(i.EncoderSpeed_CalcMotor) for EncoderSpeed_CalcMotor
-    motor_service_1.o(i.MotorService_GetFeedbackData) refers to motor_service_1.o(i.EncoderSpeed_CalcOutputShaft) for EncoderSpeed_CalcOutputShaft
-    motor_service_1.o(i.MotorService_GetFeedbackData) refers to motor_service_1.o(i.EncoderSpeed_CalcSwingArm) for EncoderSpeed_CalcSwingArm
-    motor_service_1.o(i.MotorService_GetMotorCurrent) refers to motor_service_1.o(i.MotorService_GetMotorVoltage) for MotorService_GetMotorVoltage
-    motor_service_1.o(i.MotorService_GetMotorVoltage) refers to adc.o(i.ADC_GetMotorVol) for ADC_GetMotorVol
-    motor_service_1.o(i.MotorService_InitMotor) refers to hrtim.o(i.PWM_Enable) for PWM_Enable
-    motor_service_1.o(i.MotorService_InitMotor) refers to hrtim.o(i.PWM_DirControl) for PWM_DirControl
-    motor_service_1.o(i.MotorService_InitMotor) refers to motor_service_1.o(i.MotorService_SetDutyCycle) for MotorService_SetDutyCycle
-    motor_service_1.o(i.MotorService_SetDutyCycle) refers to hrtim.o(i.PWM_DirControl) for PWM_DirControl
-    motor_service_1.o(i.MotorService_SetDutyCycle) refers to hrtim.o(i.PWM_Set_TargePulse) for PWM_Set_TargePulse
+    ringframequeue.o(i.RFQ_Push) refers to ringframequeue.o(i.RFQ_Memcpy) for RFQ_Memcpy
+    simulink_protocol.o(i.SimulinkProtocol_AssembleFeedbackFrame) refers to simulink_protocol.o(i.SimulinkProtocol_PackInt16LE) for SimulinkProtocol_PackInt16LE
+    simulink_protocol.o(i.SimulinkProtocol_AssembleFeedbackFrame) refers to simulink_protocol.o(i.SimulinkProtocol_PackInt32LE) for SimulinkProtocol_PackInt32LE
+    simulink_protocol.o(i.SimulinkProtocol_AssembleFeedbackFrame) refers to simulink_protocol.o(i.SimulinkProtocol_CalcCRC16) for SimulinkProtocol_CalcCRC16
+    simulink_protocol.o(i.SimulinkProtocol_GetFeedbackTxBuffer) refers to simulink_protocol.o(.bss) for s_feedback_tx_buf
+    simulink_protocol.o(i.SimulinkProtocol_PackFeedback) refers to simulink_protocol.o(i.SimulinkProtocol_GetFeedbackTxBuffer) for SimulinkProtocol_GetFeedbackTxBuffer
+    simulink_protocol.o(i.SimulinkProtocol_PackFeedback) refers to simulink_protocol.o(i.SimulinkProtocol_AssembleFeedbackFrame) for SimulinkProtocol_AssembleFeedbackFrame
+    simulink_protocol.o(i.SimulinkProtocol_PackFeedback) refers to usart.o(i.Simulink_Feedback_Send) for Simulink_Feedback_Send
+    simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame) refers to printfa.o(i.__0printf) for __2printf
+    simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame) refers to simulink_protocol.o(i.SimulinkProtocol_UnpackInt16LE) for SimulinkProtocol_UnpackInt16LE
+    simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame) refers to simulink_protocol.o(i.SimulinkProtocol_CalcCRC16) for SimulinkProtocol_CalcCRC16
+    simulink_protocol.o(i.SimulinkProtocol_UnpackControl) refers to usart.o(i.Simulink_ControlFrame_GetData) for Simulink_ControlFrame_GetData
+    simulink_protocol.o(i.SimulinkProtocol_UnpackControl) refers to simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame) for SimulinkProtocol_ParseControlFrame
+    motor_service.o(i.EncoderProtocol_ParseFrame) refers to motor_service.o(i.EncoderProtocol_CalcCRC8) for EncoderProtocol_CalcCRC8
+    motor_service.o(i.EncoderProtocol_ReadMotor) refers to usart.o(i.MotorEncoder_GetData) for MotorEncoder_GetData
+    motor_service.o(i.EncoderProtocol_ReadMotor) refers to motor_service.o(i.EncoderProtocol_ParseFrame) for EncoderProtocol_ParseFrame
+    motor_service.o(i.EncoderProtocol_ReadOutputShaft) refers to usart.o(i.OutputShaftEncoder_GetData) for OutputShaftEncoder_GetData
+    motor_service.o(i.EncoderProtocol_ReadOutputShaft) refers to motor_service.o(i.EncoderProtocol_ParseFrame) for EncoderProtocol_ParseFrame
+    motor_service.o(i.EncoderProtocol_ReadSwingArm) refers to usart.o(i.SwingArmEncoder_GetData) for SwingArmEncoder_GetData
+    motor_service.o(i.EncoderProtocol_ReadSwingArm) refers to motor_service.o(i.EncoderProtocol_ParseFrame) for EncoderProtocol_ParseFrame
+    motor_service.o(i.EncoderSpeed_CalcMotor) refers to motor_service.o(i.EncoderSpeed_Calc) for EncoderSpeed_Calc
+    motor_service.o(i.EncoderSpeed_CalcOutputShaft) refers to motor_service.o(i.EncoderSpeed_Calc) for EncoderSpeed_Calc
+    motor_service.o(i.EncoderSpeed_CalcSwingArm) refers to motor_service.o(i.EncoderSpeed_Calc) for EncoderSpeed_Calc
+    motor_service.o(i.MotorService_CloseMotor) refers to hrtim.o(i.PWM_Enable) for PWM_Enable
+    motor_service.o(i.MotorService_CloseMotor) refers to hrtim.o(i.PWM_DirControl) for PWM_DirControl
+    motor_service.o(i.MotorService_CloseMotor) refers to motor_service.o(i.MotorService_SetDutyCycle) for MotorService_SetDutyCycle
+    motor_service.o(i.MotorService_GetFeedbackData) refers to motor_service.o(i.EncoderProtocol_ReadMotor) for EncoderProtocol_ReadMotor
+    motor_service.o(i.MotorService_GetFeedbackData) refers to motor_service.o(i.MotorService_MapEncoderResult) for MotorService_MapEncoderResult
+    motor_service.o(i.MotorService_GetFeedbackData) refers to motor_service.o(i.EncoderProtocol_ReadOutputShaft) for EncoderProtocol_ReadOutputShaft
+    motor_service.o(i.MotorService_GetFeedbackData) refers to motor_service.o(i.MotorService_GetMotorCurrent) for MotorService_GetMotorCurrent
+    motor_service.o(i.MotorService_GetFeedbackData) refers to motor_service.o(i.EncoderSpeed_CalcMotor) for EncoderSpeed_CalcMotor
+    motor_service.o(i.MotorService_GetFeedbackData) refers to motor_service.o(i.EncoderSpeed_CalcOutputShaft) for EncoderSpeed_CalcOutputShaft
+    motor_service.o(i.MotorService_GetFeedbackData) refers to motor_service.o(i.EncoderSpeed_CalcSwingArm) for EncoderSpeed_CalcSwingArm
+    motor_service.o(i.MotorService_GetMotorCurrent) refers to motor_service.o(i.MotorService_GetMotorVoltage) for MotorService_GetMotorVoltage
+    motor_service.o(i.MotorService_GetMotorVoltage) refers to adc.o(i.ADC_GetMotorVol) for ADC_GetMotorVol
+    motor_service.o(i.MotorService_InitMotor) refers to hrtim.o(i.PWM_Enable) for PWM_Enable
+    motor_service.o(i.MotorService_InitMotor) refers to hrtim.o(i.PWM_DirControl) for PWM_DirControl
+    motor_service.o(i.MotorService_InitMotor) refers to motor_service.o(i.MotorService_SetDutyCycle) for MotorService_SetDutyCycle
+    motor_service.o(i.MotorService_SetDutyCycle) refers to hrtim.o(i.PWM_DirControl) for PWM_DirControl
+    motor_service.o(i.MotorService_SetDutyCycle) refers to hrtim.o(i.PWM_Set_TargePulse) for PWM_Set_TargePulse
     main.o(i.Error_Handler) refers to printfa.o(i.__0printf) for __2printf
     main.o(i.SystemClock_Config) refers to memseta.o(.text) for __aeabi_memclr4
     main.o(i.SystemClock_Config) refers to stm32g4xx_hal_pwr_ex.o(i.HAL_PWREx_ControlVoltageScaling) for HAL_PWREx_ControlVoltageScaling
@@ -106,7 +106,7 @@ Section Cross References
     main.o(i.main) refers to stm32g4xx_hal_hrtim.o(i.HAL_HRTIM_WaveformCountStart) for HAL_HRTIM_WaveformCountStart
     main.o(i.main) refers to stm32g4xx_hal_hrtim.o(i.HAL_HRTIM_WaveformCountStart_IT) for HAL_HRTIM_WaveformCountStart_IT
     main.o(i.main) refers to stm32g4xx_hal_tim.o(i.HAL_TIM_PWM_Start) for HAL_TIM_PWM_Start
-    main.o(i.main) refers to motor_service_1.o(i.MotorService_InitMotor) for MotorService_InitMotor
+    main.o(i.main) refers to motor_service.o(i.MotorService_InitMotor) for MotorService_InitMotor
     main.o(i.main) refers to printfa.o(i.__0printf) for __2printf
     main.o(i.main) refers to state_machine.o(i.StateMachine_MainLoop) for StateMachine_MainLoop
     main.o(i.main) refers to main.o(.constdata) for .constdata
@@ -214,7 +214,7 @@ Section Cross References
     usart.o(i.EncoderLevelShifter_SetEnable) refers to stm32g4xx_hal_gpio.o(i.HAL_GPIO_WritePin) for HAL_GPIO_WritePin
     usart.o(i.EncoderTrigger_SendOne) refers to usart.o(i.EncoderLevelShifter_SetEnable) for EncoderLevelShifter_SetEnable
     usart.o(i.HAL_UARTEx_RxEventCallback) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_GetRxEventType) for HAL_UARTEx_GetRxEventType
-    usart.o(i.HAL_UARTEx_RxEventCallback) refers to ringframequeue_1.o(i.RFQ_Push) for RFQ_Push
+    usart.o(i.HAL_UARTEx_RxEventCallback) refers to ringframequeue.o(i.RFQ_Push) for RFQ_Push
     usart.o(i.HAL_UARTEx_RxEventCallback) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_ReceiveToIdle_DMA) for HAL_UARTEx_ReceiveToIdle_DMA
     usart.o(i.HAL_UARTEx_RxEventCallback) refers to stm32g4xx_hal.o(i.HAL_GetTick) for HAL_GetTick
     usart.o(i.HAL_UARTEx_RxEventCallback) refers to usart.o(.data) for dbg_uart2_rx_evt_count
@@ -255,7 +255,7 @@ Section Cross References
     usart.o(i.MX_USART1_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_SetTxFifoThreshold) for HAL_UARTEx_SetTxFifoThreshold
     usart.o(i.MX_USART1_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_SetRxFifoThreshold) for HAL_UARTEx_SetRxFifoThreshold
     usart.o(i.MX_USART1_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_DisableFifoMode) for HAL_UARTEx_DisableFifoMode
-    usart.o(i.MX_USART1_UART_Init) refers to ringframequeue_1.o(i.RFQ_Init) for RFQ_Init
+    usart.o(i.MX_USART1_UART_Init) refers to ringframequeue.o(i.RFQ_Init) for RFQ_Init
     usart.o(i.MX_USART1_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_ReceiveToIdle_DMA) for HAL_UARTEx_ReceiveToIdle_DMA
     usart.o(i.MX_USART1_UART_Init) refers to usart.o(.bss) for huart1
     usart.o(i.MX_USART2_UART_Init) refers to stm32g4xx_hal_uart.o(i.HAL_UART_Init) for HAL_UART_Init
@@ -263,7 +263,7 @@ Section Cross References
     usart.o(i.MX_USART2_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_SetTxFifoThreshold) for HAL_UARTEx_SetTxFifoThreshold
     usart.o(i.MX_USART2_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_SetRxFifoThreshold) for HAL_UARTEx_SetRxFifoThreshold
     usart.o(i.MX_USART2_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_DisableFifoMode) for HAL_UARTEx_DisableFifoMode
-    usart.o(i.MX_USART2_UART_Init) refers to ringframequeue_1.o(i.RFQ_Init) for RFQ_Init
+    usart.o(i.MX_USART2_UART_Init) refers to ringframequeue.o(i.RFQ_Init) for RFQ_Init
     usart.o(i.MX_USART2_UART_Init) refers to stm32g4xx_hal_uart_ex.o(i.HAL_UARTEx_ReceiveToIdle_DMA) for HAL_UARTEx_ReceiveToIdle_DMA
     usart.o(i.MX_USART2_UART_Init) refers to usart.o(.bss) for huart2
     usart.o(i.MX_USART3_UART_Init) refers to stm32g4xx_hal_uart.o(i.HAL_UART_Init) for HAL_UART_Init
@@ -276,7 +276,7 @@ Section Cross References
     usart.o(i.MX_USART3_UART_Init) refers to usart.o(.data) for au8Uart3DMABuff
     usart.o(i.MotorEncoder_GetData) refers to usart.o(.bss) for au8MotorEncoderBuff
     usart.o(i.OutputShaftEncoder_GetData) refers to usart.o(.bss) for au8OutputShaftEncoderBuff
-    usart.o(i.Simulink_ControlFrame_GetData) refers to ringframequeue_1.o(i.RFQ_Pop) for RFQ_Pop
+    usart.o(i.Simulink_ControlFrame_GetData) refers to ringframequeue.o(i.RFQ_Pop) for RFQ_Pop
     usart.o(i.Simulink_ControlFrame_GetData) refers to memcpya.o(.text) for __aeabi_memcpy
     usart.o(i.Simulink_ControlFrame_GetData) refers to usart.o(.bss) for UART2_RX_RFQ
     usart.o(i.Simulink_Feedback_Send) refers to stm32g4xx_hal_uart.o(i.HAL_UART_Transmit_DMA) for HAL_UART_Transmit_DMA
@@ -1348,18 +1348,18 @@ Removing Unused input sections from the image.
     Removing state_machine.o(.revsh_text), (4 bytes).
     Removing state_machine.o(.rrx_text), (6 bytes).
     Removing state_machine.o(i.StateMachine_OnDutyWriteFailed), (2 bytes).
-    Removing simulink_protocol_1.o(.rev16_text), (4 bytes).
-    Removing simulink_protocol_1.o(.revsh_text), (4 bytes).
-    Removing simulink_protocol_1.o(.rrx_text), (6 bytes).
-    Removing simulink_protocol_1.o(i.SimulinkProtocol_FindHeader), (54 bytes).
-    Removing simulink_protocol_1.o(i.SimulinkProtocol_UnpackInt32LE), (24 bytes).
-    Removing simulink_protocol_1.o(i.SimulinkProtocol_VerifyHeader), (28 bytes).
-    Removing motor_service_1.o(.rev16_text), (4 bytes).
-    Removing motor_service_1.o(.revsh_text), (4 bytes).
-    Removing motor_service_1.o(.rrx_text), (6 bytes).
-    Removing motor_service_1.o(i.EncoderProtocol_ReadSwingArm), (60 bytes).
-    Removing motor_service_1.o(i.MotorService_CloseMotor), (22 bytes).
-    Removing motor_service_1.o(.data), (5 bytes).
+    Removing simulink_protocol.o(.rev16_text), (4 bytes).
+    Removing simulink_protocol.o(.revsh_text), (4 bytes).
+    Removing simulink_protocol.o(.rrx_text), (6 bytes).
+    Removing simulink_protocol.o(i.SimulinkProtocol_FindHeader), (54 bytes).
+    Removing simulink_protocol.o(i.SimulinkProtocol_UnpackInt32LE), (24 bytes).
+    Removing simulink_protocol.o(i.SimulinkProtocol_VerifyHeader), (28 bytes).
+    Removing motor_service.o(.rev16_text), (4 bytes).
+    Removing motor_service.o(.revsh_text), (4 bytes).
+    Removing motor_service.o(.rrx_text), (6 bytes).
+    Removing motor_service.o(i.EncoderProtocol_ReadSwingArm), (60 bytes).
+    Removing motor_service.o(i.MotorService_CloseMotor), (22 bytes).
+    Removing motor_service.o(.data), (5 bytes).
     Removing debug.o(.rev16_text), (4 bytes).
     Removing debug.o(.revsh_text), (4 bytes).
     Removing debug.o(.rrx_text), (6 bytes).
@@ -2179,13 +2179,13 @@ Image Symbol Table
     ..\Drivers\STM32G4xx_HAL_Driver\Src\stm32g4xx_hal_uart.c 0x00000000   Number         0  stm32g4xx_hal_uart.o ABSOLUTE
     ..\Drivers\STM32G4xx_HAL_Driver\Src\stm32g4xx_hal_uart_ex.c 0x00000000   Number         0  stm32g4xx_hal_uart_ex.o ABSOLUTE
     ..\User\App\Src\State_Machine.c          0x00000000   Number         0  state_machine.o ABSOLUTE
-    ..\User\Service\Src\RingFrameQueue.c     0x00000000   Number         0  ringframequeue_1.o ABSOLUTE
-    ..\User\Service\Src\motor_service.c      0x00000000   Number         0  motor_service_1.o ABSOLUTE
-    ..\User\Service\Src\simulink_protocol.c  0x00000000   Number         0  simulink_protocol_1.o ABSOLUTE
+    ..\User\Service\Src\RingFrameQueue.c     0x00000000   Number         0  ringframequeue.o ABSOLUTE
+    ..\User\Service\Src\motor_service.c      0x00000000   Number         0  motor_service.o ABSOLUTE
+    ..\User\Service\Src\simulink_protocol.c  0x00000000   Number         0  simulink_protocol.o ABSOLUTE
     ..\\Core\\Src\\debug.c                   0x00000000   Number         0  debug.o ABSOLUTE
     ..\\User\\App\\Src\\State_Machine.c      0x00000000   Number         0  state_machine.o ABSOLUTE
-    ..\\User\\Service\\Src\\motor_service.c  0x00000000   Number         0  motor_service_1.o ABSOLUTE
-    ..\\User\\Service\\Src\\simulink_protocol.c 0x00000000   Number         0  simulink_protocol_1.o ABSOLUTE
+    ..\\User\\Service\\Src\\motor_service.c  0x00000000   Number         0  motor_service.o ABSOLUTE
+    ..\\User\\Service\\Src\\simulink_protocol.c 0x00000000   Number         0  simulink_protocol.o ABSOLUTE
     cdrcmple.s                               0x00000000   Number         0  cdrcmple.o ABSOLUTE
     dc.s                                     0x00000000   Number         0  dc.o ABSOLUTE
     handlers.s                               0x00000000   Number         0  handlers.o ABSOLUTE
@@ -2243,22 +2243,22 @@ Image Symbol Table
     DMA_SetConfig                            0x08000bd9   Thumb Code    64  stm32g4xx_hal_dma.o(i.DMA_SetConfig)
     i.DebugMon_Handler                       0x08000c18   Section        0  stm32g4xx_it.o(i.DebugMon_Handler)
     i.EncoderLevelShifter_SetEnable          0x08000c1c   Section        0  usart.o(i.EncoderLevelShifter_SetEnable)
-    i.EncoderProtocol_CalcCRC8               0x08000c70   Section        0  motor_service_1.o(i.EncoderProtocol_CalcCRC8)
-    EncoderProtocol_CalcCRC8                 0x08000c71   Thumb Code    68  motor_service_1.o(i.EncoderProtocol_CalcCRC8)
-    i.EncoderProtocol_ParseFrame             0x08000cb4   Section        0  motor_service_1.o(i.EncoderProtocol_ParseFrame)
-    EncoderProtocol_ParseFrame               0x08000cb5   Thumb Code   118  motor_service_1.o(i.EncoderProtocol_ParseFrame)
-    i.EncoderProtocol_ReadMotor              0x08000d2a   Section        0  motor_service_1.o(i.EncoderProtocol_ReadMotor)
-    EncoderProtocol_ReadMotor                0x08000d2b   Thumb Code    60  motor_service_1.o(i.EncoderProtocol_ReadMotor)
-    i.EncoderProtocol_ReadOutputShaft        0x08000d66   Section        0  motor_service_1.o(i.EncoderProtocol_ReadOutputShaft)
-    EncoderProtocol_ReadOutputShaft          0x08000d67   Thumb Code    76  motor_service_1.o(i.EncoderProtocol_ReadOutputShaft)
-    i.EncoderSpeed_Calc                      0x08000db4   Section        0  motor_service_1.o(i.EncoderSpeed_Calc)
-    EncoderSpeed_Calc                        0x08000db5   Thumb Code   128  motor_service_1.o(i.EncoderSpeed_Calc)
-    i.EncoderSpeed_CalcMotor                 0x08000e48   Section        0  motor_service_1.o(i.EncoderSpeed_CalcMotor)
-    EncoderSpeed_CalcMotor                   0x08000e49   Thumb Code    24  motor_service_1.o(i.EncoderSpeed_CalcMotor)
-    i.EncoderSpeed_CalcOutputShaft           0x08000e64   Section        0  motor_service_1.o(i.EncoderSpeed_CalcOutputShaft)
-    EncoderSpeed_CalcOutputShaft             0x08000e65   Thumb Code    24  motor_service_1.o(i.EncoderSpeed_CalcOutputShaft)
-    i.EncoderSpeed_CalcSwingArm              0x08000e80   Section        0  motor_service_1.o(i.EncoderSpeed_CalcSwingArm)
-    EncoderSpeed_CalcSwingArm                0x08000e81   Thumb Code    24  motor_service_1.o(i.EncoderSpeed_CalcSwingArm)
+    i.EncoderProtocol_CalcCRC8               0x08000c70   Section        0  motor_service.o(i.EncoderProtocol_CalcCRC8)
+    EncoderProtocol_CalcCRC8                 0x08000c71   Thumb Code    68  motor_service.o(i.EncoderProtocol_CalcCRC8)
+    i.EncoderProtocol_ParseFrame             0x08000cb4   Section        0  motor_service.o(i.EncoderProtocol_ParseFrame)
+    EncoderProtocol_ParseFrame               0x08000cb5   Thumb Code   118  motor_service.o(i.EncoderProtocol_ParseFrame)
+    i.EncoderProtocol_ReadMotor              0x08000d2a   Section        0  motor_service.o(i.EncoderProtocol_ReadMotor)
+    EncoderProtocol_ReadMotor                0x08000d2b   Thumb Code    60  motor_service.o(i.EncoderProtocol_ReadMotor)
+    i.EncoderProtocol_ReadOutputShaft        0x08000d66   Section        0  motor_service.o(i.EncoderProtocol_ReadOutputShaft)
+    EncoderProtocol_ReadOutputShaft          0x08000d67   Thumb Code    76  motor_service.o(i.EncoderProtocol_ReadOutputShaft)
+    i.EncoderSpeed_Calc                      0x08000db4   Section        0  motor_service.o(i.EncoderSpeed_Calc)
+    EncoderSpeed_Calc                        0x08000db5   Thumb Code   128  motor_service.o(i.EncoderSpeed_Calc)
+    i.EncoderSpeed_CalcMotor                 0x08000e48   Section        0  motor_service.o(i.EncoderSpeed_CalcMotor)
+    EncoderSpeed_CalcMotor                   0x08000e49   Thumb Code    24  motor_service.o(i.EncoderSpeed_CalcMotor)
+    i.EncoderSpeed_CalcOutputShaft           0x08000e64   Section        0  motor_service.o(i.EncoderSpeed_CalcOutputShaft)
+    EncoderSpeed_CalcOutputShaft             0x08000e65   Thumb Code    24  motor_service.o(i.EncoderSpeed_CalcOutputShaft)
+    i.EncoderSpeed_CalcSwingArm              0x08000e80   Section        0  motor_service.o(i.EncoderSpeed_CalcSwingArm)
+    EncoderSpeed_CalcSwingArm                0x08000e81   Thumb Code    24  motor_service.o(i.EncoderSpeed_CalcSwingArm)
     i.EncoderTrigger_SendOne                 0x08000e9c   Section        0  usart.o(i.EncoderTrigger_SendOne)
     i.Error_Handler                          0x08000f08   Section        0  main.o(i.Error_Handler)
     i.HAL_ADCEx_Calibration_Start            0x08000f1c   Section        0  stm32g4xx_hal_adc_ex.o(i.HAL_ADCEx_Calibration_Start)
@@ -2452,15 +2452,15 @@ Image Symbol Table
     i.MX_USART3_UART_Init                    0x08006b4c   Section        0  usart.o(i.MX_USART3_UART_Init)
     i.MemManage_Handler                      0x08006bcc   Section        0  stm32g4xx_it.o(i.MemManage_Handler)
     i.MotorEncoder_GetData                   0x08006bd0   Section        0  usart.o(i.MotorEncoder_GetData)
-    i.MotorService_GetFeedbackData           0x08006be8   Section        0  motor_service_1.o(i.MotorService_GetFeedbackData)
-    i.MotorService_GetMotorCurrent           0x08006cac   Section        0  motor_service_1.o(i.MotorService_GetMotorCurrent)
-    MotorService_GetMotorCurrent             0x08006cad   Thumb Code    48  motor_service_1.o(i.MotorService_GetMotorCurrent)
-    i.MotorService_GetMotorVoltage           0x08006ce8   Section        0  motor_service_1.o(i.MotorService_GetMotorVoltage)
-    MotorService_GetMotorVoltage             0x08006ce9   Thumb Code    62  motor_service_1.o(i.MotorService_GetMotorVoltage)
-    i.MotorService_InitMotor                 0x08006d30   Section        0  motor_service_1.o(i.MotorService_InitMotor)
-    i.MotorService_MapEncoderResult          0x08006d46   Section        0  motor_service_1.o(i.MotorService_MapEncoderResult)
-    MotorService_MapEncoderResult            0x08006d47   Thumb Code    12  motor_service_1.o(i.MotorService_MapEncoderResult)
-    i.MotorService_SetDutyCycle              0x08006d54   Section        0  motor_service_1.o(i.MotorService_SetDutyCycle)
+    i.MotorService_GetFeedbackData           0x08006be8   Section        0  motor_service.o(i.MotorService_GetFeedbackData)
+    i.MotorService_GetMotorCurrent           0x08006cac   Section        0  motor_service.o(i.MotorService_GetMotorCurrent)
+    MotorService_GetMotorCurrent             0x08006cad   Thumb Code    48  motor_service.o(i.MotorService_GetMotorCurrent)
+    i.MotorService_GetMotorVoltage           0x08006ce8   Section        0  motor_service.o(i.MotorService_GetMotorVoltage)
+    MotorService_GetMotorVoltage             0x08006ce9   Thumb Code    62  motor_service.o(i.MotorService_GetMotorVoltage)
+    i.MotorService_InitMotor                 0x08006d30   Section        0  motor_service.o(i.MotorService_InitMotor)
+    i.MotorService_MapEncoderResult          0x08006d46   Section        0  motor_service.o(i.MotorService_MapEncoderResult)
+    MotorService_MapEncoderResult            0x08006d47   Thumb Code    12  motor_service.o(i.MotorService_MapEncoderResult)
+    i.MotorService_SetDutyCycle              0x08006d54   Section        0  motor_service.o(i.MotorService_SetDutyCycle)
     i.NMI_Handler                            0x08006da0   Section        0  stm32g4xx_it.o(i.NMI_Handler)
     i.OutputShaftEncoder_GetData             0x08006da4   Section        0  usart.o(i.OutputShaftEncoder_GetData)
     i.PWM_DirControl                         0x08006dbc   Section        0  hrtim.o(i.PWM_DirControl)
@@ -2469,28 +2469,28 @@ Image Symbol Table
     i.PendSV_Handler                         0x08006e2c   Section        0  stm32g4xx_it.o(i.PendSV_Handler)
     i.RCC_GetSysClockFreqFromPLLSource       0x08006e30   Section        0  stm32g4xx_hal_rcc.o(i.RCC_GetSysClockFreqFromPLLSource)
     RCC_GetSysClockFreqFromPLLSource         0x08006e31   Thumb Code    90  stm32g4xx_hal_rcc.o(i.RCC_GetSysClockFreqFromPLLSource)
-    i.RFQ_Init                               0x08006e98   Section        0  ringframequeue_1.o(i.RFQ_Init)
-    i.RFQ_Memcpy                             0x08006eac   Section        0  ringframequeue_1.o(i.RFQ_Memcpy)
-    RFQ_Memcpy                               0x08006ead   Thumb Code    24  ringframequeue_1.o(i.RFQ_Memcpy)
-    i.RFQ_Pop                                0x08006ec4   Section        0  ringframequeue_1.o(i.RFQ_Pop)
-    i.RFQ_Push                               0x08006f18   Section        0  ringframequeue_1.o(i.RFQ_Push)
+    i.RFQ_Init                               0x08006e98   Section        0  ringframequeue.o(i.RFQ_Init)
+    i.RFQ_Memcpy                             0x08006eac   Section        0  ringframequeue.o(i.RFQ_Memcpy)
+    RFQ_Memcpy                               0x08006ead   Thumb Code    24  ringframequeue.o(i.RFQ_Memcpy)
+    i.RFQ_Pop                                0x08006ec4   Section        0  ringframequeue.o(i.RFQ_Pop)
+    i.RFQ_Push                               0x08006f18   Section        0  ringframequeue.o(i.RFQ_Push)
     i.SVC_Handler                            0x08006f7e   Section        0  stm32g4xx_it.o(i.SVC_Handler)
-    i.SimulinkProtocol_AssembleFeedbackFrame 0x08006f80   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_AssembleFeedbackFrame)
-    SimulinkProtocol_AssembleFeedbackFrame   0x08006f81   Thumb Code   202  simulink_protocol_1.o(i.SimulinkProtocol_AssembleFeedbackFrame)
-    i.SimulinkProtocol_CalcCRC16             0x0800704a   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_CalcCRC16)
-    SimulinkProtocol_CalcCRC16               0x0800704b   Thumb Code    68  simulink_protocol_1.o(i.SimulinkProtocol_CalcCRC16)
-    i.SimulinkProtocol_GetFeedbackTxBuffer   0x08007090   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_GetFeedbackTxBuffer)
-    SimulinkProtocol_GetFeedbackTxBuffer     0x08007091   Thumb Code     4  simulink_protocol_1.o(i.SimulinkProtocol_GetFeedbackTxBuffer)
-    i.SimulinkProtocol_PackFeedback          0x08007098   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_PackFeedback)
-    i.SimulinkProtocol_PackInt16LE           0x08007164   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_PackInt16LE)
-    SimulinkProtocol_PackInt16LE             0x08007165   Thumb Code     8  simulink_protocol_1.o(i.SimulinkProtocol_PackInt16LE)
-    i.SimulinkProtocol_PackInt32LE           0x0800716c   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_PackInt32LE)
-    SimulinkProtocol_PackInt32LE             0x0800716d   Thumb Code    16  simulink_protocol_1.o(i.SimulinkProtocol_PackInt32LE)
-    i.SimulinkProtocol_ParseControlFrame     0x0800717c   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_ParseControlFrame)
-    SimulinkProtocol_ParseControlFrame       0x0800717d   Thumb Code   244  simulink_protocol_1.o(i.SimulinkProtocol_ParseControlFrame)
-    i.SimulinkProtocol_UnpackControl         0x0800730c   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_UnpackControl)
-    i.SimulinkProtocol_UnpackInt16LE         0x08007346   Section        0  simulink_protocol_1.o(i.SimulinkProtocol_UnpackInt16LE)
-    SimulinkProtocol_UnpackInt16LE           0x08007347   Thumb Code    14  simulink_protocol_1.o(i.SimulinkProtocol_UnpackInt16LE)
+    i.SimulinkProtocol_AssembleFeedbackFrame 0x08006f80   Section        0  simulink_protocol.o(i.SimulinkProtocol_AssembleFeedbackFrame)
+    SimulinkProtocol_AssembleFeedbackFrame   0x08006f81   Thumb Code   202  simulink_protocol.o(i.SimulinkProtocol_AssembleFeedbackFrame)
+    i.SimulinkProtocol_CalcCRC16             0x0800704a   Section        0  simulink_protocol.o(i.SimulinkProtocol_CalcCRC16)
+    SimulinkProtocol_CalcCRC16               0x0800704b   Thumb Code    68  simulink_protocol.o(i.SimulinkProtocol_CalcCRC16)
+    i.SimulinkProtocol_GetFeedbackTxBuffer   0x08007090   Section        0  simulink_protocol.o(i.SimulinkProtocol_GetFeedbackTxBuffer)
+    SimulinkProtocol_GetFeedbackTxBuffer     0x08007091   Thumb Code     4  simulink_protocol.o(i.SimulinkProtocol_GetFeedbackTxBuffer)
+    i.SimulinkProtocol_PackFeedback          0x08007098   Section        0  simulink_protocol.o(i.SimulinkProtocol_PackFeedback)
+    i.SimulinkProtocol_PackInt16LE           0x08007164   Section        0  simulink_protocol.o(i.SimulinkProtocol_PackInt16LE)
+    SimulinkProtocol_PackInt16LE             0x08007165   Thumb Code     8  simulink_protocol.o(i.SimulinkProtocol_PackInt16LE)
+    i.SimulinkProtocol_PackInt32LE           0x0800716c   Section        0  simulink_protocol.o(i.SimulinkProtocol_PackInt32LE)
+    SimulinkProtocol_PackInt32LE             0x0800716d   Thumb Code    16  simulink_protocol.o(i.SimulinkProtocol_PackInt32LE)
+    i.SimulinkProtocol_ParseControlFrame     0x0800717c   Section        0  simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame)
+    SimulinkProtocol_ParseControlFrame       0x0800717d   Thumb Code   244  simulink_protocol.o(i.SimulinkProtocol_ParseControlFrame)
+    i.SimulinkProtocol_UnpackControl         0x0800730c   Section        0  simulink_protocol.o(i.SimulinkProtocol_UnpackControl)
+    i.SimulinkProtocol_UnpackInt16LE         0x08007346   Section        0  simulink_protocol.o(i.SimulinkProtocol_UnpackInt16LE)
+    SimulinkProtocol_UnpackInt16LE           0x08007347   Thumb Code    14  simulink_protocol.o(i.SimulinkProtocol_UnpackInt16LE)
     i.Simulink_ControlFrame_GetData          0x08007354   Section        0  usart.o(i.Simulink_ControlFrame_GetData)
     i.Simulink_Feedback_Send                 0x080073b4   Section        0  usart.o(i.Simulink_Feedback_Send)
     i.StateMachine_MainLoop                  0x080073e0   Section        0  state_machine.o(i.StateMachine_MainLoop)
@@ -2587,8 +2587,8 @@ Image Symbol Table
     TimerIdxToTimerId                        0x20000054   Data          28  stm32g4xx_hal_hrtim.o(.data)
     .data                                    0x20000070   Section        4  system_stm32g4xx.o(.data)
     .data                                    0x20000074   Section        4  stdout.o(.data)
-    .bss                                     0x20000078   Section       32  simulink_protocol_1.o(.bss)
-    s_feedback_tx_buf                        0x20000078   Data          32  simulink_protocol_1.o(.bss)
+    .bss                                     0x20000078   Section       32  simulink_protocol.o(.bss)
+    s_feedback_tx_buf                        0x20000078   Data          32  simulink_protocol.o(.bss)
     .bss                                     0x20000098   Section      408  adc.o(.bss)
     .bss                                     0x20000230   Section       36  crc.o(.bss)
     .bss                                     0x20000254   Section      252  hrtim.o(.bss)
@@ -2939,21 +2939,21 @@ Image Symbol Table
     MX_USART3_UART_Init                      0x08006b4d   Thumb Code   110  usart.o(i.MX_USART3_UART_Init)
     MemManage_Handler                        0x08006bcd   Thumb Code     4  stm32g4xx_it.o(i.MemManage_Handler)
     MotorEncoder_GetData                     0x08006bd1   Thumb Code    18  usart.o(i.MotorEncoder_GetData)
-    MotorService_GetFeedbackData             0x08006be9   Thumb Code   188  motor_service_1.o(i.MotorService_GetFeedbackData)
-    MotorService_InitMotor                   0x08006d31   Thumb Code    22  motor_service_1.o(i.MotorService_InitMotor)
-    MotorService_SetDutyCycle                0x08006d55   Thumb Code    72  motor_service_1.o(i.MotorService_SetDutyCycle)
+    MotorService_GetFeedbackData             0x08006be9   Thumb Code   188  motor_service.o(i.MotorService_GetFeedbackData)
+    MotorService_InitMotor                   0x08006d31   Thumb Code    22  motor_service.o(i.MotorService_InitMotor)
+    MotorService_SetDutyCycle                0x08006d55   Thumb Code    72  motor_service.o(i.MotorService_SetDutyCycle)
     NMI_Handler                              0x08006da1   Thumb Code     4  stm32g4xx_it.o(i.NMI_Handler)
     OutputShaftEncoder_GetData               0x08006da5   Thumb Code    18  usart.o(i.OutputShaftEncoder_GetData)
     PWM_DirControl                           0x08006dbd   Thumb Code    30  hrtim.o(i.PWM_DirControl)
     PWM_Enable                               0x08006de1   Thumb Code    30  hrtim.o(i.PWM_Enable)
     PWM_Set_TargePulse                       0x08006e05   Thumb Code    32  hrtim.o(i.PWM_Set_TargePulse)
     PendSV_Handler                           0x08006e2d   Thumb Code     2  stm32g4xx_it.o(i.PendSV_Handler)
-    RFQ_Init                                 0x08006e99   Thumb Code    20  ringframequeue_1.o(i.RFQ_Init)
-    RFQ_Pop                                  0x08006ec5   Thumb Code    84  ringframequeue_1.o(i.RFQ_Pop)
-    RFQ_Push                                 0x08006f19   Thumb Code   102  ringframequeue_1.o(i.RFQ_Push)
+    RFQ_Init                                 0x08006e99   Thumb Code    20  ringframequeue.o(i.RFQ_Init)
+    RFQ_Pop                                  0x08006ec5   Thumb Code    84  ringframequeue.o(i.RFQ_Pop)
+    RFQ_Push                                 0x08006f19   Thumb Code   102  ringframequeue.o(i.RFQ_Push)
     SVC_Handler                              0x08006f7f   Thumb Code     2  stm32g4xx_it.o(i.SVC_Handler)
-    SimulinkProtocol_PackFeedback            0x08007099   Thumb Code   198  simulink_protocol_1.o(i.SimulinkProtocol_PackFeedback)
-    SimulinkProtocol_UnpackControl           0x0800730d   Thumb Code    58  simulink_protocol_1.o(i.SimulinkProtocol_UnpackControl)
+    SimulinkProtocol_PackFeedback            0x08007099   Thumb Code   198  simulink_protocol.o(i.SimulinkProtocol_PackFeedback)
+    SimulinkProtocol_UnpackControl           0x0800730d   Thumb Code    58  simulink_protocol.o(i.SimulinkProtocol_UnpackControl)
     Simulink_ControlFrame_GetData            0x08007355   Thumb Code    92  usart.o(i.Simulink_ControlFrame_GetData)
     Simulink_Feedback_Send                   0x080073b5   Thumb Code    38  usart.o(i.Simulink_Feedback_Send)
     StateMachine_MainLoop                    0x080073e1   Thumb Code   400  state_machine.o(i.StateMachine_MainLoop)
@@ -3108,15 +3108,15 @@ Memory Map of the image
     0x08000c18   0x08000c18   0x00000002   Code   RO          949    i.DebugMon_Handler  stm32g4xx_it.o
     0x08000c1a   0x08000c1a   0x00000002   PAD
     0x08000c1c   0x08000c1c   0x00000054   Code   RO          808    i.EncoderLevelShifter_SetEnable  usart.o
-    0x08000c70   0x08000c70   0x00000044   Code   RO          305    i.EncoderProtocol_CalcCRC8  motor_service_1.o
-    0x08000cb4   0x08000cb4   0x00000076   Code   RO          306    i.EncoderProtocol_ParseFrame  motor_service_1.o
-    0x08000d2a   0x08000d2a   0x0000003c   Code   RO          307    i.EncoderProtocol_ReadMotor  motor_service_1.o
-    0x08000d66   0x08000d66   0x0000004c   Code   RO          308    i.EncoderProtocol_ReadOutputShaft  motor_service_1.o
+    0x08000c70   0x08000c70   0x00000044   Code   RO          305    i.EncoderProtocol_CalcCRC8  motor_service.o
+    0x08000cb4   0x08000cb4   0x00000076   Code   RO          306    i.EncoderProtocol_ParseFrame  motor_service.o
+    0x08000d2a   0x08000d2a   0x0000003c   Code   RO          307    i.EncoderProtocol_ReadMotor  motor_service.o
+    0x08000d66   0x08000d66   0x0000004c   Code   RO          308    i.EncoderProtocol_ReadOutputShaft  motor_service.o
     0x08000db2   0x08000db2   0x00000002   PAD
-    0x08000db4   0x08000db4   0x00000094   Code   RO          310    i.EncoderSpeed_Calc  motor_service_1.o
-    0x08000e48   0x08000e48   0x0000001c   Code   RO          311    i.EncoderSpeed_CalcMotor  motor_service_1.o
-    0x08000e64   0x08000e64   0x0000001c   Code   RO          312    i.EncoderSpeed_CalcOutputShaft  motor_service_1.o
-    0x08000e80   0x08000e80   0x0000001c   Code   RO          313    i.EncoderSpeed_CalcSwingArm  motor_service_1.o
+    0x08000db4   0x08000db4   0x00000094   Code   RO          310    i.EncoderSpeed_Calc  motor_service.o
+    0x08000e48   0x08000e48   0x0000001c   Code   RO          311    i.EncoderSpeed_CalcMotor  motor_service.o
+    0x08000e64   0x08000e64   0x0000001c   Code   RO          312    i.EncoderSpeed_CalcOutputShaft  motor_service.o
+    0x08000e80   0x08000e80   0x0000001c   Code   RO          313    i.EncoderSpeed_CalcSwingArm  motor_service.o
     0x08000e9c   0x08000e9c   0x0000006c   Code   RO          810    i.EncoderTrigger_SendOne  usart.o
     0x08000f08   0x08000f08   0x00000014   Code   RO          441    i.Error_Handler     main.o
     0x08000f1c   0x08000f1c   0x000000b0   Code   RO         1413    i.HAL_ADCEx_Calibration_Start  stm32g4xx_hal_adc_ex.o
@@ -3297,13 +3297,13 @@ Memory Map of the image
     0x08006b4c   0x08006b4c   0x00000080   Code   RO          820    i.MX_USART3_UART_Init  usart.o
     0x08006bcc   0x08006bcc   0x00000004   Code   RO          953    i.MemManage_Handler  stm32g4xx_it.o
     0x08006bd0   0x08006bd0   0x00000018   Code   RO          821    i.MotorEncoder_GetData  usart.o
-    0x08006be8   0x08006be8   0x000000c4   Code   RO          315    i.MotorService_GetFeedbackData  motor_service_1.o
-    0x08006cac   0x08006cac   0x0000003c   Code   RO          316    i.MotorService_GetMotorCurrent  motor_service_1.o
-    0x08006ce8   0x08006ce8   0x00000048   Code   RO          317    i.MotorService_GetMotorVoltage  motor_service_1.o
-    0x08006d30   0x08006d30   0x00000016   Code   RO          318    i.MotorService_InitMotor  motor_service_1.o
-    0x08006d46   0x08006d46   0x0000000c   Code   RO          319    i.MotorService_MapEncoderResult  motor_service_1.o
+    0x08006be8   0x08006be8   0x000000c4   Code   RO          315    i.MotorService_GetFeedbackData  motor_service.o
+    0x08006cac   0x08006cac   0x0000003c   Code   RO          316    i.MotorService_GetMotorCurrent  motor_service.o
+    0x08006ce8   0x08006ce8   0x00000048   Code   RO          317    i.MotorService_GetMotorVoltage  motor_service.o
+    0x08006d30   0x08006d30   0x00000016   Code   RO          318    i.MotorService_InitMotor  motor_service.o
+    0x08006d46   0x08006d46   0x0000000c   Code   RO          319    i.MotorService_MapEncoderResult  motor_service.o
     0x08006d52   0x08006d52   0x00000002   PAD
-    0x08006d54   0x08006d54   0x0000004c   Code   RO          320    i.MotorService_SetDutyCycle  motor_service_1.o
+    0x08006d54   0x08006d54   0x0000004c   Code   RO          320    i.MotorService_SetDutyCycle  motor_service.o
     0x08006da0   0x08006da0   0x00000004   Code   RO          954    i.NMI_Handler       stm32g4xx_it.o
     0x08006da4   0x08006da4   0x00000018   Code   RO          822    i.OutputShaftEncoder_GetData  usart.o
     0x08006dbc   0x08006dbc   0x00000024   Code   RO          672    i.PWM_DirControl    hrtim.o
@@ -3312,21 +3312,21 @@ Memory Map of the image
     0x08006e2c   0x08006e2c   0x00000002   Code   RO          955    i.PendSV_Handler    stm32g4xx_it.o
     0x08006e2e   0x08006e2e   0x00000002   PAD
     0x08006e30   0x08006e30   0x00000068   Code   RO         1919    i.RCC_GetSysClockFreqFromPLLSource  stm32g4xx_hal_rcc.o
-    0x08006e98   0x08006e98   0x00000014   Code   RO          191    i.RFQ_Init          ringframequeue_1.o
-    0x08006eac   0x08006eac   0x00000018   Code   RO          192    i.RFQ_Memcpy        ringframequeue_1.o
-    0x08006ec4   0x08006ec4   0x00000054   Code   RO          193    i.RFQ_Pop           ringframequeue_1.o
-    0x08006f18   0x08006f18   0x00000066   Code   RO          194    i.RFQ_Push          ringframequeue_1.o
+    0x08006e98   0x08006e98   0x00000014   Code   RO          191    i.RFQ_Init          ringframequeue.o
+    0x08006eac   0x08006eac   0x00000018   Code   RO          192    i.RFQ_Memcpy        ringframequeue.o
+    0x08006ec4   0x08006ec4   0x00000054   Code   RO          193    i.RFQ_Pop           ringframequeue.o
+    0x08006f18   0x08006f18   0x00000066   Code   RO          194    i.RFQ_Push          ringframequeue.o
     0x08006f7e   0x08006f7e   0x00000002   Code   RO          956    i.SVC_Handler       stm32g4xx_it.o
-    0x08006f80   0x08006f80   0x000000ca   Code   RO          223    i.SimulinkProtocol_AssembleFeedbackFrame  simulink_protocol_1.o
-    0x0800704a   0x0800704a   0x00000044   Code   RO          224    i.SimulinkProtocol_CalcCRC16  simulink_protocol_1.o
+    0x08006f80   0x08006f80   0x000000ca   Code   RO          223    i.SimulinkProtocol_AssembleFeedbackFrame  simulink_protocol.o
+    0x0800704a   0x0800704a   0x00000044   Code   RO          224    i.SimulinkProtocol_CalcCRC16  simulink_protocol.o
     0x0800708e   0x0800708e   0x00000002   PAD
-    0x08007090   0x08007090   0x00000008   Code   RO          226    i.SimulinkProtocol_GetFeedbackTxBuffer  simulink_protocol_1.o
-    0x08007098   0x08007098   0x000000cc   Code   RO          227    i.SimulinkProtocol_PackFeedback  simulink_protocol_1.o
-    0x08007164   0x08007164   0x00000008   Code   RO          228    i.SimulinkProtocol_PackInt16LE  simulink_protocol_1.o
-    0x0800716c   0x0800716c   0x00000010   Code   RO          229    i.SimulinkProtocol_PackInt32LE  simulink_protocol_1.o
-    0x0800717c   0x0800717c   0x00000190   Code   RO          230    i.SimulinkProtocol_ParseControlFrame  simulink_protocol_1.o
-    0x0800730c   0x0800730c   0x0000003a   Code   RO          231    i.SimulinkProtocol_UnpackControl  simulink_protocol_1.o
-    0x08007346   0x08007346   0x0000000e   Code   RO          232    i.SimulinkProtocol_UnpackInt16LE  simulink_protocol_1.o
+    0x08007090   0x08007090   0x00000008   Code   RO          226    i.SimulinkProtocol_GetFeedbackTxBuffer  simulink_protocol.o
+    0x08007098   0x08007098   0x000000cc   Code   RO          227    i.SimulinkProtocol_PackFeedback  simulink_protocol.o
+    0x08007164   0x08007164   0x00000008   Code   RO          228    i.SimulinkProtocol_PackInt16LE  simulink_protocol.o
+    0x0800716c   0x0800716c   0x00000010   Code   RO          229    i.SimulinkProtocol_PackInt32LE  simulink_protocol.o
+    0x0800717c   0x0800717c   0x00000190   Code   RO          230    i.SimulinkProtocol_ParseControlFrame  simulink_protocol.o
+    0x0800730c   0x0800730c   0x0000003a   Code   RO          231    i.SimulinkProtocol_UnpackControl  simulink_protocol.o
+    0x08007346   0x08007346   0x0000000e   Code   RO          232    i.SimulinkProtocol_UnpackInt16LE  simulink_protocol.o
     0x08007354   0x08007354   0x00000060   Code   RO          823    i.Simulink_ControlFrame_GetData  usart.o
     0x080073b4   0x080073b4   0x0000002c   Code   RO          824    i.Simulink_Feedback_Send  usart.o
     0x080073e0   0x080073e0   0x000001c8   Code   RO           13    i.StateMachine_MainLoop  state_machine.o
@@ -3406,7 +3406,7 @@ Memory Map of the image
     0x20000054   0x08009284   0x0000001c   Data   RW         3479    .data               stm32g4xx_hal_hrtim.o
     0x20000070   0x080092a0   0x00000004   Data   RW         5909    .data               system_stm32g4xx.o
     0x20000074   0x080092a4   0x00000004   Data   RW         6238    .data               mc_w.l(stdout.o)
-    0x20000078        -       0x00000020   Zero   RW          235    .bss                simulink_protocol_1.o
+    0x20000078        -       0x00000020   Zero   RW          235    .bss                simulink_protocol.o
     0x20000098        -       0x00000198   Zero   RW          539    .bss                adc.o
     0x20000230        -       0x00000024   Zero   RW          604    .bss                crc.o
     0x20000254        -       0x000000fc   Zero   RW          677    .bss                hrtim.o
@@ -3430,9 +3430,9 @@ Image component sizes
        232         12          0          0          0       1063   gpio.o
       1256        172          0          3        252       6335   hrtim.o
        414        132         24          0          0       2572   main.o
-       992         66          0          0          0      11792   motor_service_1.o
-       230          0          0          0          0       2992   ringframequeue_1.o
-       978        166          0          0         32       8321   simulink_protocol_1.o
+       992         66          0          0          0      11792   motor_service.o
+       230          0          0          0          0       2992   ringframequeue.o
+       978        166          0          0         32       8321   simulink_protocol.o
         36          8        472          0       1024        860   startup_stm32g474xx.o
        456         56        108          4          0    1047609   state_machine.o
        154         28          0         12          0       3825   stm32g4xx_hal.o
