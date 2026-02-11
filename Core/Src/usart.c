@@ -24,6 +24,7 @@
 #define UART_1_RX_BUFF_LEN 100
 #define UART_3_RX_BUFF_LEN 6
 #define UART2_RX_BUFF_LEN 100
+#define UART_ENCODER_DMA_RX_BUFF   8U
 #define ENCODER_FRAME_LENGTH_BYTES   6U
 #define ENCODER_SNAPSHOT_BYTES       12U   /* 前6字节=最新帧，后6字节=上一帧 */
 
@@ -105,7 +106,7 @@ void MX_UART4_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN UART4_Init 2 */
-  HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, UART_ENCODER_DMA_RX_BUFF);
   /* USER CODE END UART4_Init 2 */
 
 }
@@ -148,7 +149,7 @@ void MX_UART5_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN UART5_Init 2 */
-  HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, UART_ENCODER_DMA_RX_BUFF);
   /* USER CODE END UART5_Init 2 */
 
 }
@@ -284,7 +285,7 @@ void MX_USART3_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART3_Init 2 */
-  HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, UART_3_RX_BUFF_LEN);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, UART_ENCODER_DMA_RX_BUFF);
 
   /* USER CODE END USART3_Init 2 */
 
@@ -335,7 +336,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_uart4_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_uart4_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_uart4_rx.Init.Mode = DMA_NORMAL;
-    hdma_uart4_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_uart4_rx.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_uart4_rx) != HAL_OK)
     {
       Error_Handler();
@@ -398,7 +399,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_uart5_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_uart5_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_uart5_rx.Init.Mode = DMA_NORMAL;
-    hdma_uart5_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_uart5_rx.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_uart5_rx) != HAL_OK)
     {
       Error_Handler();
@@ -597,7 +598,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart3_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
     {
       Error_Handler();
@@ -905,9 +906,7 @@ void MotorEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    __disable_irq();
     memcpy(pOut, au8MotorEncoderBuff, ENCODER_SNAPSHOT_BYTES);
-    __enable_irq();
   }
 }
 
@@ -920,9 +919,7 @@ void OutputShaftEncoder_GetData(uint8_t *pOut)
   if (pOut != NULL)
   {
     /* 临界区：防止 UART5 RxEventCallback 在读取中途更新快照，导致 [latest,previous] 不一致 -> 速度计算错误 */
-    __disable_irq();
     memcpy(pOut, au8OutputShaftEncoderBuff, ENCODER_SNAPSHOT_BYTES);
-    __enable_irq();
   }
 }
 
@@ -934,9 +931,7 @@ void SwingArmEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    __disable_irq();
     memcpy(pOut, au8SwingArmEncoderBuff, ENCODER_SNAPSHOT_BYTES);
-    __enable_irq();
   }
 }
 
@@ -992,24 +987,24 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
   {
     dbg_uart5_error_count++;
     dbg_uart5_last_error_code = (uint32_t)huart->ErrorCode;  /* 记录错误类型供分析 */
-    /* 错误后 HAL 会停止 DMA 接收，必须在此处重启，否则 UART5 将永久停止 */
+    /* 错误后 HAL 会停止 DMA 接收 */
     huart->ErrorCode = HAL_UART_ERROR_NONE;
     __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF | UART_CLEAR_NEF | UART_CLEAR_PEF | UART_CLEAR_FEF);
-    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
+    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
   else if (huart->Instance == USART3)
   {
     /* 编码器 UART3 同样在错误后需重启 DMA */
     huart->ErrorCode = HAL_UART_ERROR_NONE;
     __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF | UART_CLEAR_NEF | UART_CLEAR_PEF | UART_CLEAR_FEF);
-    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, 6);
+    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
   else if (huart->Instance == UART4)
   {
     /* 编码器 UART4 同样在错误后需重启 DMA */
     huart->ErrorCode = HAL_UART_ERROR_NONE;
     __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF | UART_CLEAR_NEF | UART_CLEAR_PEF | UART_CLEAR_FEF);
-    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
+    (void)HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
 }
 /* #endregion */
@@ -1062,7 +1057,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
       memcpy(au8MotorEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
       memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, 6);
     }
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, 6);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
   else if (huart->Instance == UART4)
   {
@@ -1071,7 +1066,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
       memcpy(au8SwingArmEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8SwingArmEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
       memcpy(au8SwingArmEncoderBuff, au8Uart4DMABuff, 6);
     }
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, 6);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
   else if (huart->Instance == UART5)
   {
@@ -1088,7 +1083,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     }
     /* #region agent log */
     {
-      HAL_StatusTypeDef st = HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, 6);
+      HAL_StatusTypeDef st = HAL_UARTEx_ReceiveToIdle_DMA(&huart5, au8Uart5DMABuff, UART_ENCODER_DMA_RX_BUFF);
       if (st == HAL_OK) 
       { 
         dbg_uart5_restart_ok_count++; 

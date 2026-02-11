@@ -1,6 +1,6 @@
 Dependencies for Project 'SoftscalePendulumDriveBoard', Target 'SoftscalePendulumDriveBoard': (DO NOT MODIFY !)
 CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
-F (startup_stm32g474xx.s)(0x698B1168)(--cpu Cortex-M4.fp.sp -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include--pd "__UVISION_VERSION SETA 532" --pd "_RTE_ SETA 1" --pd "STM32G474xx SETA 1" --pd "_RTE_ SETA 1"--list startup_stm32g474xx.lst --xref -o softscalependulumdriveboard\startup_stm32g474xx.o --depend softscalependulumdriveboard\startup_stm32g474xx.d)
+F (startup_stm32g474xx.s)(0x698C098E)(--cpu Cortex-M4.fp.sp -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include--pd "__UVISION_VERSION SETA 532" --pd "_RTE_ SETA 1" --pd "STM32G474xx SETA 1" --pd "_RTE_ SETA 1"--list startup_stm32g474xx.lst --xref -o softscalependulumdriveboard\startup_stm32g474xx.o --depend softscalependulumdriveboard\startup_stm32g474xx.d)
 F (..\User\App\Src\State_Machine.c)(0x698AB335)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\state_machine.o --omf_browse softscalependulumdriveboard\state_machine.crf --depend softscalependulumdriveboard\state_machine.d)
 I (../User/App/Inc/State_Machine.h)(0x69898485)
 I (../Core/Inc/main.h)(0x698989AF)
@@ -97,7 +97,7 @@ I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h)(0x680DFCF6)
 I (D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\include\string.h)(0x5F63878A)
 I (../User/Service/Inc/RingFrameQueue.h)(0x69898485)
-F (..\User\Service\Src\motor_service.c)(0x698B113C)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\motor_service_1.o --omf_browse softscalependulumdriveboard\motor_service_1.crf --depend softscalependulumdriveboard\motor_service_1.d)
+F (..\User\Service\Src\motor_service.c)(0x698BE13D)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\motor_service_1.o --omf_browse softscalependulumdriveboard\motor_service_1.crf --depend softscalependulumdriveboard\motor_service_1.d)
 I (../User/Service/Inc/motor_service.h)(0x69898485)
 I (D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5F63877C)
 I (../Core/Inc/usart.h)(0x698A9CC4)
@@ -182,7 +182,7 @@ I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h)(0x680DFCF6)
 I (D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5F63877C)
-F (../Core/Src/main.c)(0x698B1150)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\main.o --omf_browse softscalependulumdriveboard\main.crf --depend softscalependulumdriveboard\main.d)
+F (../Core/Src/main.c)(0x698C002C)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\main.o --omf_browse softscalependulumdriveboard\main.crf --depend softscalependulumdriveboard\main.d)
 I (../Core/Inc/main.h)(0x698989AF)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x680DFCF6)
 I (../Core/Inc/stm32g4xx_hal_conf.h)(0x6984809F)
@@ -274,7 +274,7 @@ I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h)(0x680DFCF6)
-F (../Core/Src/adc.c)(0x698B0C09)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\adc.o --omf_browse softscalependulumdriveboard\adc.crf --depend softscalependulumdriveboard\adc.d)
+F (../Core/Src/adc.c)(0x698C098A)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\adc.o --omf_browse softscalependulumdriveboard\adc.crf --depend softscalependulumdriveboard\adc.d)
 I (../Core/Inc/adc.h)(0x69898484)
 I (../Core/Inc/main.h)(0x698989AF)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x680DFCF6)
@@ -357,7 +357,7 @@ I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h)(0x680DFCF6)
-F (../Core/Src/dma.c)(0x698B0C0A)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\dma.o --omf_browse softscalependulumdriveboard\dma.crf --depend softscalependulumdriveboard\dma.d)
+F (../Core/Src/dma.c)(0x698BFFFF)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\dma.o --omf_browse softscalependulumdriveboard\dma.crf --depend softscalependulumdriveboard\dma.d)
 I (../Core/Inc/dma.h)(0x687DEC5F)
 I (../Core/Inc/main.h)(0x698989AF)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x680DFCF6)
@@ -483,7 +483,7 @@ I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h)(0x680DFCF6)
 I (../Core/Inc/usart.h)(0x698A9CC4)
 I (D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\include\string.h)(0x5F63878A)
 I (../User/Service/Inc/RingFrameQueue.h)(0x69898485)
-F (../Core/Src/usart.c)(0x698B0FDF)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\usart.o --omf_browse softscalependulumdriveboard\usart.crf --depend softscalependulumdriveboard\usart.d)
+F (../Core/Src/usart.c)(0x698C098B)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\usart.o --omf_browse softscalependulumdriveboard\usart.crf --depend softscalependulumdriveboard\usart.d)
 I (../Core/Inc/usart.h)(0x698A9CC4)
 I (../Core/Inc/main.h)(0x698989AF)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x680DFCF6)
@@ -525,7 +525,7 @@ I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h)(0x680DFCF6)
 I (D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\include\string.h)(0x5F63878A)
 I (../User/Service/Inc/RingFrameQueue.h)(0x69898485)
-F (../Core/Src/stm32g4xx_it.c)(0x698ADC0E)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\stm32g4xx_it.o --omf_browse softscalependulumdriveboard\stm32g4xx_it.crf --depend softscalependulumdriveboard\stm32g4xx_it.d)
+F (../Core/Src/stm32g4xx_it.c)(0x698BFFFF)(--c99 -c --cpu Cortex-M4.fp.sp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../User/App/Inc -I ../User/Service/Inc-I.\RTE\_SoftscalePendulumDriveBoard-ID:\ProgramFiles_Professional\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="532" -D_RTE_ -DSTM32G474xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32G474xx-o softscalependulumdriveboard\stm32g4xx_it.o --omf_browse softscalependulumdriveboard\stm32g4xx_it.crf --depend softscalependulumdriveboard\stm32g4xx_it.d)
 I (../Core/Inc/main.h)(0x698989AF)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x680DFCF6)
 I (../Core/Inc/stm32g4xx_hal_conf.h)(0x6984809F)
@@ -564,7 +564,7 @@ I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h)(0x680DFCF6)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h)(0x680DFCF6)
-I (../Core/Inc/stm32g4xx_it.h)(0x698ADC0E)
+I (../Core/Inc/stm32g4xx_it.h)(0x698BFFFF)
 I (../Core/Inc/usart.h)(0x698A9CC4)
 I (D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\include\string.h)(0x5F63878A)
 I (../User/Service/Inc/RingFrameQueue.h)(0x69898485)

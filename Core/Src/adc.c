@@ -23,9 +23,11 @@
 /* USER CODE BEGIN 0 */
 #include "usart.h"
 
+
+#define ADC_DMA_RX_BUFF_LEN 1
 /* ADC采集原始数据 */
-__IO uint16_t au16_ADC1_Vol_Value[2];  /* 电机电压 ADC1 通道�?2 路） */
-__IO uint16_t au16_ADC2_Vol_Value[1];
+__IO uint16_t au16_ADC1_Vol_Value[ADC_DMA_RX_BUFF_LEN];  /* 电机电压 ADC1  */
+__IO uint16_t au16_ADC2_Vol_Value[ADC_DMA_RX_BUFF_LEN];
 
 
 /* ADC 测试输入电压�? */
@@ -107,10 +109,10 @@ void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
   HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
 
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)au16_ADC1_Vol_Value,1);
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)au16_ADC1_Vol_Value,ADC_DMA_RX_BUFF_LEN);
   
 
-  HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
+ // HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
   //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&au16_ADC_HighVol_Value, 2);
 
 
@@ -174,7 +176,7 @@ void MX_ADC2_Init(void)
   HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
 
   //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&au16_ADC_HighVol_Value, 1);
-  HAL_ADC_Start_DMA(&hadc2,(uint32_t*)au16_ADC2_Vol_Value,1);
+  HAL_ADC_Start_DMA(&hadc2,(uint32_t*)au16_ADC2_Vol_Value,ADC_DMA_RX_BUFF_LEN);
 
 
   /* USER CODE END ADC2_Init 2 */
@@ -228,7 +230,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_adc1.Init.Mode = DMA_CIRCULAR;
-    hdma_adc1.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
     {
       Error_Handler();
@@ -280,7 +282,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc2.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_adc2.Init.Mode = DMA_CIRCULAR;
-    hdma_adc2.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_adc2.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
     {
       Error_Handler();
