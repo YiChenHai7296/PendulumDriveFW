@@ -60,6 +60,12 @@ void MotorService_InitMotor(void);
  */
 void MotorService_CloseMotor(void);
 
+/**
+ * @brief 电机电流零点标定：在电机未启动时采样零偏并保存
+ * @note  建议在电机失能且静止时调用；初始化时会自动调用一次
+ */
+void MotorService_CalibrateCurrentZero(void);
+
 
 /**
  * @brief 获取电机反馈数据：刷新编码器与电流，填位置/转速/电流到 pOut，供上位机或 Simulink 组帧

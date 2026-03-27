@@ -21,6 +21,10 @@
 #define MOTOR_FEEDBACK_CURRENT_MAX   2000    /* 反馈电流上限 */
 #define MOTOR_FEEDBACK_CURRENT_MIN   (-2000) /* 反馈电流下限 */
 #define MOTOR_CURRENT_TO_FEEDBACK_A  1000.0f /* 电流单位转换系数（A -> 反馈单位） */
+#define MOTOR_CURRENT_ZERO_CALIB_SAMPLES 64U /* 零点标定采样次数 */
+#define MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS 20U /* 标零前等待采样链路稳定时间 */
+#define MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES 16U /* 标零前丢弃样本数 */
+#define MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A 1.0f /* 零点偏置绝对值上限（异常保护） */
 
 /* ======================== 2. 私有类型定义 ======================== */
 /* 编码器协议解析结果 */
@@ -60,6 +64,8 @@ typedef enum
 #define AXIS_SPEED_FILTER_ALPHA  0.6f   /* 滤波系数：越大越平滑，0=无滤波 */
 static float s_axis_speed_filtered = 0.0f;
 static uint8_t s_axis_speed_filter_init = 0U;
+/* 电机电流零点偏置（A）：电机未启动时采样得到，后续采样均需扣除此偏置 */
+static float s_motor_current_zero_offset_A = 0.0f;
 
 /* ======================== 4. 对外变量定义 ======================== */
 /* 无 */
@@ -77,6 +83,7 @@ static float EncoderSpeed_CalcMotor(const EncoderProtocolDataDual_t *pDual);
 static float EncoderSpeed_CalcOutputShaft(const EncoderProtocolDataDual_t *pDual);
 static float EncoderSpeed_CalcSwingArm(const EncoderProtocolDataDual_t *pDual);
 static float MotorService_GetMotorVoltage(void);
+static float MotorService_GetMotorCurrentRaw(void);
 static float MotorService_GetMotorCurrent(void);
 
 /* ======================== 6. 接口函数实现 ======================== */
@@ -86,9 +93,10 @@ static float MotorService_GetMotorCurrent(void);
  */
 void MotorService_InitMotor(void)
 {
-    PWM_Enable(ENABLE);
+    /* 初始化阶段默认停机，等待上位机首帧非零指令再使能 */
+    PWM_Enable(DISABLE);
     PWM_DirControl(MOTOR_DIR_FORWARD);
-    (void)MotorService_SetDutyCycle(10);
+    MotorService_CalibrateCurrentZero();
 }
 
 /**
@@ -96,9 +104,46 @@ void MotorService_InitMotor(void)
  */
 void MotorService_CloseMotor(void)
 {
+    PWM_ClearPendingUpdate();
     PWM_Enable(DISABLE);
     PWM_DirControl(MOTOR_DIR_FORWARD);
-    (void)MotorService_SetDutyCycle(10);
+}
+
+/**
+ * @brief 电机电流零点标定
+ * @details 在电机未启动状态下采样电流，求平均后作为零点偏置
+ */
+void MotorService_CalibrateCurrentZero(void)
+{
+    uint32_t i;
+    float sum_A = 0.0f;
+
+    /* 标定前确保电机处于失能状态，避免运动电流污染零点 */
+    PWM_ClearPendingUpdate();
+    PWM_Enable(DISABLE);
+    HAL_Delay(MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS);
+
+    /* 丢弃启动阶段样本，避免把 DMA 初值或瞬态当成零点 */
+    for (i = 0U; i < MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES; i++)
+    {
+        (void)MotorService_GetMotorCurrentRaw();
+        HAL_Delay(1U);
+    }
+
+    for (i = 0U; i < MOTOR_CURRENT_ZERO_CALIB_SAMPLES; i++)
+    {
+        sum_A += MotorService_GetMotorCurrentRaw();
+        HAL_Delay(1U);
+    }
+
+    s_motor_current_zero_offset_A = sum_A / (float)MOTOR_CURRENT_ZERO_CALIB_SAMPLES;
+
+    /* 保护：若零点偏置明显异常，则放弃本次标零，防止反馈整体漂移到满量程附近 */
+    if ((s_motor_current_zero_offset_A > MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A) ||
+        (s_motor_current_zero_offset_A < -MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A))
+    {
+        s_motor_current_zero_offset_A = 0.0f;
+    }
 }
 
 
@@ -142,7 +187,7 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
     {
         return MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
     }
-#if 0
+#if 1
     encRes = EncoderProtocol_ReadSwingArm(&swing_dual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
@@ -199,7 +244,7 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
 MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
 {
     uint16_t duty_u16 = 0U;
-    unsigned char pwmRet;
+    unsigned char pwmRet = 0U;
 
     /* 合法范围：-10000~10000 */
     if (duty_permille < -10000 || duty_permille > 10000)
@@ -208,13 +253,13 @@ MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
     }
 
     /* 根据占空比正负决定电机方向，并取绝对值作为占空比大小 */
-    if (duty_permille > 0)
+    if (duty_permille > 6)
     {
         /* 正占空比：电机正转 */
         PWM_DirControl(MOTOR_DIR_FORWARD);
         duty_u16 = (uint16_t)duty_permille;
     }
-    else if (duty_permille < 0)
+    else if (duty_permille < -6)
     {
         /* 负占空比：电机反转 */
         PWM_DirControl(MOTOR_DIR_REVERSE);
@@ -225,9 +270,21 @@ MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
         /* 占空比为 0：保持当前方向，输出 0 占空比 */
         duty_u16 = 0U;
     }
+    if (duty_u16 == 0U)
+    {
+        /* 0 占空比采用显式停机路径，避免触发底层最小脉宽限制 */
+        MotorService_CloseMotor();
+        return MOTOR_SVC_OK;
+    }
 
+    /* 非零占空比：确保驱动使能后再更新 PWM */
+    PWM_Enable(ENABLE);
     pwmRet = PWM_Set_TargePulse((unsigned short)duty_u16);
-    return (pwmRet == 0U) ? MOTOR_SVC_OK : MOTOR_SVC_ERR_DRIVER;
+    if (pwmRet != 0U)
+    {
+        return MOTOR_SVC_ERR_DRIVER;
+    }
+    return MOTOR_SVC_OK;
 }
 
 /* ======================== 7. 私有函数实现 ======================== */
@@ -523,9 +580,20 @@ static float MotorService_GetMotorVoltage(void)
  */
 static float MotorService_GetMotorCurrent(void)
 {
+    /* 采样结果减去零点偏置，得到校零后的电流 */
+    return MotorService_GetMotorCurrentRaw() - s_motor_current_zero_offset_A;
+}
+
+/**
+ * @brief 计算电机原始电流（未扣除零点偏置）
+ * @details 基于电压读数：电流 = (电压 - 偏置) / 放大倍数 / 采样电阻
+ * @return 电机原始电流（A）
+ */
+static float MotorService_GetMotorCurrentRaw(void)
+{
     float v_adc  = MotorService_GetMotorVoltage();
-    float v_diff = v_adc - MOTOR_CURRENT_OFFSET_V;  /* 减去偏置电压 */
-    return v_diff / MOTOR_CURRENT_GAIN / MOTOR_CURRENT_SHUNT_R;  /* 除以放大倍数和采样电阻 */
+    float v_diff = v_adc - MOTOR_CURRENT_OFFSET_V;  /* 减去模拟前端偏置电压 */
+    return v_diff / MOTOR_CURRENT_GAIN / MOTOR_CURRENT_SHUNT_R;
 }
 
 /**

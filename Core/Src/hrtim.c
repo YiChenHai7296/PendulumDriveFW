@@ -294,6 +294,14 @@ void PWM_Enable(FunctionalState NewState)
   }
 }
 
+/**
+ * @brief 清除 PWM 待更新标志，防止停机后残留一次寄存器更新
+ */
+void PWM_ClearPendingUpdate(void)
+{
+  u8FlagPulse = 0;
+}
+
 
 
 /**
