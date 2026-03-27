@@ -96,7 +96,7 @@ void MotorService_InitMotor(void)
     /* 初始化阶段默认停机，等待上位机首帧非零指令再使能 */
     PWM_Enable(DISABLE);
     PWM_DirControl(MOTOR_DIR_FORWARD);
-    MotorService_CalibrateCurrentZero();
+    //MotorService_CalibrateCurrentZero();
 }
 
 /**
