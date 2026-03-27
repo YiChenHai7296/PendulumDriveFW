@@ -96,7 +96,10 @@ void MotorService_InitMotor(void)
     /* 初始化阶段默认停机，等待上位机首帧非零指令再使能 */
     PWM_Enable(DISABLE);
     PWM_DirControl(MOTOR_DIR_FORWARD);
-    //MotorService_CalibrateCurrentZero();
+
+		//HAL_Delay(2000);
+	
+    MotorService_CalibrateCurrentZero();
 }
 
 /**
@@ -135,7 +138,7 @@ void MotorService_CalibrateCurrentZero(void)
         sum_A += MotorService_GetMotorCurrentRaw();
         HAL_Delay(1U);
     }
-
+#if 1
     s_motor_current_zero_offset_A = sum_A / (float)MOTOR_CURRENT_ZERO_CALIB_SAMPLES;
 
     /* 保护：若零点偏置明显异常，则放弃本次标零，防止反馈整体漂移到满量程附近 */
@@ -144,6 +147,7 @@ void MotorService_CalibrateCurrentZero(void)
     {
         s_motor_current_zero_offset_A = 0.0f;
     }
+#endif
 }
 
 
@@ -206,7 +210,10 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
 
     /* 读取并转换电机电流，限制在有效范围内 */
     current_A = MotorService_GetMotorCurrent();
+
     val = (int32_t)(current_A * MOTOR_CURRENT_TO_FEEDBACK_A);
+    //printf("current_A = %f,val = %d\n",current_A,val);
+
     if (val > MOTOR_FEEDBACK_CURRENT_MAX)
     {
         val = MOTOR_FEEDBACK_CURRENT_MAX;
@@ -593,6 +600,7 @@ static float MotorService_GetMotorCurrentRaw(void)
 {
     float v_adc  = MotorService_GetMotorVoltage();
     float v_diff = v_adc - MOTOR_CURRENT_OFFSET_V;  /* 减去模拟前端偏置电压 */
+    //printf("v_adc = %f   v_diff = %f\n",v_adc,v_diff);
     return v_diff / MOTOR_CURRENT_GAIN / MOTOR_CURRENT_SHUNT_R;
 }
 

@@ -368,10 +368,8 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,uint32_t TimerI
       u8FlagPulse = 0;
       if(User_Func_SetPulse(u16TargePulse*1.7f))
       {
-        printf("\n 设定占空比 %.2f %% 失败\n",(float)u16TargePulse/100.0f);
         return;
       }
-      printf("\n 设定占空比 %.2f %% 成功\n",(float)u16TargePulse/100.0f);
 
     }
   

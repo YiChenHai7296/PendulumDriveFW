@@ -95,9 +95,7 @@ void StateMachine_MainLoop(void)
         if (MotorService_GetFeedbackData(&fb) != MOTOR_SVC_OK)
         {
             /* 编码器解析失败：可选进入安全态或上报，此处继续使用已有 fb 并组帧 */
-            #if 1
             continue;
-            #endif
         }
 
         /* 5) 填充 Simulink 反馈载荷并组帧 */
@@ -110,6 +108,7 @@ void StateMachine_MainLoop(void)
         fb_tx.pendulum_position = fb.pendulum_position;
         fb_tx.pendulum_speed    = fb.pendulum_speed;
         #endif
+        //printf("fb.motor_current = %d\n",fb_tx.motor_current);
 #if 0
         fb_tx.motor_current     = 0;
         fb_tx.motor_position    = 1;
