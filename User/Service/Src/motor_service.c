@@ -424,7 +424,7 @@ static EncoderProtocolResult_t EncoderProtocol_ReadSwingArm(EncoderProtocolDataD
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
-    /* 从USART5获取12字节快照（前6=最新帧，后6=上一帧） */
+    /* 从 UART4 获取 12 字节快照（前6=最新帧，后6=上一帧） */
     SwingArmEncoder_GetData(rawBuf);
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
@@ -436,6 +436,9 @@ static EncoderProtocolResult_t EncoderProtocol_ReadSwingArm(EncoderProtocolDataD
     {
         return resPrev;
     }
+    /* 摆杆为 17 位编码器，屏蔽高位；与速度计算 ENCODER_BITS_17 一致，避免误用高电平位导致钳位失真 */
+    pOut->latest.absolute_position   &= 0x0001FFFFU;
+    pOut->previous.absolute_position &= 0x0001FFFFU;
     return ENCODER_PROTOCOL_OK;
 }
 
