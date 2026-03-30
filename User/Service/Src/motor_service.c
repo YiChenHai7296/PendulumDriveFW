@@ -85,6 +85,7 @@ static float EncoderSpeed_CalcSwingArm(const EncoderProtocolDataDual_t *pDual);
 static float MotorService_GetMotorVoltage(void);
 static float MotorService_GetMotorCurrentRaw(void);
 static float MotorService_GetMotorCurrent(void);
+static uint16_t MotorService_MapPwmDutyPermille(uint16_t duty_permille_abs);
 
 /* ======================== 6. 接口函数实现 ======================== */
 
@@ -251,6 +252,7 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
 MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
 {
     uint16_t duty_u16 = 0U;
+    uint16_t duty_mapped_u16 = 0U;
     unsigned char pwmRet = 0U;
 
     /* 合法范围：-10000~10000 */
@@ -274,7 +276,7 @@ MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
     }
     else
     {
-        /* 占空比为 0：保持当前方向，输出 0 占空比 */
+        /* 占空比为 0：失能电机（并在 CloseMotor 里将方向脚置为正向），输出 0 占空比 */
         duty_u16 = 0U;
     }
     if (duty_u16 == 0U)
@@ -284,9 +286,12 @@ MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
         return MOTOR_SVC_OK;
     }
 
+    /* 非零占空比按标定曲线映射后再下发驱动 */
+    duty_mapped_u16 = MotorService_MapPwmDutyPermille(duty_u16);
+
     /* 非零占空比：确保驱动使能后再更新 PWM */
     PWM_Enable(ENABLE);
-    pwmRet = PWM_Set_TargePulse((unsigned short)duty_u16);
+    pwmRet = PWM_Set_TargePulse((unsigned short)duty_mapped_u16);
     if (pwmRet != 0U)
     {
         return MOTOR_SVC_ERR_DRIVER;
@@ -605,6 +610,57 @@ static float MotorService_GetMotorCurrentRaw(void)
     float v_diff = v_adc - MOTOR_CURRENT_OFFSET_V;  /* 减去模拟前端偏置电压 */
     //printf("v_adc = %f   v_diff = %f\n",v_adc,v_diff);
     return v_diff / MOTOR_CURRENT_GAIN / MOTOR_CURRENT_SHUNT_R;
+}
+
+/**
+ * @brief PWM 占空比映射（按上位机目标占空比曲线补偿）
+ * @param duty_permille_abs 绝对值占空比（0~10000，单位 0.01%）
+ * @return 映射后的绝对值占空比（0~10000，单位 0.01%）
+ */
+static uint16_t MotorService_MapPwmDutyPermille(uint16_t duty_permille_abs)
+{
+    float x_percent;
+    float y_percent;
+
+    if (duty_permille_abs == 0U)
+    {
+        return 0U;
+    }
+
+    x_percent = (float)duty_permille_abs / 100.0f; /* 0.01% -> % */
+
+    if (x_percent <= 3.18f)
+    {
+        y_percent = (-0.0797f * x_percent * x_percent) + (0.737f * x_percent) + 2.8074f;
+    }
+    else if (x_percent <= 8.46f)
+    {
+        y_percent = (0.9356f * x_percent) + 1.9742f;
+    }
+    else if (x_percent <= 50.4f)
+    {
+        y_percent = (0.9989f * x_percent) + 1.6274f;
+    }
+    else if (x_percent <= 98.66f)
+    {
+        y_percent = (0.9813f * x_percent) + 2.8045f;
+    }
+    else
+    {
+        /* 超出拟合区间按原值透传，再做统一限幅 */
+        y_percent = x_percent;
+    }
+
+    if (y_percent < 0.0f)
+    {
+        y_percent = 0.0f;
+    }
+    else if (y_percent > 100.0f)
+    {
+        y_percent = 100.0f;
+    }
+
+    return (uint16_t)(y_percent * 100.0f + 0.5f); /* % -> 0.01% */
 }
 
 /**
