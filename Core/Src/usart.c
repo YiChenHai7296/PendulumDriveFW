@@ -27,16 +27,32 @@
 #define UART_ENCODER_DMA_RX_BUFF   8U
 #define ENCODER_FRAME_LENGTH_BYTES   6U
 #define ENCODER_SNAPSHOT_BYTES       12U   /* 前6字节=最新帧，后6字节=上一帧 */
+#define ENCODER_SNAPSHOT_READ_MAX_RETRY 8U /* 读快照最大重试次数，避免长时间自旋 */
 
 /* UART3/4/5 编码器 DMA 接收缓冲 */
 unsigned char au8Uart3DMABuff[6] = {0};
 unsigned char au8Uart4DMABuff[6] = {0};
 unsigned char au8Uart5DMABuff[6] = {0};
 
-/* 编码器快照缓冲（各12字节）：UART3=电机，UART4=摆杆，UART5=输出轴 */
-unsigned char au8MotorEncoderBuff[12]       = {0};
-unsigned char au8OutputShaftEncoderBuff[12] = {0};
-unsigned char au8SwingArmEncoderBuff[12]    = {0};
+/* 编码器快照缓冲（各12字节）：UART3=电机，UART4=摆杆，UART5=输出轴
+ *
+ * 使用“双缓冲 + 序列锁（seqlock）”保证：
+ * - ISR 写入期间，读侧不会得到半包数据
+ * - 读侧无需长时间关中断
+ */
+#define ENCODER_SNAPSHOT_POOL_NUM 2U
+static unsigned char au8MotorEncoderBuffPool[ENCODER_SNAPSHOT_POOL_NUM][ENCODER_SNAPSHOT_BYTES]       = {0};
+static unsigned char au8OutputShaftEncoderBuffPool[ENCODER_SNAPSHOT_POOL_NUM][ENCODER_SNAPSHOT_BYTES] = {0};
+static unsigned char au8SwingArmEncoderBuffPool[ENCODER_SNAPSHOT_POOL_NUM][ENCODER_SNAPSHOT_BYTES]    = {0};
+
+static volatile uint8_t  u8Motor_front_idx      = 0U;
+static volatile uint8_t  u8OutputShaft_front_idx= 0U;
+static volatile uint8_t  u8SwingArm_front_idx   = 0U;
+
+/* 序列号：奇数=写入中，偶数=写入完成。读侧读两次 seq 保证一致性 */
+static volatile uint32_t u32Motor_seq       = 0U;
+static volatile uint32_t u32OutputShaft_seq = 0U;
+static volatile uint32_t u32SwingArm_seq    = 0U;
 
 
 unsigned char u8DebugRxBuff[100] = {0};
@@ -906,7 +922,35 @@ void MotorEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    memcpy(pOut, au8MotorEncoderBuff, ENCODER_SNAPSHOT_BYTES);
+    uint32_t s1, s2;
+    uint32_t irq_was_enabled;
+    uint8_t idx;
+    uint8_t retry;
+    for (retry = 0U; retry < ENCODER_SNAPSHOT_READ_MAX_RETRY; retry++)
+    {
+      s1 = u32Motor_seq;
+      if (s1 & 1U)
+      {
+        continue; /* 写入中，重试 */
+      }
+      idx = u8Motor_front_idx;
+      memcpy(pOut, au8MotorEncoderBuffPool[idx], ENCODER_SNAPSHOT_BYTES);
+      s2 = u32Motor_seq;
+      if ((s1 == s2) && ((s2 & 1U) == 0U))
+      {
+        return;
+      }
+    }
+
+    /* 兜底：有限次重试仍失败时，仅屏蔽本路串口中断后拷贝一次 */
+    irq_was_enabled = NVIC_GetEnableIRQ(USART3_IRQn);
+    HAL_NVIC_DisableIRQ(USART3_IRQn);
+    idx = u8Motor_front_idx;
+    memcpy(pOut, au8MotorEncoderBuffPool[idx], ENCODER_SNAPSHOT_BYTES);
+    if (irq_was_enabled != 0U)
+    {
+      HAL_NVIC_EnableIRQ(USART3_IRQn);
+    }
   }
 }
 
@@ -918,8 +962,34 @@ void OutputShaftEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    /* 临界区：防止 UART5 RxEventCallback 在读取中途更新快照，导致 [latest,previous] 不一致 -> 速度计算错误 */
-    memcpy(pOut, au8OutputShaftEncoderBuff, ENCODER_SNAPSHOT_BYTES);
+    uint32_t s1, s2;
+    uint32_t irq_was_enabled;
+    uint8_t idx;
+    uint8_t retry;
+    for (retry = 0U; retry < ENCODER_SNAPSHOT_READ_MAX_RETRY; retry++)
+    {
+      s1 = u32OutputShaft_seq;
+      if (s1 & 1U)
+      {
+        continue; /* 写入中，重试 */
+      }
+      idx = u8OutputShaft_front_idx;
+      memcpy(pOut, au8OutputShaftEncoderBuffPool[idx], ENCODER_SNAPSHOT_BYTES);
+      s2 = u32OutputShaft_seq;
+      if ((s1 == s2) && ((s2 & 1U) == 0U))
+      {
+        return;
+      }
+    }
+
+    irq_was_enabled = NVIC_GetEnableIRQ(UART5_IRQn);
+    HAL_NVIC_DisableIRQ(UART5_IRQn);
+    idx = u8OutputShaft_front_idx;
+    memcpy(pOut, au8OutputShaftEncoderBuffPool[idx], ENCODER_SNAPSHOT_BYTES);
+    if (irq_was_enabled != 0U)
+    {
+      HAL_NVIC_EnableIRQ(UART5_IRQn);
+    }
   }
 }
 
@@ -931,7 +1001,34 @@ void SwingArmEncoder_GetData(uint8_t *pOut)
 {
   if (pOut != NULL)
   {
-    memcpy(pOut, au8SwingArmEncoderBuff, ENCODER_SNAPSHOT_BYTES);
+    uint32_t s1, s2;
+    uint32_t irq_was_enabled;
+    uint8_t idx;
+    uint8_t retry;
+    for (retry = 0U; retry < ENCODER_SNAPSHOT_READ_MAX_RETRY; retry++)
+    {
+      s1 = u32SwingArm_seq;
+      if (s1 & 1U)
+      {
+        continue; /* 写入中，重试 */
+      }
+      idx = u8SwingArm_front_idx;
+      memcpy(pOut, au8SwingArmEncoderBuffPool[idx], ENCODER_SNAPSHOT_BYTES);
+      s2 = u32SwingArm_seq;
+      if ((s1 == s2) && ((s2 & 1U) == 0U))
+      {
+        return;
+      }
+    }
+
+    irq_was_enabled = NVIC_GetEnableIRQ(UART4_IRQn);
+    HAL_NVIC_DisableIRQ(UART4_IRQn);
+    idx = u8SwingArm_front_idx;
+    memcpy(pOut, au8SwingArmEncoderBuffPool[idx], ENCODER_SNAPSHOT_BYTES);
+    if (irq_was_enabled != 0U)
+    {
+      HAL_NVIC_EnableIRQ(UART4_IRQn);
+    }
   }
 }
 
@@ -1054,8 +1151,25 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     if (Size >= 6U)
     {
-      memcpy(au8MotorEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8MotorEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
-      memcpy(au8MotorEncoderBuff, au8Uart3DMABuff, 6);
+      /* 写入中：seq 置奇数 */
+      u32Motor_seq++;
+      {
+        uint8_t front = u8Motor_front_idx;
+        uint8_t back  = (uint8_t)(front ^ 1U);
+
+        /* [back(最新6)][back(上一6)] <- [dma6][front(最新6)] */
+        memcpy(au8MotorEncoderBuffPool[back] + ENCODER_FRAME_LENGTH_BYTES,
+               au8MotorEncoderBuffPool[front] + 0U,
+               ENCODER_FRAME_LENGTH_BYTES);
+        memcpy(au8MotorEncoderBuffPool[back] + 0U,
+               au8Uart3DMABuff,
+               ENCODER_FRAME_LENGTH_BYTES);
+
+        /* 发布：让读侧切换到 back */
+        u8Motor_front_idx = back;
+      }
+      /* 写入完成：seq 再次置偶数 */
+      u32Motor_seq++;
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, au8Uart3DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
@@ -1063,8 +1177,21 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     if (Size >= 6U)
     {
-      memcpy(au8SwingArmEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8SwingArmEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
-      memcpy(au8SwingArmEncoderBuff, au8Uart4DMABuff, 6);
+      u32SwingArm_seq++;
+      {
+        uint8_t front = u8SwingArm_front_idx;
+        uint8_t back  = (uint8_t)(front ^ 1U);
+
+        memcpy(au8SwingArmEncoderBuffPool[back] + ENCODER_FRAME_LENGTH_BYTES,
+               au8SwingArmEncoderBuffPool[front] + 0U,
+               ENCODER_FRAME_LENGTH_BYTES);
+        memcpy(au8SwingArmEncoderBuffPool[back] + 0U,
+               au8Uart4DMABuff,
+               ENCODER_FRAME_LENGTH_BYTES);
+
+        u8SwingArm_front_idx = back;
+      }
+      u32SwingArm_seq++;
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart4, au8Uart4DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
@@ -1078,8 +1205,21 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     /* 串口5：输出轴编码器；仅完整帧更新，避免部分帧污染快照导致速度跳变 */
     if (Size >= 6U)
     {
-      memcpy(au8OutputShaftEncoderBuff + ENCODER_FRAME_LENGTH_BYTES, au8OutputShaftEncoderBuff, ENCODER_FRAME_LENGTH_BYTES);
-      memcpy(au8OutputShaftEncoderBuff, au8Uart5DMABuff, 6);
+      u32OutputShaft_seq++;
+      {
+        uint8_t front = u8OutputShaft_front_idx;
+        uint8_t back  = (uint8_t)(front ^ 1U);
+
+        memcpy(au8OutputShaftEncoderBuffPool[back] + ENCODER_FRAME_LENGTH_BYTES,
+               au8OutputShaftEncoderBuffPool[front] + 0U,
+               ENCODER_FRAME_LENGTH_BYTES);
+        memcpy(au8OutputShaftEncoderBuffPool[back] + 0U,
+               au8Uart5DMABuff,
+               ENCODER_FRAME_LENGTH_BYTES);
+
+        u8OutputShaft_front_idx = back;
+      }
+      u32OutputShaft_seq++;
     }
     /* #region agent log */
     {

@@ -40,7 +40,8 @@ extern "C" {
 
 /*
  * 队列最多可缓存的帧数
- * 实际可缓存帧数 = RFQ_QUEUE_SIZE
+ * SPSC 实现保留 1 个空槽用于区分空/满，
+ * 实际可缓存帧数 = RFQ_QUEUE_SIZE - 1
  */
 #ifndef RFQ_QUEUE_SIZE
 #define RFQ_QUEUE_SIZE       8
@@ -61,12 +62,16 @@ typedef struct
 /*
  * 帧级环形队列
  *
- * 写入模型：
+ * 写入模型（SPSC）：
  *   - 写指针 write_idx 只在“生产者”侧修改（如中断）
  *   - 读指针 read_idx 只在“消费者”侧修改（如主循环）
  *
- * 在 Cortex-M 上，8 位变量读写是原子的，
- * 在“单写单读”模型下无需加锁。
+ * 判空/判满只依赖 read_idx 与 write_idx：
+ *   - 空：read_idx == write_idx
+ *   - 满：next(write_idx) == read_idx
+ *
+ * 注意：此实现保留 1 个空槽用于区分空/满，
+ * 因此最大可缓存帧数 = RFQ_QUEUE_SIZE - 1。
  */
 typedef struct
 {
@@ -74,8 +79,6 @@ typedef struct
 
     volatile uint8_t write_idx;          /* 写指针 */
     volatile uint8_t read_idx;           /* 读指针 */
-    volatile uint8_t count;              /* 当前队列中的帧数量 */
-
 } rfq_queue_t;
 
 /* ===================== 接口函数 ===================== */
@@ -123,7 +126,13 @@ int RFQ_Pop(rfq_queue_t *q, rfq_frame_t *out);
  */
 static inline uint8_t RFQ_Count(const rfq_queue_t *q)
 {
-    return q->count;
+    uint8_t w = q->write_idx;
+    uint8_t r = q->read_idx;
+    if (w >= r)
+    {
+        return (uint8_t)(w - r);
+    }
+    return (uint8_t)(RFQ_QUEUE_SIZE - (r - w));
 }
 
 /**
@@ -131,7 +140,7 @@ static inline uint8_t RFQ_Count(const rfq_queue_t *q)
  */
 static inline uint8_t RFQ_Is_Empty(const rfq_queue_t *q)
 {
-    return (q->count == 0);
+    return (q->write_idx == q->read_idx);
 }
 
 /**
@@ -139,7 +148,12 @@ static inline uint8_t RFQ_Is_Empty(const rfq_queue_t *q)
  */
 static inline uint8_t RFQ_Is_Full(const rfq_queue_t *q)
 {
-    return (q->count >= RFQ_QUEUE_SIZE);
+    uint8_t next_w = (uint8_t)(q->write_idx + 1U);
+    if (next_w >= RFQ_QUEUE_SIZE)
+    {
+        next_w = 0U;
+    }
+    return (next_w == q->read_idx);
 }
 
 #ifdef __cplusplus

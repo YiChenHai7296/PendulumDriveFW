@@ -31,18 +31,24 @@ void RFQ_Init(rfq_queue_t *q)
      */
     q->write_idx = 0;
     q->read_idx  = 0;
-    q->count     = 0;
 }
 
 int RFQ_Push(rfq_queue_t *q, const uint8_t *data, uint16_t len)
 {
+    uint8_t next_w;
+
     if (q == NULL || data == NULL)
     {
         return -1;
     }
     
-    /* 如果队列已满，直接拒绝写入（你也可以在这里实现“覆盖最旧帧”的策略） */
-    if (q->count >= RFQ_QUEUE_SIZE)
+    /* SPSC 判满：next(write_idx) == read_idx */
+    next_w = (uint8_t)(q->write_idx + 1U);
+    if (next_w >= RFQ_QUEUE_SIZE)
+    {
+        next_w = 0U;
+    }
+    if (next_w == q->read_idx)
     {
         return -1;
     }
@@ -67,9 +73,6 @@ int RFQ_Push(rfq_queue_t *q, const uint8_t *data, uint16_t len)
         q->write_idx = 0;
     }
 
-    /* 更新帧数量      */
-    q->count++;
-
     return 0;
 }
 
@@ -79,8 +82,8 @@ int RFQ_Pop(rfq_queue_t *q, rfq_frame_t *out)
     {
         return -1;
     }
-    /* 队列为空，无法读取 */
-    if (q->count == 0)
+    /* SPSC 判空：read_idx == write_idx */
+    if (q->read_idx == q->write_idx)
     {
         return -1;
     }
@@ -94,9 +97,6 @@ int RFQ_Pop(rfq_queue_t *q, rfq_frame_t *out)
     {
         q->read_idx = 0;
     }
-
-    /* 更新帧数量 */
-    q->count--;
 
     return 0;
 }
