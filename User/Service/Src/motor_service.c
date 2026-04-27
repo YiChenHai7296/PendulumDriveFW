@@ -252,7 +252,7 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
 MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
 {
     uint16_t duty_u16 = 0U;
-    uint16_t duty_mapped_u16 = 0U;
+    uint16_t duty_output_u16 = 0U;
     unsigned char pwmRet = 0U;
 
     /* 合法范围：-10000~10000 */
@@ -286,12 +286,12 @@ MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
         return MOTOR_SVC_OK;
     }
 
-    /* 非零占空比按标定曲线映射后再下发驱动 */
-    duty_mapped_u16 = MotorService_MapPwmDutyPermille(duty_u16);
+    /* 直通模式：占空比不做拟合，直接按上位机指令输出 */
+    duty_output_u16 = duty_u16;
 
     /* 非零占空比：确保驱动使能后再更新 PWM */
     PWM_Enable(ENABLE);
-    pwmRet = PWM_Set_TargePulse((unsigned short)duty_mapped_u16);
+    pwmRet = PWM_Set_TargePulse((unsigned short)duty_output_u16);
     if (pwmRet != 0U)
     {
         return MOTOR_SVC_ERR_DRIVER;

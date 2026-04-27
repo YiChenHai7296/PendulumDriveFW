@@ -169,12 +169,11 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
-
-  HAL_Delay(1000);
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_HRTIM1_Init();
   MX_TIM1_Init();
+  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
 
