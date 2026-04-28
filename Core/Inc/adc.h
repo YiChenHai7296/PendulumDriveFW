@@ -50,6 +50,8 @@ void MX_ADC3_Init(void);
 void ADC_TEST(void);
 float ADC_Read_MotorVol(void);
 void ADC_GetMotorVol(uint16_t *pOut);
+uint16_t ADC3_ReadIn1Raw(void);
+float ADC3_ReadIn1Voltage(void);
 
 /* USER CODE END Prototypes */
 

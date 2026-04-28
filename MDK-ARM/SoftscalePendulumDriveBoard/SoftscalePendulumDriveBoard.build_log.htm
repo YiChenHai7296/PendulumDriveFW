@@ -27,11 +27,64 @@ Project File Date:  04/24/2026
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-compiling debug.c...
+compiling motor_service.c...
+..\User\Service\Src\motor_service.c(69): warning:  #177-D: variable "s_axis_speed_filtered"  was declared but never referenced
+  static float s_axis_speed_filtered = 0.0f;
+..\User\Service\Src\motor_service.c(70): warning:  #177-D: variable "s_axis_speed_filter_init"  was declared but never referenced
+  static uint8_t s_axis_speed_filter_init = 0U;
+..\User\Service\Src\motor_service.c: 2 warnings, 0 errors
+compiling State_Machine.c...
+../User/App/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
+  #endif /* __STATE_MACHINE__ */
+..\User\App\Src\State_Machine.c(50): warning:  #223-D: function "printf" declared implicitly
+            printf("等待上位机指�?...\n");
+..\User\App\Src\State_Machine.c(50): warning:  #870-D: invalid multibyte character sequence
+            printf("等待上位机指�?...\n");
+..\User\App\Src\State_Machine.c(63): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+            ADC_diff16 = ADC_test_data - 1.6;
+..\User\App\Src\State_Machine.c(72): warning:  #870-D: invalid multibyte character sequence
+            printf("ADC当前读数�?%f ,误差 = %f , 最大误�? = %f   |  最大值：%f , 最小值：%f , 差值：%f ,\n",ADC_test_data,ADC_diff16,ADC_diffmx,ADC_test_max,ADC_test_min,ADC_diff);
+..\User\App\Src\State_Machine.c(72): warning:  #870-D: invalid multibyte character sequence
+            printf("ADC当前读数�?%f ,误差 = %f , 最大误�? = %f   |  最大值：%f , 最小值：%f , 差值：%f ,\n",ADC_test_data,ADC_diff16,ADC_diffmx,ADC_test_max,ADC_test_min,ADC_diff);
+..\User\App\Src\State_Machine.c(91): warning:  #177-D: variable "ADC_test_max"  was declared but never referenced
+          float ADC_test_max = 0;
+..\User\App\Src\State_Machine.c(92): warning:  #177-D: variable "ADC_test_min"  was declared but never referenced
+          float ADC_test_min = 3.3;
+..\User\App\Src\State_Machine.c(136): warning:  #177-D: function "StateMachine_OnDutyWriteFailed"  was declared but never referenced
+  static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误�? */
+..\User\App\Src\State_Machine.c: 9 warnings, 0 errors
+compiling adc.c...
+../Core/Src/adc.c(552): warning:  #223-D: function "printf" declared implicitly
+      printf("\n 请输入测试目标电压：(整数部分)\n");
+../Core/Src/adc.c: 1 warning, 0 errors
+compiling main.c...
+../User/App/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
+  #endif /* __STATE_MACHINE__ */
+../Core/Src/main.c(77): warning:  #1295-D: Deprecated declaration u32CRC_TEST - give arg types
+  unsigned int u32CRC_TEST();
+../Core/Src/main.c(94): warning:  #223-D: function "printf" declared implicitly
+    printf("CRC:0x%x \n",crc);
+../Core/Src/main.c(102): warning:  #188-D: enumerated type mixed with another type
+  HAL_StatusTypeDef StatusU5 = 0;
+../Core/Src/main.c(200): warning:  #223-D: function "printf" declared implicitly
+    printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
+../Core/Src/main.c(134): warning:  #177-D: variable "i"  was declared but never referenced
+    int i = 655356;
+../Core/Src/main.c(135): warning:  #177-D: variable "crc"  was declared but never referenced
+    uint32_t crc = 0;
+../Core/Src/main.c(138): warning:  #177-D: variable "crc_Data"  was declared but never referenced
+    uint32_t crc_Data[6] = {0x00010203,0x09080607,0x0002,0x0003,0x0004,0x0005};
+../Core/Src/main.c(139): warning:  #177-D: variable "j"  was declared but never referenced
+    int j = 0;
+../Core/Src/main.c(143): warning:  #177-D: variable "p_TEST"  was declared but never referenced
+    uint32_t *p_TEST = &TEST;
+../Core/Src/main.c(385): warning:  #223-D: function "printf" declared implicitly
+  		printf("err\n");
+../Core/Src/main.c: 11 warnings, 0 errors
 linking...
-Program Size: Code=38320 RO-data=796 RW-data=148 ZI-data=4020  
+Program Size: Code=35660 RO-data=592 RW-data=144 ZI-data=3984  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 0 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 23 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -54,7 +107,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:6.1.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

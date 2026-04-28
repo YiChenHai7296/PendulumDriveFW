@@ -215,7 +215,11 @@ void MX_ADC3_Init(void)
   hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc3.Init.DMAContinuousRequests = DISABLE;
   hadc3.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc3.Init.OversamplingMode = DISABLE;
+  hadc3.Init.OversamplingMode = ENABLE;
+  hadc3.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_32;
+  hadc3.Init.Oversampling.RightBitShift = ADC_RIGHTBITSHIFT_5;
+  hadc3.Init.Oversampling.TriggeredMode = ADC_TRIGGEREDMODE_SINGLE_TRIGGER;
+  hadc3.Init.Oversampling.OversamplingStopReset = ADC_REGOVERSAMPLING_CONTINUED_MODE;
   if (HAL_ADC_Init(&hadc3) != HAL_OK)
   {
     Error_Handler();
@@ -233,7 +237,7 @@ void MX_ADC3_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -242,6 +246,7 @@ void MX_ADC3_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC3_Init 2 */
+  HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
 
   /* USER CODE END ADC3_Init 2 */
 
@@ -486,6 +491,44 @@ void ADC_GetMotorVol(uint16_t *pOut)
         pOut[0] = au16_ADC1_Vol_Value[0];
         pOut[1] = au16_ADC2_Vol_Value[0];
     }
+}
+
+/**
+  * @brief  软件触发读取 ADC3_IN1 原始值（12位）
+  * @retval 原始 ADC 码值；若转换失败返回 0xFFFF
+  */
+uint16_t ADC3_ReadIn1Raw(void)
+{
+    if (HAL_ADC_Start(&hadc3) != HAL_OK)
+    {
+        return 0xFFFFU;
+    }
+
+    if (HAL_ADC_PollForConversion(&hadc3, 10U) != HAL_OK)
+    {
+        (void)HAL_ADC_Stop(&hadc3);
+        return 0xFFFFU;
+    }
+
+    {
+        uint16_t raw = (uint16_t)HAL_ADC_GetValue(&hadc3);
+        (void)HAL_ADC_Stop(&hadc3);
+        return raw;
+    }
+}
+
+/**
+  * @brief  软件触发读取 ADC3_IN1 电压值（V）
+  * @retval 电压值；若读取失败返回负值
+  */
+float ADC3_ReadIn1Voltage(void)
+{
+    uint16_t raw = ADC3_ReadIn1Raw();
+    if (raw == 0xFFFFU)
+    {
+        return -1.0f;
+    }
+    return ((float)raw * 3.3f) / 4095.0f;
 }
 
 void ADC_TEST()

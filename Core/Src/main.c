@@ -46,6 +46,8 @@
 //#define Debug_Menu_USART_TSET 0x32
 #define Debug_Menu_PWM_TEST   0x33
 #define Debug_Menu_CRC_TEST   0x34
+/* 1: 主循环打印 ADC3_IN1；0: 正常状态机流程 */
+#define MAIN_LOOP_ADC3_DEBUG_PRINT 1
 
 /* USER CODE END PD */
 
@@ -199,7 +201,24 @@ int main(void)
   printf("                          编译日期:%s\n",__DATE__);
 
 
+#if MAIN_LOOP_ADC3_DEBUG_PRINT
+  while (1)
+  {
+    uint16_t adc3_raw = ADC3_ReadIn1Raw();
+    if (adc3_raw == 0xFFFFU)
+    {
+      printf("ADC3_IN1 read error\r\n");
+    }
+    else
+    {
+      float adc3_v = ((float)adc3_raw * 3.3f) / 4095.0f;
+      printf("ADC3_IN1 raw=%u, voltage=%.4fV\r\n", adc3_raw, adc3_v);
+    }
+    HAL_Delay(100);
+  }
+#else
   StateMachine_MainLoop();
+#endif
 
 
 
