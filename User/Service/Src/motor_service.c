@@ -25,6 +25,8 @@
 #define MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS 20U /* 标零前等待采样链路稳定时间 */
 #define MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES 16U /* 标零前丢弃样本数 */
 #define MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A 1.0f /* 零点偏置绝对值上限（异常保护） */
+/* PWM 指令映射模式开关：1=拟合反推（上位机给目标实际值），0=直通（上位机给直接给定值） */
+#define MOTOR_PWM_USE_FIT_MAPPING 1U
 
 /* ======================== 2. 私有类型定义 ======================== */
 /* 编码器协议解析结果 */
@@ -286,8 +288,14 @@ MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
         return MOTOR_SVC_OK;
     }
 
-    /* 直通模式：占空比不做拟合，直接按上位机指令输出 */
+    /* 通过宏选择占空比路径：拟合反推或直通 */
+#if MOTOR_PWM_USE_FIT_MAPPING
+    /* 上位机下发“目标实际占空比”，这里反推“应给定占空比”用于 PWM 发生 */
+    duty_output_u16 = MotorService_MapPwmDutyPermille(duty_u16);
+#else
+    /* 直通模式：上位机下发即最终给定值 */
     duty_output_u16 = duty_u16;
+#endif
 
     /* 非零占空比：确保驱动使能后再更新 PWM */
     PWM_Enable(ENABLE);
@@ -619,48 +627,55 @@ static float MotorService_GetMotorCurrentRaw(void)
  */
 static uint16_t MotorService_MapPwmDutyPermille(uint16_t duty_permille_abs)
 {
-    float x_percent;
-    float y_percent;
+    /* 标定表（单位：0.01%）
+       actual_tbl：实际输出占空比（上位机目标）
+       given_tbl ：需要给定给 PWM 的占空比（单片机输出）
+       说明：已去除低占空比异常点 1.45%->0.774%，保证映射单调可逆。 */
+    static const uint16_t actual_tbl[] = {
+        38U, 68U, 112U, 161U, 208U, 254U, 308U, 402U,
+        499U, 899U, 1397U, 1895U, 2394U, 2893U, 3400U, 3900U,
+        4894U, 5895U, 6895U, 7895U, 8895U, 9395U, 9923U
+    };
+    static const uint16_t given_tbl[] = {
+        140U, 150U, 200U, 250U, 300U, 350U, 400U, 500U,
+        600U, 1000U, 1500U, 2000U, 2500U, 3000U, 3500U, 4000U,
+        5000U, 6000U, 7000U, 8000U, 9000U, 9500U, 9950U
+    };
+
+    uint16_t i;
+    const uint16_t tbl_size = (uint16_t)(sizeof(actual_tbl) / sizeof(actual_tbl[0]));
 
     if (duty_permille_abs == 0U)
     {
         return 0U;
     }
 
-    x_percent = (float)duty_permille_abs / 100.0f; /* 0.01% -> % */
-
-    if (x_percent <= 3.18f)
+    if (duty_permille_abs <= actual_tbl[0])
     {
-        y_percent = (-0.0797f * x_percent * x_percent) + (0.737f * x_percent) + 2.8074f;
+        return given_tbl[0];
     }
-    else if (x_percent <= 8.46f)
+    if (duty_permille_abs >= actual_tbl[tbl_size - 1U])
     {
-        y_percent = (0.9356f * x_percent) + 1.9742f;
-    }
-    else if (x_percent <= 50.4f)
-    {
-        y_percent = (0.9989f * x_percent) + 1.6274f;
-    }
-    else if (x_percent <= 98.66f)
-    {
-        y_percent = (0.9813f * x_percent) + 2.8045f;
-    }
-    else
-    {
-        /* 超出拟合区间按原值透传，再做统一限幅 */
-        y_percent = x_percent;
+        return given_tbl[tbl_size - 1U];
     }
 
-    if (y_percent < 0.0f)
+    for (i = 0U; i < (tbl_size - 1U); i++)
     {
-        y_percent = 0.0f;
-    }
-    else if (y_percent > 100.0f)
-    {
-        y_percent = 100.0f;
+        uint16_t x0 = actual_tbl[i];
+        uint16_t x1 = actual_tbl[i + 1U];
+        if (duty_permille_abs <= x1)
+        {
+            uint16_t y0 = given_tbl[i];
+            uint16_t y1 = given_tbl[i + 1U];
+            uint32_t dx = (uint32_t)x1 - (uint32_t)x0;
+            uint32_t dy = (uint32_t)y1 - (uint32_t)y0;
+            uint32_t num = ((uint32_t)duty_permille_abs - (uint32_t)x0) * dy;
+            /* 四舍五入的分段线性插值 */
+            return (uint16_t)((uint32_t)y0 + (num + (dx / 2U)) / dx);
+        }
     }
 
-    return (uint16_t)(y_percent * 100.0f + 0.5f); /* % -> 0.01% */
+    return given_tbl[tbl_size - 1U];
 }
 
 /**
