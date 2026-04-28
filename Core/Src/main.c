@@ -47,7 +47,7 @@
 #define Debug_Menu_PWM_TEST   0x33
 #define Debug_Menu_CRC_TEST   0x34
 /* 1: 主循环打印 ADC3_IN1；0: 正常状态机流程 */
-#define MAIN_LOOP_ADC3_DEBUG_PRINT 1
+#define MAIN_LOOP_ADC3_DEBUG_PRINT 0
 
 /* USER CODE END PD */
 
