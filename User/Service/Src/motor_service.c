@@ -25,6 +25,8 @@
 #define MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS 20U /* 标零前等待采样链路稳定时间 */
 #define MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES 16U /* 标零前丢弃样本数 */
 #define MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A 1.0f /* 零点偏置绝对值上限（异常保护） */
+/* 电流零点偏置校准开关：1=启用校准并扣除偏置，0=关闭校准并直接上报原始电流 */
+#define MOTOR_CURRENT_ZERO_CALIB_ENABLE 1U
 /* PWM 指令映射模式开关：1=拟合反推（上位机给目标实际值），0=直通（上位机给直接给定值） */
 #define MOTOR_PWM_USE_FIT_MAPPING 1U
 
@@ -110,8 +112,11 @@ void MotorService_InitMotor(void)
  */
 void MotorService_CloseMotor(void)
 {
-    PWM_ClearPendingUpdate();
+    /* 先关使能，确保不会在停机过程中再输出 PWM */
     PWM_Enable(DISABLE);
+    PWM_ClearPendingUpdate();
+    /* 停机态仅预置寄存器目标值，不等待回调触发 */
+    (void)PWM_Set_TargePulse(50U);
     PWM_DirControl(MOTOR_DIR_FORWARD);
 }
 
@@ -121,6 +126,7 @@ void MotorService_CloseMotor(void)
  */
 void MotorService_CalibrateCurrentZero(void)
 {
+#if MOTOR_CURRENT_ZERO_CALIB_ENABLE
     uint32_t i;
     float sum_A = 0.0f;
 
@@ -141,7 +147,6 @@ void MotorService_CalibrateCurrentZero(void)
         sum_A += MotorService_GetMotorCurrentRaw();
         HAL_Delay(1U);
     }
-#if 1
     s_motor_current_zero_offset_A = sum_A / (float)MOTOR_CURRENT_ZERO_CALIB_SAMPLES;
 
     /* 保护：若零点偏置明显异常，则放弃本次标零，防止反馈整体漂移到满量程附近 */
@@ -150,6 +155,9 @@ void MotorService_CalibrateCurrentZero(void)
     {
         s_motor_current_zero_offset_A = 0.0f;
     }
+#else
+    /* 关闭零点标定：偏置固定为0，反馈直接使用原始电流 */
+    s_motor_current_zero_offset_A = 0.0f;
 #endif
 }
 
@@ -603,8 +611,13 @@ static float MotorService_GetMotorVoltage(void)
  */
 static float MotorService_GetMotorCurrent(void)
 {
+#if MOTOR_CURRENT_ZERO_CALIB_ENABLE
     /* 采样结果减去零点偏置，得到校零后的电流 */
     return MotorService_GetMotorCurrentRaw() - s_motor_current_zero_offset_A;
+#else
+    /* 关闭零点标定时，直接返回原始电流 */
+    return MotorService_GetMotorCurrentRaw();
+#endif
 }
 
 /**
@@ -628,26 +641,34 @@ static float MotorService_GetMotorCurrentRaw(void)
 static uint16_t MotorService_MapPwmDutyPermille(uint16_t duty_permille_abs)
 {
     /* 标定表（单位：0.01%）
-       actual_tbl：实际输出占空比（上位机目标）
-       given_tbl ：需要给定给 PWM 的占空比（单片机输出）
-       说明：已去除低占空比异常点 1.45%->0.774%，保证映射单调可逆。 */
+       actual_tbl：实际上位机目标占空比（期望实际输出）
+       given_tbl ：反推得到的单片机给定占空比（用于 PWM 发生）
+       拟合依据：最新标定表（含 1.3%->0% 锚点）
+       保留逻辑：实际目标 >95% 时按 95% 处理（给定值可大于95%） */
     static const uint16_t actual_tbl[] = {
-        38U, 68U, 112U, 161U, 208U, 254U, 308U, 402U,
+        0U, 38U, 68U, 112U, 161U, 208U, 254U, 308U, 402U,
         499U, 899U, 1397U, 1895U, 2394U, 2893U, 3400U, 3900U,
-        4894U, 5895U, 6895U, 7895U, 8895U, 9395U, 9923U
+        4894U, 5895U, 6895U, 7895U, 8895U, 9395U, 9500U
     };
     static const uint16_t given_tbl[] = {
-        140U, 150U, 200U, 250U, 300U, 350U, 400U, 500U,
+        130U, 140U, 150U, 200U, 250U, 300U, 350U, 400U, 500U,
         600U, 1000U, 1500U, 2000U, 2500U, 3000U, 3500U, 4000U,
-        5000U, 6000U, 7000U, 8000U, 9000U, 9500U, 9950U
+        5000U, 6000U, 7000U, 8000U, 9000U, 9500U, 9590U
     };
 
     uint16_t i;
     const uint16_t tbl_size = (uint16_t)(sizeof(actual_tbl) / sizeof(actual_tbl[0]));
 
+    /* 特殊需求：上位机给定为 0 时，单片机固定输出 50（0.50%） */
     if (duty_permille_abs == 0U)
     {
-        return 0U;
+        return 50U;
+    }
+
+    /* 实际目标上限限制为 95.00%（给定值可大于95%） */
+    if (duty_permille_abs > 9500U)
+    {
+        duty_permille_abs = 9500U;
     }
 
     if (duty_permille_abs <= actual_tbl[0])

@@ -333,9 +333,6 @@ unsigned char PWM_Set_TargePulse(unsigned short u16ExpectedValue)
     return 0;
 }
 
-
-
-
 unsigned char User_Func_SetPulse(unsigned short u16T2Pulse)
 {
     /* 检查占空比参数是否在允许范围内 */
