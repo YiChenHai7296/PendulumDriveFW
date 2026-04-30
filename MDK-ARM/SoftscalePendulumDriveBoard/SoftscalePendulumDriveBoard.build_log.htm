@@ -27,15 +27,14 @@ Project File Date:  04/24/2026
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-compiling State_Machine.c...
-../User/App/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
-  #endif /* __STATE_MACHINE__ */
-..\User\App\Src\State_Machine.c(152): warning:  #177-D: function "StateMachine_OnDutyWriteFailed"  was declared but never referenced
-  static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误�? */
-..\User\App\Src\State_Machine.c: 2 warnings, 0 errors
-compiling debug.c...
+compiling motor_service.c...
+..\User\Service\Src\motor_service.c(69): warning:  #177-D: variable "s_axis_speed_filtered"  was declared but never referenced
+  static float s_axis_speed_filtered = 0.0f;
+..\User\Service\Src\motor_service.c(70): warning:  #177-D: variable "s_axis_speed_filter_init"  was declared but never referenced
+  static uint8_t s_axis_speed_filter_init = 0U;
+..\User\Service\Src\motor_service.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=37444 RO-data=688 RW-data=144 ZI-data=4016  
+Program Size: Code=37452 RO-data=688 RW-data=144 ZI-data=4016  
 FromELF: creating hex file...
 "SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 2 Warning(s).
 

@@ -102,7 +102,7 @@ void MotorService_InitMotor(void)
     PWM_Enable(DISABLE);
     PWM_DirControl(MOTOR_DIR_FORWARD);
 
-		//HAL_Delay(2000);
+		HAL_Delay(2000);
 	
     MotorService_CalibrateCurrentZero();
 }

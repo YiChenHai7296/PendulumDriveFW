@@ -3,7 +3,7 @@
 <title>Static Call Graph - [SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue Apr 28 20:25:31 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Thu Apr 30 11:43:55 2026
 <BR><P>
 <H3>Maximum Stack Usage =        336 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -871,7 +871,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
-<BR>[Called By]<UL><LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_CalibrateCurrentZero
+<BR>[Called By]<UL><LI><a href="#[164]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_InitMotor
+<LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_CalibrateCurrentZero
 </UL>
 
 <P><STRONG><a name="[bc]"></a>HAL_GPIO_Init</STRONG> (Thumb, 428 bytes, Stack size 20 bytes, stm32g4xx_hal_gpio.o(i.HAL_GPIO_Init))
@@ -1840,11 +1841,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StateMachine_MainLoop
 </UL>
 
-<P><STRONG><a name="[164]"></a>MotorService_InitMotor</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, motor_service.o(i.MotorService_InitMotor))
+<P><STRONG><a name="[164]"></a>MotorService_InitMotor</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, motor_service.o(i.MotorService_InitMotor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = MotorService_InitMotor &rArr; MotorService_CalibrateCurrentZero &rArr; MotorService_GetMotorCurrentRaw &rArr; MotorService_GetMotorVoltage
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWM_Enable
 <LI><a href="#[15e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWM_DirControl
+<LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MotorService_CalibrateCurrentZero
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
