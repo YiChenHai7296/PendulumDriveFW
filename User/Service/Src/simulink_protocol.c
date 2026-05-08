@@ -77,7 +77,7 @@ SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlD
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
-    if (Simulink_ControlFrame_GetData(rxBuf, sizeof(rxBuf), &len) != 0)
+    if (Simulink_ControlFrame_GetData(rxBuf, sizeof(rxBuf), &len) != DRV_OK)
     {
        // printf("data err \n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
@@ -142,7 +142,7 @@ SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFee
         return res;
     }
 
-    if (Simulink_Feedback_Send(pBuffer, SIMULINK_FEEDBACK_FRAME_LEN) != 0)
+    if (Simulink_Feedback_Send(pBuffer, SIMULINK_FEEDBACK_FRAME_LEN) != DRV_OK)
     {
         return SIMULINK_PROTOCOL_ERR_SEND;
     }

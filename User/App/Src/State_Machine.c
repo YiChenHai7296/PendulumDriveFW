@@ -42,56 +42,10 @@ void StateMachine_MainLoop(void)
     SimulinkProtocolFeedbackData_t fb_tx;     /* 待发送的 Simulink 反馈帧载荷 */
     MotorFeedbackData_t            fb;        /* 电机反馈原始数据（位置、转速、电流等） */
     uint32_t adc3_print_tick = 0U;
-#if (ADC_DEBUG_PRINT_MODE == 2)
-    float ADC_test_max = 0.0f;
-    float ADC_test_min = 3.3f;
-    float ADC_diffmx = 0.0f;
-#endif
+
     /* 阻塞循环：等待控制帧 -> 设置占空比 -> 采集反馈 -> 组帧发送 */
     for (;;)
     {
-        /* 非阻塞调试打印：按宏切换不同打印格式 */
-        if ((HAL_GetTick() - adc3_print_tick) >= ADC_DEBUG_PRINT_PERIOD_MS)
-        {
-#if (ADC_DEBUG_PRINT_MODE == 1)
-            uint16_t adc3_raw = ADC3_ReadIn1Raw();
-            if (adc3_raw == 0xFFFFU)
-            {
-                printf("ADC3_IN1 read error\r\n");
-            }
-            else
-            {
-                float adc3_v = ((float)adc3_raw * 3.3f) / 4095.0f;
-                printf("ADC3_IN1 raw=%u, voltage=%.4fV\r\n", adc3_raw, adc3_v);
-            }
-#elif (ADC_DEBUG_PRINT_MODE == 2)
-            float adc_test_data = ADC_Read_MotorVol();
-            float adc_diff = 0.0f;
-            float adc_diff16 = adc_test_data - 1.6f;
-            if (adc_test_data > ADC_test_max)
-            {
-                ADC_test_max = adc_test_data;
-            }
-            if (adc_test_data < ADC_test_min)
-            {
-                ADC_test_min = adc_test_data;
-            }
-            adc_diff = ADC_test_max - ADC_test_min;
-            if (adc_diff16 < 0.0f)
-            {
-                adc_diff16 = -adc_diff16;
-            }
-            if (ADC_diffmx < adc_diff16)
-            {
-                ADC_diffmx = adc_diff16;
-            }
-            printf("ADC当前读数：%f ,误差 = %f , 最大误差 = %f   |  最大值：%f , 最小值：%f , 差值：%f ,\n",
-                   adc_test_data, adc_diff16, ADC_diffmx, ADC_test_max, ADC_test_min, adc_diff);
-#else
-            /* ADC_DEBUG_PRINT_MODE == 0: no print */
-#endif
-            adc3_print_tick = HAL_GetTick();
-        }
         /* 1) 等待并解帧：从 USART2 接收队列取一帧控制帧 */
         if (SimulinkProtocol_UnpackControl(&ctrl) != SIMULINK_PROTOCOL_OK)
         {
@@ -124,16 +78,7 @@ void StateMachine_MainLoop(void)
         fb_tx.pendulum_position = fb.pendulum_position;
         fb_tx.pendulum_speed    = fb.pendulum_speed;
         #endif
-        //printf("fb.motor_current = %d\n",fb_tx.motor_current);
-#if 0
-        fb_tx.motor_current     = 0;
-        fb_tx.motor_position    = 1;
-        fb_tx.motor_speed       = 2;
-        fb_tx.axis_position     = 3;
-        fb_tx.axis_speed        = 4;
-        fb_tx.pendulum_position = 5;
-        fb_tx.pendulum_speed    = 6;
-#endif
+
 
         if (SimulinkProtocol_PackFeedback(&fb_tx) != SIMULINK_PROTOCOL_OK)
         {

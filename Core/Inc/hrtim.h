@@ -46,7 +46,7 @@ void MX_HRTIM1_Init(void);
 void HAL_HRTIM_MspPostInit(HRTIM_HandleTypeDef *hhrtim);
 
 /* USER CODE BEGIN Prototypes */
-unsigned char PWM_Set_TargePulse(unsigned short u16ExpectedValue);
+uint8_t PWM_Set_TargePulse(unsigned short u16ExpectedValue);
 void PWM_DirControl(uint8_t dir);
 void PWM_Enable(FunctionalState NewState);
 void PWM_ClearPendingUpdate(void);

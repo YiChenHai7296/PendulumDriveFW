@@ -30,6 +30,7 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include "driver_common.h"
 #include "RingFrameQueue.h"
 #include "stm32g4xx_hal_uart_ex.h"
 /* USER CODE END Includes */
@@ -74,24 +75,19 @@ void MX_USART3_UART_Init(void);
   * @param  pBuf      数据存放的缓冲区指针
   * @param  bufMaxLen 缓冲区最大长度（字节）
   * @param  pOutLen   本次出队的实际长度，可为 NULL
-  * @retval 0  成功；-1 队列空或参数无效
+  * @retval DRV_OK 成功；DRV_ERROR 队列空或参数无效
   */
-int Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen);
+Drv_StatusTypeDef Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen);
 
 /**
   * @brief  通过 USART2 使用 DMA 发送一帧数据
   * @param  pBuf  待发送的数据缓冲区指针
   * @param  len   待发送的数据长度（字节）
-  * @retval 0 成功；-1 参数非法或底层发送失败
+  * @retval DRV_OK 成功；DRV_ERROR 参数非法或底层发送失败
   */
-int Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len);
+Drv_StatusTypeDef Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len);
 
 
-
-/**
-  * @brief  定时向串口 3/4/5 发送单字节 0x02（在 TIM1 定时中断中调用）
-  */
-void EncoderTrigger_Send(void);
 
 /** 仅向指定编码器串口发送 0x02 触发，用于 TIM1 分相（更新/比较1/比较2 各一路） */
 void EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
@@ -99,20 +95,23 @@ void EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
 /**
   * @brief  获取电机编码器当前数据（UART3），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @retval DRV_OK 已写入快照；DRV_ERROR 参数无效（pOut 为 NULL）
   */
-void MotorEncoder_GetData(uint8_t *pOut);
+Drv_StatusTypeDef MotorEncoder_GetData(uint8_t *pOut);
 
 /**
   * @brief  获取输出轴编码器当前数据（UART5），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @retval DRV_OK 已写入快照；DRV_ERROR 参数无效（pOut 为 NULL）
   */
-void OutputShaftEncoder_GetData(uint8_t *pOut);
+Drv_StatusTypeDef OutputShaftEncoder_GetData(uint8_t *pOut);
 
 /**
   * @brief  获取摆杆编码器当前数据（UART4），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @retval DRV_OK 已写入快照；DRV_ERROR 参数无效（pOut 为 NULL）
   */
-void SwingArmEncoder_GetData(uint8_t *pOut);
+Drv_StatusTypeDef SwingArmEncoder_GetData(uint8_t *pOut);
 
 
 

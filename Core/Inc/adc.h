@@ -20,7 +20,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __ADC_H__
 #define __ADC_H__
-  
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "driver_common.h"
 /* USER CODE END Includes */
 
 extern ADC_HandleTypeDef hadc1;
@@ -48,8 +48,11 @@ void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 void ADC_TEST(void);
-float ADC_Read_MotorVol(void);
-void ADC_GetMotorVol(uint16_t *pOut);
+
+//float ADC_Read_MotorVol(void);
+void ADC_Motor_RawData_Snapshot(void);
+Drv_StatusTypeDef ADC_Motor_RawData_Read(uint16_t *pOut);
+
 uint16_t ADC3_ReadIn1Raw(void);
 float ADC3_ReadIn1Voltage(void);
 

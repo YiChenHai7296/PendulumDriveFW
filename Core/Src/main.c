@@ -59,9 +59,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-unsigned char u8DebugMenuChoose = 0;
+uint8_t u8DebugMenuChoose = 0;
 
-unsigned char pbuff[10] = {0};
+uint8_t pbuff[10] = {0};
 
 int i = 0;
 int User_uart_status = 0;
@@ -88,7 +88,7 @@ unsigned int u32CRC_TEST();
 unsigned int u32CRC_TEST()
 {
   unsigned short crc = 0;
-  unsigned char au8CrcData[12] = {1,2,3,4,5,6,7,8,9,0,1,2};
+  uint8_t au8CrcData[12] = {1,2,3,4,5,6,7,8,9,0,1,2};
 
   crc = HAL_CRC_Accumulate(&hcrc,(unsigned int *)au8CrcData,12);
   printf("CRC:0x%x \n",crc);
@@ -182,7 +182,7 @@ int main(void)
   /* HRTIM启动 */
   HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TA1);
   HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TB1);
-  HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_TIMER_A);
+  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_A);
   HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_B);
   HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_MASTER);
 
@@ -201,24 +201,7 @@ int main(void)
   printf("                          编译日期:%s\n",__DATE__);
 
 
-#if MAIN_LOOP_ADC3_DEBUG_PRINT
-  while (1)
-  {
-    uint16_t adc3_raw = ADC3_ReadIn1Raw();
-    if (adc3_raw == 0xFFFFU)
-    {
-      printf("ADC3_IN1 read error\r\n");
-    }
-    else
-    {
-      float adc3_v = ((float)adc3_raw * 3.3f) / 4095.0f;
-      printf("ADC3_IN1 raw=%u, voltage=%.4fV\r\n", adc3_raw, adc3_v);
-    }
-    HAL_Delay(100);
-  }
-#else
   StateMachine_MainLoop();
-#endif
 
 
 
@@ -232,7 +215,7 @@ int main(void)
 
     #if 0
 		Protocol_FeedbackFrame_t pFeedbackFrame_test;
-    unsigned char pbufftest[32]= 0;
+    uint8_t pbufftest[32]= 0;
 
     pFeedbackFrame_test.motor_current = 0x12;
     pFeedbackFrame_test.motor_position = 0x1234;
@@ -259,9 +242,9 @@ int main(void)
     printf("  3. CRC校验计算测试...  \n" );
     printf("  ==================================== \n" );
 
-    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,200));
+    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,1,200));
 
-    u8DebugMenuChoose = u8DebugRxBuff[0];
+    u8DebugMenuChoose = g_au8DebugRxBuff[0];
     
     switch(u8DebugMenuChoose)
     {

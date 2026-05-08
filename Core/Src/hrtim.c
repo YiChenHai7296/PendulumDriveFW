@@ -21,14 +21,15 @@
 #include "hrtim.h"
 
 /* USER CODE BEGIN 0 */
+#include "adc.h"
 #include "usart.h"
 
-extern unsigned char u8DebugRxBuff[100];
+extern uint8_t g_au8DebugRxBuff[100];
 
 /* PWM 占空比目标值，范围 0~10000 */
 unsigned short u16TargePulse = 0;
 /* PWM 占空比更新标志 */
-unsigned char u8FlagPulse = 0;
+uint8_t u8FlagPulse = 0;
 
 
 
@@ -218,6 +219,8 @@ void HAL_HRTIM_MspInit(HRTIM_HandleTypeDef* hrtimHandle)
     /* HRTIM1 interrupt Init */
     HAL_NVIC_SetPriority(HRTIM1_Master_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_Master_IRQn);
+    HAL_NVIC_SetPriority(HRTIM1_TIMA_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(HRTIM1_TIMA_IRQn);
     HAL_NVIC_SetPriority(HRTIM1_TIMB_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_TIMB_IRQn);
   /* USER CODE BEGIN HRTIM1_MspInit 1 */
@@ -267,6 +270,7 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
 
     /* HRTIM1 interrupt Deinit */
     HAL_NVIC_DisableIRQ(HRTIM1_Master_IRQn);
+    HAL_NVIC_DisableIRQ(HRTIM1_TIMA_IRQn);
     HAL_NVIC_DisableIRQ(HRTIM1_TIMB_IRQn);
   /* USER CODE BEGIN HRTIM1_MspDeInit 1 */
 
@@ -322,7 +326,7 @@ void PWM_DirControl(uint8_t dir)
 }
 
 
-unsigned char PWM_Set_TargePulse(unsigned short u16ExpectedValue)
+uint8_t PWM_Set_TargePulse(unsigned short u16ExpectedValue)
 {
     if(u16ExpectedValue < 0 || u16ExpectedValue > 10000)
     {
@@ -333,7 +337,7 @@ unsigned char PWM_Set_TargePulse(unsigned short u16ExpectedValue)
     return 0;
 }
 
-unsigned char User_Func_SetPulse(unsigned short u16T2Pulse)
+uint8_t User_Func_SetPulse(unsigned short u16T2Pulse)
 {
     /* 检查占空比参数是否在允许范围内 */
     if(u16T2Pulse<9 || u16T2Pulse>17000)
@@ -358,6 +362,12 @@ unsigned char User_Func_SetPulse(unsigned short u16T2Pulse)
 
 void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,uint32_t TimerIdx)
 {
+  if(HRTIM_TIMERINDEX_TIMER_A == TimerIdx)
+  {
+    ADC_Motor_RawData_Snapshot();
+    return;
+  }
+
   if(HRTIM_TIMERINDEX_TIMER_B == TimerIdx)
   {
     if(u8FlagPulse)
@@ -396,12 +406,12 @@ void PWM_TEST(void)
 {
 
   /* 预读一帧调试串口数据 */
-  HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100);
+  HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,10,100);
 
   /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
   printf("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
-  while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,5,1000));
-  u16TargePulse = (u8DebugRxBuff[0]-0x30)*10000 + (u8DebugRxBuff[1]-0x30)*1000 + (u8DebugRxBuff[2]-0x30)*100 + (u8DebugRxBuff[3]-0x30)*10 + u8DebugRxBuff[4]-0x30;
+  while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,5,1000));
+  u16TargePulse = (g_au8DebugRxBuff[0]-0x30)*10000 + (g_au8DebugRxBuff[1]-0x30)*1000 + (g_au8DebugRxBuff[2]-0x30)*100 + (g_au8DebugRxBuff[3]-0x30)*10 + g_au8DebugRxBuff[4]-0x30;
 
 
   u8FlagPulse = 1;

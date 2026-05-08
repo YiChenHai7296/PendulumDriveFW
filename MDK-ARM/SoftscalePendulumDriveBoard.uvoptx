@@ -298,41 +298,6 @@
         <Ww>
           <count>29</count>
           <WinNumber>1</WinNumber>
-          <ItemText>dbg_uart5_rx_evt_count</ItemText>
-        </Ww>
-        <Ww>
-          <count>30</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dbg_uart5_restart_ok_count</ItemText>
-        </Ww>
-        <Ww>
-          <count>31</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dbg_uart5_restart_fail_count</ItemText>
-        </Ww>
-        <Ww>
-          <count>32</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dbg_uart5_last_rxstate</ItemText>
-        </Ww>
-        <Ww>
-          <count>33</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dbg_uart5_last_tick</ItemText>
-        </Ww>
-        <Ww>
-          <count>34</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dbg_uart5_error_count</ItemText>
-        </Ww>
-        <Ww>
-          <count>35</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dbg_uart2_rx_evt_count</ItemText>
-        </Ww>
-        <Ww>
-          <count>36</count>
-          <WinNumber>1</WinNumber>
           <ItemText>frame</ItemText>
         </Ww>
         <Ww>

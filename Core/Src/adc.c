@@ -28,6 +28,7 @@
 /* ADC采集原始数据 */
 __IO uint16_t au16_ADC1_Vol_Value[ADC_DMA_RX_BUFF_LEN];  /* 电机电压 ADC1  */
 __IO uint16_t au16_ADC2_Vol_Value[ADC_DMA_RX_BUFF_LEN];
+static volatile uint32_t s_motor_adc_raw_snapshot_pack = 0U;
 
 
 /* ADC 测试输入电压�? */
@@ -35,7 +36,7 @@ float f_TEST_VALUE = 1.6;
 
 /* ADC误差计算 */
 
-extern unsigned char u8DebugRxBuff[100];
+extern uint8_t g_au8DebugRxBuff[100];
 
 /* USER CODE END 0 */
 
@@ -108,9 +109,15 @@ void MX_ADC1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
+  if (HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)au16_ADC1_Vol_Value,ADC_DMA_RX_BUFF_LEN);
+  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*)au16_ADC1_Vol_Value, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  {
+    Error_Handler();
+  }
   
 
  // HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
@@ -174,10 +181,16 @@ void MX_ADC2_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC2_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
+  if (HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
   //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&au16_ADC_HighVol_Value, 1);
-  HAL_ADC_Start_DMA(&hadc2,(uint32_t*)au16_ADC2_Vol_Value,ADC_DMA_RX_BUFF_LEN);
+  if (HAL_ADC_Start_DMA(&hadc2, (uint32_t*)au16_ADC2_Vol_Value, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
 
   /* USER CODE END ADC2_Init 2 */
@@ -356,7 +369,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     {
       Error_Handler();
     }
-  
+
     __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc2);
 
   /* USER CODE BEGIN ADC2_MspInit 1 */
@@ -465,7 +478,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 /* USER CODE BEGIN 1 */
 //3.3f / 4095.0f;
 
-
+#if 0
 float ADC_Read_MotorVol(void)
 {
     float f_ADC1_Vol_Result[2];
@@ -480,17 +493,34 @@ float ADC_Read_MotorVol(void)
     return f_Motor_Vol;
 }
 
+#endif
 /**
-  * @brief  �? ADC1、ADC2 当前采集的原始数据两字节/通道，12 位有效
-  * @param  pOut  指向至少 2 个 uint16_t 的缓冲区，pOut[0]=ADC1 原始值，pOut[1]=ADC2 原始值
+  * @brief  读取 ADC1、ADC2 快照中的原始采样值（各 12 位有效）
+  * @note   数据来自 ADC_Motor_RawData_Snapshot 写入的快照；本函数将 32 位快照一次拆成两路，
+  *         避免两次读 16 位期间被更新导致跨周期混叠。
+  * @param  pOut  至少 2 个 uint16_t：pOut[0]=ADC1，pOut[1]=ADC2
+  * @retval DRV_OK 写入成功；DRV_ERROR 指针无效（pOut 为 NULL）
   */
-void ADC_GetMotorVol(uint16_t *pOut)
+Drv_StatusTypeDef ADC_Motor_RawData_Read(uint16_t *pOut)
 {
-    if (pOut != NULL)
+    uint32_t raw_pack;
+
+    if (pOut == NULL)
     {
-        pOut[0] = au16_ADC1_Vol_Value[0];
-        pOut[1] = au16_ADC2_Vol_Value[0];
+        return DRV_ERROR;
     }
+
+    raw_pack = s_motor_adc_raw_snapshot_pack;
+    pOut[0] = (uint16_t)(raw_pack & 0xFFFFU);
+    pOut[1] = (uint16_t)((raw_pack >> 16) & 0xFFFFU);
+    return DRV_OK;
+}
+
+void ADC_Motor_RawData_Snapshot(void)
+{
+    uint32_t raw_pack = ((uint32_t)au16_ADC2_Vol_Value[0] << 16) |
+                        (uint32_t)au16_ADC1_Vol_Value[0];
+    s_motor_adc_raw_snapshot_pack = raw_pack;
 }
 
 /**
@@ -533,10 +563,10 @@ float ADC3_ReadIn1Voltage(void)
 
 void ADC_TEST()
 {
-    unsigned char u8TargeValueInt = 0;
+    uint8_t u8TargeValueInt = 0;
     unsigned int  u16TargeValueFloat = 0;
 
-    unsigned char u8StopFlag = 0;
+    uint8_t u8StopFlag = 0;
 
     float        fTargetValue  = 0.0;     //测试电压
     float        fMotorVol     = 0.0;     //当前采集电压
@@ -547,17 +577,17 @@ void ADC_TEST()
     float        fTotalVolErr  = 0.0;     /* 总误�? */
 
 
-    HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,10,100);  /* 清除串口缓冲�? */
+    HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,10,100);  /* 清除串口缓冲�? */
 
     printf("\n 请输入测试目标电压：(整数部分)\n");
-    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,1000));
-    u8TargeValueInt = u8DebugRxBuff[0]-0x30;
+    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,1,1000));
+    u8TargeValueInt = g_au8DebugRxBuff[0]-0x30;
 
     HAL_Delay(500);
     
     printf("\n 请输入测试目标电压：(四位小数部分)\n");
-    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,4,1000));
-    u16TargeValueFloat = (u8DebugRxBuff[0]-0x30)*1000+(u8DebugRxBuff[1]-0x30)*100+(u8DebugRxBuff[2]-0x30)*10+(u8DebugRxBuff[3]-0x30);
+    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,4,1000));
+    u16TargeValueFloat = (g_au8DebugRxBuff[0]-0x30)*1000+(g_au8DebugRxBuff[1]-0x30)*100+(g_au8DebugRxBuff[2]-0x30)*10+(g_au8DebugRxBuff[3]-0x30);
 
     fTargetValue = u8TargeValueInt + u16TargeValueFloat/10000.0;
 
@@ -590,11 +620,11 @@ void ADC_TEST()
         HAL_Delay(400); 
 
 
-        if(HAL_OK == HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,1,100))
+        if(HAL_OK == HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,1,100))
         {
             u8StopFlag = 1;
 
-            HAL_UART_Receive(DEBUG_UART,u8DebugRxBuff,100,100);  /* 清除串口缓冲�? */
+            HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,100,100);  /* 清除串口缓冲�? */
         }
         
     }

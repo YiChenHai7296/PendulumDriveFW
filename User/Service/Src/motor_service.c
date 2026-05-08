@@ -37,7 +37,8 @@ typedef enum
     ENCODER_PROTOCOL_OK = 0,        /* 解析成功 */
     ENCODER_PROTOCOL_ERR_NULL,      /* 指针为空 */
     ENCODER_PROTOCOL_ERR_LENGTH,    /* 帧长度错误 */
-    ENCODER_PROTOCOL_ERR_CRC        /* CRC校验失败 */
+    ENCODER_PROTOCOL_ERR_CRC,       /* CRC校验失败 */
+    ENCODER_PROTOCOL_ERR_DRIVER     /* 底层编码器快照读取失败 */
 } EncoderProtocolResult_t;
 
 /* 编码器单帧数据 */
@@ -172,6 +173,10 @@ static MotorServiceResult_t MotorService_MapEncoderResult(EncoderProtocolResult_
     {
         return MOTOR_SVC_OK;
     }
+    if (encRes == ENCODER_PROTOCOL_ERR_DRIVER)
+    {
+        return MOTOR_SVC_ERR_DRIVER;
+    }
     return encoderErr;
 }
 
@@ -263,7 +268,7 @@ MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille)
 {
     uint16_t duty_u16 = 0U;
     uint16_t duty_output_u16 = 0U;
-    unsigned char pwmRet = 0U;
+    uint8_t pwmRet = 0U;
 
     /* 合法范围：-10000~10000 */
     if (duty_permille < -10000 || duty_permille > 10000)
@@ -391,7 +396,10 @@ static EncoderProtocolResult_t EncoderProtocol_ReadMotor(EncoderProtocolDataDual
     }
 
     /* 从USART3获取12字节快照（前6=最新帧，后6=上一帧） */
-    MotorEncoder_GetData(rawBuf);
+    if (MotorEncoder_GetData(rawBuf) != DRV_OK)
+    {
+        return ENCODER_PROTOCOL_ERR_DRIVER;
+    }
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -417,7 +425,10 @@ static EncoderProtocolResult_t EncoderProtocol_ReadOutputShaft(EncoderProtocolDa
     }
 
     /* 从 UART5 获取 12 字节快照（前6=最新帧，后6=上一帧） */
-    OutputShaftEncoder_GetData(rawBuf);
+    if (OutputShaftEncoder_GetData(rawBuf) != DRV_OK)
+    {
+        return ENCODER_PROTOCOL_ERR_DRIVER;
+    }
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -446,7 +457,10 @@ static EncoderProtocolResult_t EncoderProtocol_ReadSwingArm(EncoderProtocolDataD
     }
 
     /* 从 UART4 获取 12 字节快照（前6=最新帧，后6=上一帧） */
-    SwingArmEncoder_GetData(rawBuf);
+    if (SwingArmEncoder_GetData(rawBuf) != DRV_OK)
+    {
+        return ENCODER_PROTOCOL_ERR_DRIVER;
+    }
     resLatest = EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
     resPrev   = EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -599,7 +613,10 @@ static float MotorService_GetMotorVoltage(void)
 {
     uint16_t rawAdc[2];
 
-    ADC_GetMotorVol(rawAdc);
+    if (ADC_Motor_RawData_Read(rawAdc) != DRV_OK)
+    {
+        return 0.0f;
+    }
     /* 两路 ADC 原始值（12 位）平均后转换为电压（参考电压 3.3V） */
     return ((float)rawAdc[0] + (float)rawAdc[1]) / 2.0f * 3.3f / 4096.0f;
 }
