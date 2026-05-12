@@ -70,7 +70,7 @@ void MX_TIM1_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_TOGGLE;
-  sConfigOC.Pulse = 7999;
+  sConfigOC.Pulse = 999;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -81,6 +81,7 @@ void MX_TIM1_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_TIMING;
+  sConfigOC.Pulse = 1999;
   if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
@@ -154,16 +155,16 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 
 /* USER CODE BEGIN 1 */
 
-/* 更新事件：0ms 相位，触发 UART3 电机编码器 */
+/* 更新事件（UEV）：每 1ms 一次，触发 UART3 电机编码器 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM1)
   {
-    EncoderTrigger_SendOne(ENCODER_UART_MOTOR);
+    Drv_EncoderTrigger_SendOne(ENCODER_UART_MOTOR);
   }
 }
 
-/* 比较1：约 0.33ms 相位，触发 UART4 摆杆编码器 */
+/* 输出比较：CH1 0.10ms→UART4 摆杆；CH2 0.20ms→UART5 输出轴 */
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance != TIM1)
@@ -172,11 +173,11 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
   }
   if ((htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1))
   {
-    EncoderTrigger_SendOne(ENCODER_UART_SWING);
+    Drv_EncoderTrigger_SendOne(ENCODER_UART_SWING);
   }
   else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
   {
-    EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* 比较2：约 0.66ms 相位，触发 UART5 输出轴编码器 */
+    Drv_EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* CH2，≈0.20ms */
   }
 }
 

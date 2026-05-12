@@ -8,6 +8,7 @@
 
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
+#include "service_common.h"
 #include "usart.h"
 #include "adc.h"
 #include "hrtim.h"
@@ -49,30 +50,18 @@ typedef struct
 
 /* ======================== 5. 接口函数声明 ======================== */
 /**
- * @brief 电机初始化：使能电机、方向设为正向、占空比设为 0
- * @note  应在系统上电或需要重新初始化电机时调用
+ * @brief 电机使能状态统一设置
+ * @param enable SVC_ENABLE：上电初始化序列（默认停机、延时后电流零点标定）；SVC_DISABLE：停机（失能、占空比置 0、方向正向）
+ * @note  SVC_ENABLE 用于系统上电或需重新做启动标定时调用；SVC_ENABLE 不直接打开 PWM，仍保持 DRV_DISABLE 直至占空比指令非零
  */
-void MotorService_InitMotor(void);
-
-
-/**
- * @brief 关闭电机: 电机失能、方向设为正向、占空比设为 0
- */
-void MotorService_CloseMotor(void);
-
-/**
- * @brief 电机电流零点标定：在电机未启动时采样零偏并保存
- * @note  建议在电机失能且静止时调用；初始化时会自动调用一次
- */
-void MotorService_CalibrateCurrentZero(void);
-
+void Svc_MotorService_SetEnable(Svc_FunctionalState_t enable);
 
 /**
  * @brief 获取电机反馈数据：刷新编码器与电流，填位置/转速/电流到 pOut，供上位机或 Simulink 组帧
  * @param[out] pOut 反馈数据结构，与 SimulinkProtocolFeedbackData_t 布局一致
  * @return 操作结果，编码器解析失败时 pOut 可能包含无效数据
  */
-MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut);
+MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *pOut);
 
 /**
  * @brief 电机转速/占空比控制：-10000~10000 对应 -100.00%~100.00%
@@ -80,6 +69,6 @@ MotorServiceResult_t MotorService_GetFeedbackData(MotorFeedbackData_t *pOut);
  * @param duty_permille 目标占空比指令，范围 -10000~10000
  * @return 操作结果
  */
-MotorServiceResult_t MotorService_SetDutyCycle(int16_t duty_permille);
+MotorServiceResult_t Svc_MotorService_SetDutyCycle(int16_t duty_permille);
 
 #endif /* MOTOR_SERVICE_H */

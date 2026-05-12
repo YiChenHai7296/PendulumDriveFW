@@ -22,21 +22,44 @@ Dialog DLL:      TCM.DLL V1.46.0.0
  
 <h2>Project:</h2>
 E:\Workingspace\a_RuanChiBai_Prj\SoftscalePendulumDriveBoard\MDK-ARM\SoftscalePendulumDriveBoard.uvprojx
-Project File Date:  04/24/2026
+Project File Date:  05/08/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-compiling motor_service.c...
-..\User\Service\Src\motor_service.c(69): warning:  #177-D: variable "s_axis_speed_filtered"  was declared but never referenced
-  static float s_axis_speed_filtered = 0.0f;
-..\User\Service\Src\motor_service.c(70): warning:  #177-D: variable "s_axis_speed_filter_init"  was declared but never referenced
-  static uint8_t s_axis_speed_filter_init = 0U;
-..\User\Service\Src\motor_service.c: 2 warnings, 0 errors
+compiling debug.c...
+compiling simulink_protocol.c...
+..\User\Service\Src\simulink_protocol.c(272): warning:  #223-D: function "printf" declared implicitly
+          printf("指令长度非法！\n");
+..\User\Service\Src\simulink_protocol.c(278): warning:  #223-D: function "printf" declared implicitly
+          printf("指令帧头错误！\n");
+..\User\Service\Src\simulink_protocol.c(284): warning:  #223-D: function "printf" declared implicitly
+          printf("指令类型错误！\n");
+..\User\Service\Src\simulink_protocol.c(303): warning:  #223-D: function "printf" declared implicitly
+          printf("crc校验有误，接收�? %x , 计算�? %x \n",crc_recv,crc_calc);
+..\User\Service\Src\simulink_protocol.c(303): warning:  #870-D: invalid multibyte character sequence
+          printf("crc校验有误，接收�? %x , 计算�? %x \n",crc_recv,crc_calc);
+..\User\Service\Src\simulink_protocol.c(303): warning:  #870-D: invalid multibyte character sequence
+          printf("crc校验有误，接收�? %x , 计算�? %x \n",crc_recv,crc_calc);
+..\User\Service\Src\simulink_protocol.c(309): warning:  #223-D: function "printf" declared implicitly
+          printf("pwm参数范围有误�? %x  \n",pOut->pwm);
+..\User\Service\Src\simulink_protocol.c(309): warning:  #870-D: invalid multibyte character sequence
+          printf("pwm参数范围有误�? %x  \n",pOut->pwm);
+..\User\Service\Src\simulink_protocol.c(315): warning:  #223-D: function "printf" declared implicitly
+          printf("pwm参数范围有误�? %x  \n",pOut->current);
+..\User\Service\Src\simulink_protocol.c(315): warning:  #870-D: invalid multibyte character sequence
+          printf("pwm参数范围有误�? %x  \n",pOut->current);
+..\User\Service\Src\simulink_protocol.c(215): warning:  #177-D: function "SimulinkProtocol_UnpackInt32LE"  was declared but never referenced
+  static int32_t SimulinkProtocol_UnpackInt32LE(const uint8_t *pBuf)
+..\User\Service\Src\simulink_protocol.c(155): warning:  #177-D: function "SimulinkProtocol_VerifyHeader"  was declared but never referenced
+  static bool SimulinkProtocol_VerifyHeader(const uint8_t *pBuffer)
+..\User\Service\Src\simulink_protocol.c(164): warning:  #177-D: function "SimulinkProtocol_FindHeader"  was declared but never referenced
+  static int16_t SimulinkProtocol_FindHeader(const uint8_t *pBuffer, uint16_t bufferSize)
+..\User\Service\Src\simulink_protocol.c: 13 warnings, 0 errors
 linking...
-Program Size: Code=37452 RO-data=688 RW-data=144 ZI-data=4016  
+Program Size: Code=37184 RO-data=688 RW-data=152 ZI-data=4016  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 2 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 13 Warning(s).
 
 <h2>Software Packages used:</h2>
 

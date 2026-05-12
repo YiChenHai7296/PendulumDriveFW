@@ -27,10 +27,12 @@
 extern uint8_t g_au8DebugRxBuff[100];
 
 /* PWM 占空比目标值，范围 0~10000 */
-unsigned short u16TargePulse = 0;
+uint16_t u16TargePulse = 0;
 /* PWM 占空比更新标志 */
 uint8_t u8FlagPulse = 0;
 
+/* HRTIM 内部私有：Compare 回调里装载比较寄存器 */
+static Drv_StatusTypeDef PWM_Write_Pulse(uint16_t u16T2Pulse);
 
 
 
@@ -281,29 +283,23 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
 /* USER CODE BEGIN 1 */
 
 
+
 /**
  * @brief PWM 使能控制接口函数
- * @param NewState 使能状态宏：ENABLE / DISABLE
- * @note  使能时将 MotorEnableControl_Pin 置 1，失能时置 0
+ * @param NewState 使能状态：DRV_ENABLE / DRV_DISABLE
+ * @note  使能时将 MotorEnableControl_Pin 置 1；失能时置 0，并清除待更新标志，防止停机后残留一次寄存器更新
  */
-void PWM_Enable(FunctionalState NewState)
+void Drv_PWM_Enable(Drv_FunctionalState_t NewState)
 {
-  if (NewState != DISABLE)
+  if (NewState != DRV_DISABLE)
   {
     HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_SET);
   }
   else
   {
     HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_RESET);
+    u8FlagPulse = 0;
   }
-}
-
-/**
- * @brief 清除 PWM 待更新标志，防止停机后残留一次寄存器更新
- */
-void PWM_ClearPendingUpdate(void)
-{
-  u8FlagPulse = 0;
 }
 
 
@@ -313,7 +309,7 @@ void PWM_ClearPendingUpdate(void)
  * @param dir 方向宏：MOTOR_DIR_FORWARD 正转，MOTOR_DIR_REVERSE 反转
  * @note  正转时将 MotorDirectionControl_Pin 置 0，反转时置 1
  */
-void PWM_DirControl(uint8_t dir)
+void Drv_PWM_DirControl(uint8_t dir)
 {
   if (dir == MOTOR_DIR_FORWARD)
   {
@@ -326,35 +322,63 @@ void PWM_DirControl(uint8_t dir)
 }
 
 
-uint8_t PWM_Set_TargePulse(unsigned short u16ExpectedValue)
+Drv_StatusTypeDef Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue)
 {
-    if(u16ExpectedValue < 0 || u16ExpectedValue > 10000)
-    {
-        return 1;
-    }
-    u16TargePulse = u16ExpectedValue;
-    u8FlagPulse = 1;
-    return 0;
+  if (u16ExpectedValue > 10000U)
+  {
+    return DRV_ERROR;
+  }
+  u16TargePulse = u16ExpectedValue;
+  u8FlagPulse   = 1U;
+  return DRV_OK;
 }
 
-uint8_t User_Func_SetPulse(unsigned short u16T2Pulse)
+
+
+/**
+ * @brief 将占空比参数写入 HRTIM TimerA 比较寄存器（仅本文件调用）
+ */
+static Drv_StatusTypeDef PWM_Write_Pulse(uint16_t u16T2Pulse)
 {
-    /* 检查占空比参数是否在允许范围内 */
-    if(u16T2Pulse<9 || u16T2Pulse>17000)
-    {
-        printf("占空比参数越界：%d\n",u16T2Pulse);
-        return 1;
-    }
+  /* u16T2Pulse < 2：无法按占空比公式配置，比较器全部清零（安全停机/占位） */
+  if (u16T2Pulse < 2U)
+  {
+    HRTIM1->sTimerxRegs[0].CMP1xR = 0U;
+    HRTIM1->sTimerxRegs[0].CMP2xR = 0U;
+    HRTIM1->sTimerxRegs[0].CMP3xR = 0U;
+    return DRV_OK;
+  }
 
-    /* 更新 HRTIM 定时器比较寄存器，对应 PWM 占空比 */
-    //TIM1->CCR1 = u16T2Pulse-1;
-    //TIM1->CCR2 = u16T2Pulse/2-1;
-    //TIM1->CCR3 = (1000 - 1 - u16T2Pulse)/2+u16T2Pulse;
-    HRTIM1->sTimerxRegs[0].CMP1xR = u16T2Pulse-1;
-    HRTIM1->sTimerxRegs[0].CMP2xR = u16T2Pulse/2-1;
-    HRTIM1->sTimerxRegs[0].CMP3xR = (17000 - 1 - u16T2Pulse)/2+u16T2Pulse;
+  if (u16T2Pulse > 17000U)
+  {
+    return DRV_ERROR;
+  }
 
-    return 0;
+  /* 更新 HRTIM 定时器比较寄存器；CMP3：低电平区间中点附近触发 ADC */
+  HRTIM1->sTimerxRegs[0].CMP1xR = u16T2Pulse - 1U;
+  HRTIM1->sTimerxRegs[0].CMP2xR = u16T2Pulse / 2U - 1U;
+  HRTIM1->sTimerxRegs[0].CMP3xR = (17000U - u16T2Pulse) / 2U + u16T2Pulse - 1U;
+
+  return DRV_OK;
+}
+
+
+void PWM_TEST(void)
+{
+
+  /* 预读一帧调试串口数据 */
+  HAL_UART_Receive(DEBUG_UART, g_au8DebugRxBuff, 10, 100);
+
+  /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
+  printf("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
+  while (HAL_OK != HAL_UART_Receive(DEBUG_UART, g_au8DebugRxBuff, 5, 1000))
+    ;
+
+  u16TargePulse = (g_au8DebugRxBuff[0] - 0x30) * 10000 + (g_au8DebugRxBuff[1] - 0x30) * 1000 +
+                  (g_au8DebugRxBuff[2] - 0x30) * 100 + (g_au8DebugRxBuff[3] - 0x30) * 10 + g_au8DebugRxBuff[4] - 0x30;
+
+
+  u8FlagPulse = 1;
 }
 
 
@@ -364,60 +388,21 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,uint32_t TimerI
 {
   if(HRTIM_TIMERINDEX_TIMER_A == TimerIdx)
   {
-    ADC_Motor_RawData_Snapshot();
+    Drv_ADC_Motor_RawData_Snapshot();
     return;
   }
 
   if(HRTIM_TIMERINDEX_TIMER_B == TimerIdx)
   {
-    if(u8FlagPulse)
+    if (u8FlagPulse)
     {
       u8FlagPulse = 0;
-      if(User_Func_SetPulse(u16TargePulse*1.7f))
+      if (PWM_Write_Pulse((uint16_t)((float)u16TargePulse * 1.7f)) != DRV_OK)
       {
         return;
       }
-
     }
-  
-		#if 0
-  static int i = 0;
-  unsigned short au16T4PulseTest[4]={2000,6000,10000,14000};
-  static int temp1 = 0;
-		/* 测试占空比循环变化 */
-      //User_Func_SetPulse(au16T4PulseTest[i]);
-      temp1++;
-      if(temp1==1000)
-      {
-          i++;
-          temp1 = 0;
-      }
-      if(i==4)
-      {
-          i = 0;
-      }
-    #endif
   }
-
 }
-
-
-void PWM_TEST(void)
-{
-
-  /* 预读一帧调试串口数据 */
-  HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,10,100);
-
-  /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
-  printf("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
-  while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,5,1000));
-  u16TargePulse = (g_au8DebugRxBuff[0]-0x30)*10000 + (g_au8DebugRxBuff[1]-0x30)*1000 + (g_au8DebugRxBuff[2]-0x30)*100 + (g_au8DebugRxBuff[3]-0x30)*10 + g_au8DebugRxBuff[4]-0x30;
-
-
-  u8FlagPulse = 1;
-  
-}
-
-
 
 /* USER CODE END 1 */

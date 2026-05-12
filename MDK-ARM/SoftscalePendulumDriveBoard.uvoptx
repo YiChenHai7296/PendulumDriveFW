@@ -301,42 +301,42 @@
           <ItemText>frame</ItemText>
         </Ww>
         <Ww>
-          <count>37</count>
+          <count>30</count>
           <WinNumber>1</WinNumber>
           <ItemText>au8Uart2RecvBuff</ItemText>
         </Ww>
         <Ww>
-          <count>38</count>
+          <count>31</count>
           <WinNumber>1</WinNumber>
           <ItemText>s_axis_speed_filtered</ItemText>
         </Ww>
         <Ww>
-          <count>39</count>
+          <count>32</count>
           <WinNumber>1</WinNumber>
           <ItemText>s_motor_current_zero_offset_A</ItemText>
         </Ww>
         <Ww>
-          <count>40</count>
+          <count>33</count>
           <WinNumber>1</WinNumber>
           <ItemText>current_A</ItemText>
         </Ww>
         <Ww>
-          <count>41</count>
+          <count>34</count>
           <WinNumber>1</WinNumber>
           <ItemText>fb</ItemText>
         </Ww>
         <Ww>
-          <count>42</count>
+          <count>35</count>
           <WinNumber>1</WinNumber>
           <ItemText>au16_ADC2_Vol_Value</ItemText>
         </Ww>
         <Ww>
-          <count>43</count>
+          <count>36</count>
           <WinNumber>1</WinNumber>
           <ItemText>v_diff</ItemText>
         </Ww>
         <Ww>
-          <count>44</count>
+          <count>37</count>
           <WinNumber>1</WinNumber>
           <ItemText>fb</ItemText>
         </Ww>
@@ -472,18 +472,6 @@
     <File>
       <GroupNumber>3</GroupNumber>
       <FileNumber>3</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\User\Service\Src\RingFrameQueue.c</PathWithFileName>
-      <FilenameWithoutPath>RingFrameQueue.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>3</GroupNumber>
-      <FileNumber>4</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>

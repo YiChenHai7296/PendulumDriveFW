@@ -26,13 +26,12 @@
 
 #define ADC_DMA_RX_BUFF_LEN 1
 /* ADC采集原始数据 */
-__IO uint16_t au16_ADC1_Vol_Value[ADC_DMA_RX_BUFF_LEN];  /* 电机电压 ADC1  */
-__IO uint16_t au16_ADC2_Vol_Value[ADC_DMA_RX_BUFF_LEN];
-static volatile uint32_t s_motor_adc_raw_snapshot_pack = 0U;
+__IO uint16_t g_au16ADC1VolValue[ADC_DMA_RX_BUFF_LEN]; /* 电机电压 ADC1 */
+__IO uint16_t g_au16ADC2VolValue[ADC_DMA_RX_BUFF_LEN];
+static volatile uint32_t g_u32MotorADCRawSnapshotPack = 0U;
 
-
-/* ADC 测试输入电压�? */
-float f_TEST_VALUE = 1.6;
+/* ADC 测试输入电压值 */
+float g_fTestValue = 1.6f;
 
 /* ADC误差计算 */
 
@@ -114,14 +113,14 @@ void MX_ADC1_Init(void)
     Error_Handler();
   }
 
-  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*)au16_ADC1_Vol_Value, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)g_au16ADC1VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
   {
     Error_Handler();
   }
   
 
  // HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
-  //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&au16_ADC_HighVol_Value, 2);
+  // HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&g_au16ADC1VolValue, 2);
 
 
   /* USER CODE END ADC1_Init 2 */
@@ -186,8 +185,8 @@ void MX_ADC2_Init(void)
     Error_Handler();
   }
 
-  //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&au16_ADC_HighVol_Value, 1);
-  if (HAL_ADC_Start_DMA(&hadc2, (uint32_t*)au16_ADC2_Vol_Value, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  // HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&g_au16ADC1VolValue, 1);
+  if (HAL_ADC_Start_DMA(&hadc2, (uint32_t *)g_au16ADC2VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
   {
     Error_Handler();
   }
@@ -476,58 +475,54 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 }
 
 /* USER CODE BEGIN 1 */
-//3.3f / 4095.0f;
 
-#if 0
-float ADC_Read_MotorVol(void)
+float Drv_ADC_Read_MotorVol(void)
 {
-    float f_ADC1_Vol_Result[2];
-    float f_ADC2_Vol_Result[2];
-    float f_Motor_Vol = 0;  /* 输出电压�? */
-    
-    f_ADC1_Vol_Result[0] = (float)au16_ADC1_Vol_Value[0]*(float)3.3/4096;
-    f_ADC2_Vol_Result[0]  = (float)au16_ADC2_Vol_Value[0]*(float)3.3/4096;
+    float fADC1VolResult[2];
+    float fADC2VolResult[2];
+    float fMotorVol = 0.0f; /* 输出电压值 */
 
-    f_Motor_Vol = (f_ADC1_Vol_Result[0] + f_ADC2_Vol_Result[0]) / 2;
+    fADC1VolResult[0] = (float)g_au16ADC1VolValue[0] * (float)3.3f / 4096.0f;
+    fADC2VolResult[0] = (float)g_au16ADC2VolValue[0] * (float)3.3f / 4096.0f;
 
-    return f_Motor_Vol;
+    fMotorVol = (fADC1VolResult[0] + fADC2VolResult[0]) / 2.0f;
+
+    return fMotorVol;
 }
-
-#endif
 /**
   * @brief  读取 ADC1、ADC2 快照中的原始采样值（各 12 位有效）
-  * @note   数据来自 ADC_Motor_RawData_Snapshot 写入的快照；本函数将 32 位快照一次拆成两路，
+  * @note   数据来自 Drv_ADC_Motor_RawData_Snapshot 写入的快照；本函数将 32 位快照一次拆成两路，
   *         避免两次读 16 位期间被更新导致跨周期混叠。
   * @param  pOut  至少 2 个 uint16_t：pOut[0]=ADC1，pOut[1]=ADC2
   * @retval DRV_OK 写入成功；DRV_ERROR 指针无效（pOut 为 NULL）
   */
-Drv_StatusTypeDef ADC_Motor_RawData_Read(uint16_t *pOut)
+Drv_StatusTypeDef Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
 {
-    uint32_t raw_pack;
+    uint32_t u32RawPack;
 
     if (pOut == NULL)
     {
         return DRV_ERROR;
     }
 
-    raw_pack = s_motor_adc_raw_snapshot_pack;
-    pOut[0] = (uint16_t)(raw_pack & 0xFFFFU);
-    pOut[1] = (uint16_t)((raw_pack >> 16) & 0xFFFFU);
+    u32RawPack = g_u32MotorADCRawSnapshotPack;
+    pOut[0] = (uint16_t)(u32RawPack & 0xFFFFU);
+    pOut[1] = (uint16_t)((u32RawPack >> 16) & 0xFFFFU);
     return DRV_OK;
 }
 
-void ADC_Motor_RawData_Snapshot(void)
+void Drv_ADC_Motor_RawData_Snapshot(void)
 {
-    uint32_t raw_pack = ((uint32_t)au16_ADC2_Vol_Value[0] << 16) |
-                        (uint32_t)au16_ADC1_Vol_Value[0];
-    s_motor_adc_raw_snapshot_pack = raw_pack;
+    uint32_t u32RawPack = ((uint32_t)g_au16ADC2VolValue[0] << 16) |
+                          (uint32_t)g_au16ADC1VolValue[0];
+    g_u32MotorADCRawSnapshotPack = u32RawPack;
 }
 
 /**
   * @brief  软件触发读取 ADC3_IN1 原始值（12位）
   * @retval 原始 ADC 码值；若转换失败返回 0xFFFF
   */
-uint16_t ADC3_ReadIn1Raw(void)
+uint16_t Drv_ADC3_ReadIn1Raw(void)
 {
     if (HAL_ADC_Start(&hadc3) != HAL_OK)
     {
@@ -541,9 +536,9 @@ uint16_t ADC3_ReadIn1Raw(void)
     }
 
     {
-        uint16_t raw = (uint16_t)HAL_ADC_GetValue(&hadc3);
+        uint16_t u16Raw = (uint16_t)HAL_ADC_GetValue(&hadc3);
         (void)HAL_ADC_Stop(&hadc3);
-        return raw;
+        return u16Raw;
     }
 }
 
@@ -551,20 +546,20 @@ uint16_t ADC3_ReadIn1Raw(void)
   * @brief  软件触发读取 ADC3_IN1 电压值（V）
   * @retval 电压值；若读取失败返回负值
   */
-float ADC3_ReadIn1Voltage(void)
+float Drv_ADC3_ReadIn1Voltage(void)
 {
-    uint16_t raw = ADC3_ReadIn1Raw();
-    if (raw == 0xFFFFU)
+    uint16_t u16Raw = Drv_ADC3_ReadIn1Raw();
+    if (u16Raw == 0xFFFFU)
     {
         return -1.0f;
     }
-    return ((float)raw * 3.3f) / 4095.0f;
+    return ((float)u16Raw * 3.3f) / 4095.0f;
 }
 
-void ADC_TEST()
+void Drv_ADC_TEST()
 {
     uint8_t u8TargeValueInt = 0;
-    unsigned int  u16TargeValueFloat = 0;
+    unsigned int u16TargeValueFloat = 0;
 
     uint8_t u8StopFlag = 0;
 
@@ -572,7 +567,7 @@ void ADC_TEST()
     float        fMotorVol     = 0.0;     //当前采集电压
     float        fSingleVolErr = 0.0;     //单次误差
     float        fAverVolErr   = 0.0;     //平均误差
-    unsigned int u32_Temp_i    = 0.0;     //采集计数
+    unsigned int u32TempI      = 0U;      //采集计数
     float        fMaxVolErr    = 0.0;     /* �?大误�? */
     float        fTotalVolErr  = 0.0;     /* 总误�? */
 
@@ -597,7 +592,7 @@ void ADC_TEST()
     while(!u8StopFlag)
     {
         /* 获取当前示数 */
-        fMotorVol = ADC_Read_MotorVol();
+        fMotorVol = Drv_ADC_Read_MotorVol();
 
         /* 单次误差计算 */
         fSingleVolErr = fTargetValue - fMotorVol;
@@ -613,8 +608,8 @@ void ADC_TEST()
 
         /* 计算平均误差 */
         fTotalVolErr += fSingleVolErr;
-        u32_Temp_i++;
-        fAverVolErr = fTotalVolErr/u32_Temp_i;
+        u32TempI++;
+        fAverVolErr = fTotalVolErr / (float)u32TempI;
 
         printf("fMotorVol = %f  fSingleVolErr = %f  fAverVolErr = %f  fMaxVolErr = %f  \n",fMotorVol,fSingleVolErr,fAverVolErr,fMaxVolErr);
         HAL_Delay(400); 

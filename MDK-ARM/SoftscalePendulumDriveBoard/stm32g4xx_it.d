@@ -41,4 +41,5 @@ softscalependulumdriveboard\stm32g4xx_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/
 softscalependulumdriveboard\stm32g4xx_it.o: ../Core/Inc/stm32g4xx_it.h
 softscalependulumdriveboard\stm32g4xx_it.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\stm32g4xx_it.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+softscalependulumdriveboard\stm32g4xx_it.o: ../Core/Inc/driver_common.h
 softscalependulumdriveboard\stm32g4xx_it.o: ../User/Service/Inc/RingFrameQueue.h

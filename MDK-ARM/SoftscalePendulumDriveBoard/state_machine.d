@@ -43,7 +43,9 @@ softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/simulink_protoc
 softscalependulumdriveboard\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+softscalependulumdriveboard\state_machine.o: ../Core/Inc/driver_common.h
 softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/RingFrameQueue.h
 softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/motor_service.h
+softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/service_common.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/adc.h
 softscalependulumdriveboard\state_machine.o: ../Core/Inc/hrtim.h

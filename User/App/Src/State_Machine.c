@@ -32,11 +32,15 @@
 /* 无 */
 
 /* ======================== 5. 私有函数声明 ======================== */
-static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret, const SimulinkProtocolControlData_t *pCtrl);
+static void Svc_StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret, const SimulinkProtocolControlData_t *pCtrl);
 
 /* ======================== 6. 接口函数实现 ======================== */
-
-void StateMachine_MainLoop(void)
+/**
+ * @brief 主状态机死循环：解 Simulink 控制帧 → 设置占空比 → 读电机反馈 → 组帧上报
+ * @details 任一步失败则 continue 等待下一帧；阻塞于 Svc_SimulinkProtocol_UnpackControl 直至收到合法帧
+ * @note 与 State_Machine.h 中声明一致
+ */
+void Svc_StateMachine_MainLoop(void)
 {
     SimulinkProtocolControlData_t  ctrl;      /* 解帧得到的控制帧数据（PWM、电流设定等） */
     SimulinkProtocolFeedbackData_t fb_tx;     /* 待发送的 Simulink 反馈帧载荷 */
@@ -47,7 +51,7 @@ void StateMachine_MainLoop(void)
     for (;;)
     {
         /* 1) 等待并解帧：从 USART2 接收队列取一帧控制帧 */
-        if (SimulinkProtocol_UnpackControl(&ctrl) != SIMULINK_PROTOCOL_OK)
+        if (Svc_SimulinkProtocol_UnpackControl(&ctrl) != SIMULINK_PROTOCOL_OK)
         {
 						//printf("error\n");
 						//printf("指令有误！\n");
@@ -56,13 +60,13 @@ void StateMachine_MainLoop(void)
         }
 
         /* 2) 根据控制帧 PWM(-10000~10000) 设置占空比 */
-        if (MotorService_SetDutyCycle(ctrl.pwm) != MOTOR_SVC_OK)
+        if (Svc_MotorService_SetDutyCycle(ctrl.pwm) != MOTOR_SVC_OK)
         {
-            //StateMachine_OnDutyWriteFailed(motorRet, &ctrl);
+            //Svc_StateMachine_OnDutyWriteFailed(motorRet, &ctrl);
             continue;
         }
         /* 4) 写入成功：获取电机反馈数据 */
-        if (MotorService_GetFeedbackData(&fb) != MOTOR_SVC_OK)
+        if (Svc_MotorService_GetFeedbackData(&fb) != MOTOR_SVC_OK)
         {
             /* 编码器解析失败：可选进入安全态或上报，此处继续使用已有 fb 并组帧 */
             continue;
@@ -79,8 +83,7 @@ void StateMachine_MainLoop(void)
         fb_tx.pendulum_speed    = fb.pendulum_speed;
         #endif
 
-
-        if (SimulinkProtocol_PackFeedback(&fb_tx) != SIMULINK_PROTOCOL_OK)
+        if (Svc_SimulinkProtocol_PublishFeedback(&fb_tx) != SIMULINK_PROTOCOL_OK)
         {
             /* 组帧失败：暂不处理，等待下一次控制 */
             continue;
@@ -93,8 +96,12 @@ void StateMachine_MainLoop(void)
 /* USER CODE END Implementation */
 
 /* ======================== 7. 私有函数实现 ======================== */
-
-static void StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误码 */
+/**
+ * @brief 占空比写入失败时的占位处理（记录安全态/上报等可在此扩展）
+ * @param ret Svc_MotorService_SetDutyCycle 等返回的错误码
+ * @param pCtrl 失败当次的控制帧快照
+ */
+static void Svc_StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误码 */
                                           const SimulinkProtocolControlData_t *pCtrl)  /* 失败时的控制帧 */
 {
     (void)ret;

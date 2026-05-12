@@ -39,6 +39,8 @@ softscalependulumdriveboard\hrtim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4
 softscalependulumdriveboard\hrtim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h
 softscalependulumdriveboard\hrtim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h
 softscalependulumdriveboard\hrtim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
+softscalependulumdriveboard\hrtim.o: ../Core/Inc/driver_common.h
+softscalependulumdriveboard\hrtim.o: ../Core/Inc/adc.h
 softscalependulumdriveboard\hrtim.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\hrtim.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 softscalependulumdriveboard\hrtim.o: ../User/Service/Inc/RingFrameQueue.h

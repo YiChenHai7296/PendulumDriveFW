@@ -401,9 +401,9 @@
           <GroupName>Application/User/Service</GroupName>
           <Files>
             <File>
-              <FileName>RingFrameQueue.c</FileName>
+              <FileName>service_common.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Service\Src\RingFrameQueue.c</FilePath>
+              <FilePath>..\User\Service\Src\service_common.c</FilePath>
             </File>
             <File>
               <FileName>simulink_protocol.c</FileName>
@@ -424,6 +424,11 @@
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>driver_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/driver_common.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>

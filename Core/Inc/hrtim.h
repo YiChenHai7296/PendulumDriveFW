@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "driver_common.h"
 /* USER CODE END Includes */
 
 extern HRTIM_HandleTypeDef hhrtim1;
@@ -46,10 +46,9 @@ void MX_HRTIM1_Init(void);
 void HAL_HRTIM_MspPostInit(HRTIM_HandleTypeDef *hhrtim);
 
 /* USER CODE BEGIN Prototypes */
-uint8_t PWM_Set_TargePulse(unsigned short u16ExpectedValue);
-void PWM_DirControl(uint8_t dir);
-void PWM_Enable(FunctionalState NewState);
-void PWM_ClearPendingUpdate(void);
+Drv_StatusTypeDef Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue);
+void Drv_PWM_DirControl(uint8_t dir);
+void Drv_PWM_Enable(Drv_FunctionalState_t NewState);
 
 /* USER CODE END Prototypes */
 

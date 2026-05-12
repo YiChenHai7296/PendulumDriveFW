@@ -87,7 +87,7 @@ unsigned int u32CRC_TEST();
 
 unsigned int u32CRC_TEST()
 {
-  unsigned short crc = 0;
+  uint32_t crc = 0U;
   uint8_t au8CrcData[12] = {1,2,3,4,5,6,7,8,9,0,1,2};
 
   crc = HAL_CRC_Accumulate(&hcrc,(unsigned int *)au8CrcData,12);
@@ -195,13 +195,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  MotorService_InitMotor();
+  Svc_MotorService_SetEnable(SVC_ENABLE);
 
   printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
   printf("                          编译日期:%s\n",__DATE__);
 
 
-  StateMachine_MainLoop();
+  Svc_StateMachine_MainLoop();
 
 
 
@@ -258,7 +258,7 @@ int main(void)
         case Debug_Menu_ADC_TEST:
         {
             printf("  进入ADC精度测试  \n" );
-            ADC_TEST();
+            Drv_ADC_TEST();
             break;
         }
 

@@ -47,14 +47,14 @@ void MX_ADC2_Init(void);
 void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void ADC_TEST(void);
+void Drv_ADC_TEST(void);
 
-//float ADC_Read_MotorVol(void);
-void ADC_Motor_RawData_Snapshot(void);
-Drv_StatusTypeDef ADC_Motor_RawData_Read(uint16_t *pOut);
+float Drv_ADC_Read_MotorVol(void);
+void Drv_ADC_Motor_RawData_Snapshot(void);
+Drv_StatusTypeDef Drv_ADC_Motor_RawData_Read(uint16_t *pOut);
 
-uint16_t ADC3_ReadIn1Raw(void);
-float ADC3_ReadIn1Voltage(void);
+uint16_t Drv_ADC3_ReadIn1Raw(void);
+float Drv_ADC3_ReadIn1Voltage(void);
 
 /* USER CODE END Prototypes */
 

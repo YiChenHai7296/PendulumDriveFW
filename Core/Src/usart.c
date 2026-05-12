@@ -24,9 +24,11 @@
 #define UART_1_RX_BUFF_LEN 100
 #define UART2_RX_BUFF_LEN 100
 #define ENCODER_FRAME_LENGTH_BYTES   6U
+
 /* DMA 单次接收长度：须 ≤ au8Uart3/4/5DMABuff 数组长度；与编码器单帧 6 字节一致（原为 8 与 [6] 数组不符，存在越界写） */
 #define UART_ENCODER_DMA_RX_BUFF     ENCODER_FRAME_LENGTH_BYTES
 #define ENCODER_SNAPSHOT_BYTES       12U   /* 前6字节=最新帧，后6字节=上一帧 */
+
 /* seqlock 读侧最大尝试次数（每次循环含「奇序等待」或「拷贝后 seq 变化」）；超限返回 DRV_TIMEOUT，避免极端争用忙等不止 */
 #define ENC_SNAPSHOT_SEQLOCK_MAX_RETRY  8U
 
@@ -227,7 +229,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-  RFQ_Init(&g_struUart1RxRfq);
+  Drv_RFQ_Init(&g_struUart1RxRfq);
   HAL_UARTEx_ReceiveToIdle_DMA(&huart1, g_au8Uart1RecvBuff, UART_1_RX_BUFF_LEN);
 
   /* USER CODE END USART1_Init 2 */
@@ -273,7 +275,7 @@ void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-  RFQ_Init(&g_struUart2RxRfq);
+  Drv_RFQ_Init(&g_struUart2RxRfq);
   HAL_UARTEx_ReceiveToIdle_DMA(&huart2, g_au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
 
   /* USER CODE END USART2_Init 2 */
@@ -783,18 +785,18 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   * @param  pOutLen   本次出队的实际长度，可为 NULL
   * @retval DRV_OK 成功；DRV_ERROR 队列空或参数 pBuf/bufMaxLen 无效
   */
-Drv_StatusTypeDef Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
+Drv_StatusTypeDef Drv_Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
 {
   if (pBuf == NULL || bufMaxLen == 0U)
   {
     return DRV_ERROR;
   }
-  if (RFQ_Is_Empty(&g_struUart2RxRfq))
+  if (Drv_RFQ_Is_Empty(&g_struUart2RxRfq))
   {
     return DRV_ERROR;
   }
   rfq_frame_t struRxFrame;
-  if (RFQ_Pop(&g_struUart2RxRfq, &struRxFrame) != 0)
+  if (Drv_RFQ_Pop(&g_struUart2RxRfq, &struRxFrame) != 0)
   {
     return DRV_ERROR;
   }
@@ -818,7 +820,7 @@ Drv_StatusTypeDef Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLe
   * @param  len   待发送的数据长度（字节）
   * @retval DRV_OK 成功；DRV_ERROR 参数非法或底层发送失败
   */
-Drv_StatusTypeDef Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
+Drv_StatusTypeDef Drv_Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
 {
   if (pBuf == NULL || len == 0U)
   {
@@ -837,9 +839,9 @@ Drv_StatusTypeDef Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
   * @brief  仅向指定编码器串口发送单字节 0x02 触发（用于 TIM1 分相：更新/比较1/比较2 各触发一路）
   * @param  uart_sel ENCODER_UART_MOTOR(3) / ENCODER_UART_SWING(4) / ENCODER_UART_SHAFT(5)
   */
-void EncoderTrigger_SendOne(EncoderUartSel_t uart_sel)
+void Drv_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel)
 {
-  EncoderLevelShifter_SetEnable(uart_sel, ENABLE);
+  Drv_EncoderLevelShifter_SetEnable(uart_sel, DRV_ENABLE);
   switch (uart_sel)
   {
     case ENCODER_UART_MOTOR:
@@ -865,7 +867,7 @@ void EncoderTrigger_SendOne(EncoderUartSel_t uart_sel)
   * @retval DRV_OK 已写入快照；DRV_ERROR 指针无效；DRV_TIMEOUT 序列锁重试耗尽（极少见）
  * @note  双槽每槽序列锁 + front；读侧再慢亦不会产生撕裂（可能多轮重试，有上限）。
  */
-Drv_StatusTypeDef MotorEncoder_GetData(uint8_t *pOut)
+Drv_StatusTypeDef Drv_MotorEncoder_GetData(uint8_t *pOut)
 {
   if (pOut == NULL)
   {
@@ -878,10 +880,10 @@ Drv_StatusTypeDef MotorEncoder_GetData(uint8_t *pOut)
 /**
   * @brief  获取输出轴编码器当前数据（UART5），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 12 字节的缓冲区
-  * @retval DRV_OK / DRV_ERROR / DRV_TIMEOUT 同 MotorEncoder_GetData
- * @note  与 MotorEncoder_GetData 相同（双槽序列锁）。
+  * @retval DRV_OK / DRV_ERROR / DRV_TIMEOUT 同 Drv_MotorEncoder_GetData
+ * @note  与 Drv_MotorEncoder_GetData 相同（双槽序列锁）。
  */
-Drv_StatusTypeDef OutputShaftEncoder_GetData(uint8_t *pOut)
+Drv_StatusTypeDef Drv_OutputShaftEncoder_GetData(uint8_t *pOut)
 {
   if (pOut == NULL)
   {
@@ -895,10 +897,10 @@ Drv_StatusTypeDef OutputShaftEncoder_GetData(uint8_t *pOut)
 /**
   * @brief  获取摆杆编码器当前数据（UART4），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 12 字节的缓冲区
-  * @retval DRV_OK / DRV_ERROR / DRV_TIMEOUT 同 MotorEncoder_GetData
- * @note  与 MotorEncoder_GetData 相同（双槽序列锁）。
+  * @retval DRV_OK / DRV_ERROR / DRV_TIMEOUT 同 Drv_MotorEncoder_GetData
+ * @note  与 Drv_MotorEncoder_GetData 相同（双槽序列锁）。
  */
-Drv_StatusTypeDef SwingArmEncoder_GetData(uint8_t *pOut)
+Drv_StatusTypeDef Drv_SwingArmEncoder_GetData(uint8_t *pOut)
 {
   if (pOut == NULL)
   {
@@ -912,11 +914,11 @@ Drv_StatusTypeDef SwingArmEncoder_GetData(uint8_t *pOut)
 /**
   * @brief  控制编码器串口对应电平转换芯片的使能引脚（高=发送使能，低=接收使能）
   * @param  uart_sel 串口选择：ENCODER_UART_MOTOR(3)=PB4，ENCODER_UART_SWING(4)=PB9，ENCODER_UART_SHAFT(5)=PC13
-  * @param  state    ENABLE=高电平可发送，DISABLE=低电平可接收
+  * @param  state    DRV_ENABLE=高电平可发送，DRV_DISABLE=低电平可接收
   */
-void EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, FunctionalState state)
+void Drv_EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, Drv_FunctionalState_t state)
 {
-  GPIO_PinState pin_state = (state != DISABLE) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+  GPIO_PinState pin_state = (state != DRV_DISABLE) ? GPIO_PIN_SET : GPIO_PIN_RESET;
 
   switch (uart_sel)
   {
@@ -1000,15 +1002,15 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart->Instance == USART3)
   {
-    EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR,DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, DRV_DISABLE);
   }
   else if (huart->Instance == UART4)
   {
-    EncoderLevelShifter_SetEnable(ENCODER_UART_SWING,DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, DRV_DISABLE);
   }
   else if (huart->Instance == UART5)
   {
-    EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT,DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, DRV_DISABLE);
   }
 }
 
@@ -1059,7 +1061,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     if (Size > 0U)
     {
-      RFQ_Push(&g_struUart1RxRfq, g_au8Uart1RecvBuff, Size);
+      Drv_RFQ_Push(&g_struUart1RxRfq, g_au8Uart1RecvBuff, Size);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart1, g_au8Uart1RecvBuff, UART_1_RX_BUFF_LEN);
   }
@@ -1067,7 +1069,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     if (Size > 0U)
     {
-      RFQ_Push(&g_struUart2RxRfq, g_au8Uart2RecvBuff, Size);
+      Drv_RFQ_Push(&g_struUart2RxRfq, g_au8Uart2RecvBuff, Size);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart2, g_au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
   }

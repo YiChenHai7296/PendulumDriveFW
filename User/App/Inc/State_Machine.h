@@ -30,7 +30,7 @@ extern "C" {
  * @brief 主状态机：持续处理 Simulink 上位机控制与反馈
  * @details 阻塞循环：等待控制帧->解帧->设置占空比->采集反馈->组帧->发送
  */
-void StateMachine_MainLoop(void);
+void Svc_StateMachine_MainLoop(void);
 
 #ifdef __cplusplus
 }

@@ -57,19 +57,19 @@ typedef struct
 /* ======================== 4. 对外变量声明 ======================== */
 /* 无 */
 
-/* ======================== 5. 接口函数声明（仅解包与组包） ======================== */
+/* ======================== 5. 接口函数声明（解包控制 / 发布反馈） ======================== */
 /**
  * @brief 解包：从底层获取一帧控制帧并解析，结果填入 pOut
  * @param[out] pOut 解析得到的控制数据
  * @return 解析结果
  */
-SimulinkProtocolResult_t SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut);
+SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut);
 
 /**
- * @brief 组包：将反馈数据打包为反馈帧并发送
+ * @brief 发布反馈：校验范围、按协议组帧并经 USART 上报一帧
  * @param[in] pIn 反馈数据
- * @return 打包/发送结果
+ * @return 校验、组帧或发送失败时的协议错误码
  */
-SimulinkProtocolResult_t SimulinkProtocol_PackFeedback(const SimulinkProtocolFeedbackData_t *pIn);
+SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *pIn);
 
 #endif /* SIMULINK_PROTOCOL_H */

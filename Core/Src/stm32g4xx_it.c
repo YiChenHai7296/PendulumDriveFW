@@ -337,7 +337,7 @@ void USART3_IRQHandler(void)
   if ((USART3->ISR & USART_ISR_TC) != 0u) {
     __HAL_UART_CLEAR_FLAG(&huart3, UART_CLEAR_TCF);
     CLEAR_BIT(USART3->CR1, USART_CR1_TCIE);
-    EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, DRV_DISABLE);
   }
   /* USER CODE END USART3_IRQn 1 */
 }
@@ -355,7 +355,7 @@ void UART4_IRQHandler(void)
   if ((UART4->ISR & USART_ISR_TC) != 0u) {
     __HAL_UART_CLEAR_FLAG(&huart4, UART_CLEAR_TCF);
     CLEAR_BIT(UART4->CR1, USART_CR1_TCIE);
-    EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, DRV_DISABLE);
   }
   /* USER CODE END UART4_IRQn 1 */
 }
@@ -373,7 +373,7 @@ void UART5_IRQHandler(void)
   if ((UART5->ISR & USART_ISR_TC) != 0u) {
     __HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_TCF);
     CLEAR_BIT(UART5->CR1, USART_CR1_TCIE);
-    EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, DRV_DISABLE);
   }
   /* USER CODE END UART5_IRQn 1 */
 }
