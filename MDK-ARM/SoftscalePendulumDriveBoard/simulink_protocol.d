@@ -35,6 +35,7 @@ softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ex.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ramfunc.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_hrtim.h
+softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_iwdg.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h
@@ -42,5 +43,4 @@ softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
 softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/driver_common.h
-softscalependulumdriveboard\simulink_protocol.o: ../User/Service/Inc/RingFrameQueue.h
+softscalependulumdriveboard\simulink_protocol.o: ../User/Common/Inc/common.h

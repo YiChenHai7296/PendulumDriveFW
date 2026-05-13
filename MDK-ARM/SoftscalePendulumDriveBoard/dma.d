@@ -33,6 +33,7 @@ softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx
 softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ex.h
 softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ramfunc.h
 softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_hrtim.h
+softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_iwdg.h
 softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr.h
 softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h
 softscalependulumdriveboard\dma.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h

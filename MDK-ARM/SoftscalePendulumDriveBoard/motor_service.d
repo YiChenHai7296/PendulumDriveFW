@@ -1,7 +1,8 @@
 softscalependulumdriveboard\motor_service.o: ..\User\Service\Src\motor_service.c
 softscalependulumdriveboard\motor_service.o: ../User/Service/Inc/motor_service.h
 softscalependulumdriveboard\motor_service.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-softscalependulumdriveboard\motor_service.o: ../User/Service/Inc/service_common.h
+softscalependulumdriveboard\motor_service.o: ../User/Common/Inc/common.h
+softscalependulumdriveboard\motor_service.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 softscalependulumdriveboard\motor_service.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\motor_service.o: ../Core/Inc/main.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
@@ -18,7 +19,6 @@ softscalependulumdriveboard\motor_service.o: ../Drivers/CMSIS/Include/mpu_armv7.
 softscalependulumdriveboard\motor_service.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-softscalependulumdriveboard\motor_service.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc_ex.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio_ex.h
@@ -35,6 +35,7 @@ softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ex.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ramfunc.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_hrtim.h
+softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_iwdg.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h
@@ -42,7 +43,6 @@ softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h
 softscalependulumdriveboard\motor_service.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
 softscalependulumdriveboard\motor_service.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-softscalependulumdriveboard\motor_service.o: ../Core/Inc/driver_common.h
-softscalependulumdriveboard\motor_service.o: ../User/Service/Inc/RingFrameQueue.h
 softscalependulumdriveboard\motor_service.o: ../Core/Inc/adc.h
 softscalependulumdriveboard\motor_service.o: ../Core/Inc/hrtim.h
+softscalependulumdriveboard\motor_service.o: ../User/Bsp/Inc/bsp.h

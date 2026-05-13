@@ -33,6 +33,7 @@ softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx
 softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ex.h
 softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ramfunc.h
 softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_hrtim.h
+softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_iwdg.h
 softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr.h
 softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h
 softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h
@@ -41,5 +42,4 @@ softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx
 softscalependulumdriveboard\tim.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
 softscalependulumdriveboard\tim.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\tim.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-softscalependulumdriveboard\tim.o: ../Core/Inc/driver_common.h
-softscalependulumdriveboard\tim.o: ../User/Service/Inc/RingFrameQueue.h
+softscalependulumdriveboard\tim.o: ../User/Common/Inc/common.h
