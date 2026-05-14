@@ -49,7 +49,7 @@ softscalependulumdriveboard\main.o: ../Core/Inc/tim.h
 softscalependulumdriveboard\main.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\main.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 softscalependulumdriveboard\main.o: ../Core/Inc/gpio.h
+softscalependulumdriveboard\main.o: ../User/Bsp/Inc/bsp.h
 softscalependulumdriveboard\main.o: ../User/Service/Inc/simulink_protocol.h
-softscalependulumdriveboard\main.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 softscalependulumdriveboard\main.o: ../User/App/Inc/State_Machine.h
 softscalependulumdriveboard\main.o: ../User/Service/Inc/motor_service.h

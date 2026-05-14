@@ -22,137 +22,23 @@ Dialog DLL:      TCM.DLL V1.46.0.0
  
 <h2>Project:</h2>
 E:\Workingspace\a_RuanChiBai_Prj\SoftscalePendulumDriveBoard\MDK-ARM\SoftscalePendulumDriveBoard.uvprojx
-Project File Date:  05/13/2026
+Project File Date:  05/14/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-assembling startup_stm32g474xx.s...
-compiling common.c...
-compiling stm32g4xx_ll_adc.c...
-compiling stm32g4xx_hal.c...
-compiling motor_service.c...
-../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h(158): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 24 of "../User/Common/Inc/common.h")
-  #define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
-..\User\Service\Src\motor_service.c: 1 warning, 0 errors
-compiling stm32g4xx_hal_dma_ex.c...
-compiling iwdg.c...
-compiling stm32g4xx_hal_msp.c...
-compiling tim.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
-  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-../Core/Src/tim.c: 1 warning, 0 errors
-compiling crc.c...
-compiling stm32g4xx_hal_gpio.c...
-compiling dma.c...
-compiling debug.c...
-compiling adc.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
-  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-../Core/Src/adc.c(577): warning:  #223-D: function "printf" declared implicitly
-      printf("\n 请输入测试目标电压：(整数部分)\n");
-../Core/Src/adc.c: 2 warnings, 0 errors
 compiling main.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
+../User/Common/Inc/common.h(22): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
   #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-../User/App/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
+../User/App/Inc/State_Machine.h(44): warning:  #1-D: last line of file ends without a newline
   #endif /* __STATE_MACHINE__ */
-../Core/Src/main.c(78): warning:  #1295-D: Deprecated declaration u32CRC_TEST - give arg types
-  unsigned int u32CRC_TEST();
-../Core/Src/main.c(95): warning:  #223-D: function "printf" declared implicitly
-    printf("CRC:0x%x \n",u32Crc);
-../Core/Src/main.c(103): warning:  #188-D: enumerated type mixed with another type
-  HAL_StatusTypeDef StatusU5 = 0;
-../Core/Src/main.c(135): warning:  #177-D: variable "i"  was declared but never referenced
-    int i = 655356;
-../Core/Src/main.c(136): warning:  #177-D: variable "u32Crc"  was declared but never referenced
-    uint32_t u32Crc = 0;
-../Core/Src/main.c(139): warning:  #177-D: variable "u32CrcData"  was declared but never referenced
-    uint32_t u32CrcData[6] = {0x00010203,0x09080607,0x0002,0x0003,0x0004,0x0005};
-../Core/Src/main.c(140): warning:  #177-D: variable "j"  was declared but never referenced
-    int j = 0;
-../Core/Src/main.c(144): warning:  #177-D: variable "pu32TestVal"  was declared but never referenced
-    uint32_t *pu32TestVal = &u32TestVal;
-../Core/Src/main.c(269): warning:  #223-D: function "printf" declared implicitly
-  		printf("err\n");
-../Core/Src/main.c: 11 warnings, 0 errors
-compiling State_Machine.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
-  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-../User/App/Inc/State_Machine.h(39): warning:  #1-D: last line of file ends without a newline
-  #endif /* __STATE_MACHINE__ */
-..\User\App\Src\State_Machine.c: 2 warnings, 0 errors
-compiling stm32g4xx_hal_adc_ex.c...
-compiling stm32g4xx_hal_dma.c...
-compiling simulink_protocol.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
-  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-..\User\Service\Src\simulink_protocol.c(170): warning:  #223-D: function "printf" declared implicitly
-          printf("指令长度非法！\n");
-..\User\Service\Src\simulink_protocol.c(176): warning:  #223-D: function "printf" declared implicitly
-          printf("指令帧头错误！\n");
-..\User\Service\Src\simulink_protocol.c(182): warning:  #223-D: function "printf" declared implicitly
-          printf("指令类型错误！\n");
-..\User\Service\Src\simulink_protocol.c(201): warning:  #223-D: function "printf" declared implicitly
-          printf("crc校验有误，接收�? %x , 计算�? %x \n",u16CrcRecv,u16CrcCalc);
-..\User\Service\Src\simulink_protocol.c(201): warning:  #870-D: invalid multibyte character sequence
-          printf("crc校验有误，接收�? %x , 计算�? %x \n",u16CrcRecv,u16CrcCalc);
-..\User\Service\Src\simulink_protocol.c(201): warning:  #870-D: invalid multibyte character sequence
-          printf("crc校验有误，接收�? %x , 计算�? %x \n",u16CrcRecv,u16CrcCalc);
-..\User\Service\Src\simulink_protocol.c(207): warning:  #223-D: function "printf" declared implicitly
-          printf("pwm参数范围有误�? %x  \n",struOut->s16Pwm);
-..\User\Service\Src\simulink_protocol.c(207): warning:  #870-D: invalid multibyte character sequence
-          printf("pwm参数范围有误�? %x  \n",struOut->s16Pwm);
-..\User\Service\Src\simulink_protocol.c(213): warning:  #223-D: function "printf" declared implicitly
-          printf("pwm参数范围有误�? %x  \n",struOut->s16Current);
-..\User\Service\Src\simulink_protocol.c(213): warning:  #870-D: invalid multibyte character sequence
-          printf("pwm参数范围有误�? %x  \n",struOut->s16Current);
-..\User\Service\Src\simulink_protocol.c: 11 warnings, 0 errors
-compiling stm32g4xx_hal_flash.c...
-compiling stm32g4xx_hal_flash_ramfunc.c...
-compiling stm32g4xx_it.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
-  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-../Core/Src/stm32g4xx_it.c: 1 warning, 0 errors
-compiling stm32g4xx_hal_exti.c...
-compiling stm32g4xx_hal_rcc.c...
-compiling bsp.c...
-compiling hrtim.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
-  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-../Core/Src/hrtim.c(373): warning:  #223-D: function "printf" declared implicitly
-    printf("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
-../Core/Src/hrtim.c: 2 warnings, 0 errors
-compiling stm32g4xx_hal_pwr_ex.c...
-compiling gpio.c...
-compiling stm32g4xx_hal_cortex.c...
-compiling stm32g4xx_hal_rcc_ex.c...
-compiling stm32g4xx_hal_pwr.c...
-compiling stm32g4xx_hal_adc.c...
-compiling usart.c...
-../User/Common/Inc/common.h(24): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
-  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
-../Core/Src/usart.c(877): warning:  #167-D: argument of type "uint8_t (*)[12]" is incompatible with parameter of type "const uint8_t (*)[12]"
-    return EncoderSnapshot_ReadDualSlot(g_u32MotorSlotSeq, g_au8MotorEncoderBuffPool, &g_u8Motor_front_idx, pu8Out);
-../Core/Src/usart.c(893): warning:  #167-D: argument of type "uint8_t (*)[12]" is incompatible with parameter of type "const uint8_t (*)[12]"
-    return EncoderSnapshot_ReadDualSlot(g_u32OutputShaftSlotSeq, g_au8OutputShaftEncoderBuffPool,
-../Core/Src/usart.c(910): warning:  #167-D: argument of type "uint8_t (*)[12]" is incompatible with parameter of type "const uint8_t (*)[12]"
-    return EncoderSnapshot_ReadDualSlot(g_u32SwingArmSlotSeq, g_au8SwingArmEncoderBuffPool,
-../Core/Src/usart.c: 4 warnings, 0 errors
-compiling stm32g4xx_hal_flash_ex.c...
-compiling system_stm32g4xx.c...
-compiling stm32g4xx_hal_uart_ex.c...
-compiling stm32g4xx_hal_iwdg.c...
-compiling stm32g4xx_hal_crc_ex.c...
-compiling stm32g4xx_hal_crc.c...
-compiling stm32g4xx_hal_tim_ex.c...
-compiling stm32g4xx_hal_uart.c...
-compiling stm32g4xx_hal_tim.c...
-compiling stm32g4xx_hal_hrtim.c...
+../Core/Src/main.c(238): warning:  #223-D: function "printf" declared implicitly
+      printf("err\n");
+../Core/Src/main.c: 3 warnings, 0 errors
 linking...
-Program Size: Code=33784 RO-data=592 RW-data=140 ZI-data=4004  
+Program Size: Code=38152 RO-data=664 RW-data=148 ZI-data=4204  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 35 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -175,7 +61,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:6.1.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:11
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

@@ -5,7 +5,6 @@
 "softscalependulumdriveboard\motor_service.o"
 "softscalependulumdriveboard\bsp.o"
 "softscalependulumdriveboard\common.o"
-"softscalependulumdriveboard\debug.o"
 "softscalependulumdriveboard\main.o"
 "softscalependulumdriveboard\gpio.o"
 "softscalependulumdriveboard\adc.o"
