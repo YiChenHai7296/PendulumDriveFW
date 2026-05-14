@@ -59,8 +59,10 @@ extern uint8_t tcp_demo_sendbuf[80]="G4 Uart Test \n";
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_adc2;
+extern DMA_HandleTypeDef hdma_adc3;
 extern HRTIM_HandleTypeDef hhrtim1;
 extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim2;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart2_tx;
 extern UART_HandleTypeDef huart4;
@@ -253,6 +255,20 @@ void DMA1_Channel4_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA1 channel5 global interrupt.
+  */
+void DMA1_Channel5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc3);
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 channel6 global interrupt.
   */
 void DMA1_Channel6_IRQHandler(void)
@@ -295,6 +311,20 @@ void TIM1_CC_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
   */
 void USART1_IRQHandler(void)
@@ -334,10 +364,11 @@ void USART3_IRQHandler(void)
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
   /* 编码器触发单字节发送完成：清 TC、关 TCIE；电平转换高=发/低=收，拉低以切到接收 */
-  if ((USART3->ISR & USART_ISR_TC) != 0u) {
+  if ((USART3->ISR & USART_ISR_TC) != 0u) 
+  {
     __HAL_UART_CLEAR_FLAG(&huart3, UART_CLEAR_TCF);
     CLEAR_BIT(USART3->CR1, USART_CR1_TCIE);
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, DRV_DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, PRJ_DISABLE);
   }
   /* USER CODE END USART3_IRQn 1 */
 }
@@ -352,10 +383,11 @@ void UART4_IRQHandler(void)
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
-  if ((UART4->ISR & USART_ISR_TC) != 0u) {
+  if ((UART4->ISR & USART_ISR_TC) != 0u) 
+  {
     __HAL_UART_CLEAR_FLAG(&huart4, UART_CLEAR_TCF);
     CLEAR_BIT(UART4->CR1, USART_CR1_TCIE);
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, DRV_DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, PRJ_DISABLE);
   }
   /* USER CODE END UART4_IRQn 1 */
 }
@@ -370,10 +402,11 @@ void UART5_IRQHandler(void)
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN UART5_IRQn 1 */
-  if ((UART5->ISR & USART_ISR_TC) != 0u) {
+  if ((UART5->ISR & USART_ISR_TC) != 0u) 
+  {
     __HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_TCF);
     CLEAR_BIT(UART5->CR1, USART_CR1_TCIE);
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, DRV_DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, PRJ_DISABLE);
   }
   /* USER CODE END UART5_IRQn 1 */
 }

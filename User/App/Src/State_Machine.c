@@ -1,25 +1,20 @@
 /* USER CODE BEGIN Header */
- /**
-  ******************************************************************************
-  * @file    State_Machine.c
-  * @brief   主状态机：处理 Simulink 上位机控制/反馈
-  ******************************************************************************
-  */
+/**
+ * @file    State_Machine.c
+ * @brief   应用层：主循环状态机实现
+ * @details 阻塞循环内顺序为：服务层解 Simulink 控制帧 → 按万分比设速 →
+ *          读电机反馈 → 服务层组帧并上报反馈。任一步失败则 `continue` 等待下一帧。
+ *          不直接调用 `Core` 中 `Drv_*`；外设与协议收发由服务层经驱动层完成。
+ */
 /* USER CODE END Header */
 
-/* ======================== 1. 头文件依赖 ======================== */
+/* ======================== 1. 头文件引用 ======================== */
 #include "State_Machine.h"
-#include "adc.h"
-
-/* ADC调试打印模式：
-   0 = 关闭ADC调试打印
-   1 = 打印 ADC3_IN1 raw/voltage
-   2 = 打印原“ADC当前读数/误差/最大最小值”格式 */
-#define ADC_DEBUG_PRINT_MODE 0
-#define ADC_DEBUG_PRINT_PERIOD_MS 500U
+#include "simulink_protocol.h"
+#include "motor_service.h"
 
 /* USER CODE BEGIN Includes */
-
+/* 本层仅依赖服务层；类型定义在服务/公共头文件中 */
 /* USER CODE END Includes */
 
 /* ======================== 2. 私有宏定义 ======================== */
@@ -31,61 +26,60 @@
 /* ======================== 4. 私有变量 ======================== */
 /* 无 */
 
-/* ======================== 5. 私有函数声明 ======================== */
-static void Svc_StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret, const SimulinkProtocolControlData_t *pCtrl);
+/* ======================== 5. 对外变量定义 ======================== */
+/* 无 */
 
-/* ======================== 6. 接口函数实现 ======================== */
+/* ======================== 6. 私有函数声明 ======================== */
+/* 无 */
+
+/* ======================== 7. 接口函数实现 ======================== */
 /**
- * @brief 主状态机死循环：解 Simulink 控制帧 → 设置占空比 → 读电机反馈 → 组帧上报
- * @details 任一步失败则 continue 等待下一帧；阻塞于 Svc_SimulinkProtocol_UnpackControl 直至收到合法帧
- * @note 与 State_Machine.h 中声明一致
+ * @brief 主状态机死循环：解控制帧 → 设转速 → 读反馈 → 上报
+ * @details IWDG 由 `HAL_TIM_PeriodElapsedCallback` 中 TIM2 更新事件周期调用 `HAL_IWDG_Refresh` 喂狗。
+ *          `Svc_SimulinkProtocol_UnpackControl` 在队列空时快速返回非 OK，属正常空转。
  */
-void Svc_StateMachine_MainLoop(void)
+void App_StateMachine_MainLoop(void)
 {
-    SimulinkProtocolControlData_t  ctrl;      /* 解帧得到的控制帧数据（PWM、电流设定等） */
-    SimulinkProtocolFeedbackData_t fb_tx;     /* 待发送的 Simulink 反馈帧载荷 */
-    MotorFeedbackData_t            fb;        /* 电机反馈原始数据（位置、转速、电流等） */
-    uint32_t adc3_print_tick = 0U;
+    SimulinkProtocolControlData_t  struCtrl;   /* 解帧：转速万分比、电流设定等（当前主循环仅将转速下发电机） */
+    SimulinkProtocolFeedbackData_t struFbTx;   /* 待上报的 Simulink 反馈载荷 */
+    MotorFeedbackData_t            struFb;     /* 电机服务汇总的反馈（位置、转速、电流等） */
 
-    /* 阻塞循环：等待控制帧 -> 设置占空比 -> 采集反馈 -> 组帧发送 */
+
+    Svc_MotorService_CalibrateCurrentZero(); /* 电机电流采样零点标定 */
+
     for (;;)
     {
-        /* 1) 等待并解帧：从 USART2 接收队列取一帧控制帧 */
-        if (Svc_SimulinkProtocol_UnpackControl(&ctrl) != SIMULINK_PROTOCOL_OK)
+        /* 1) 服务层解控制帧（内部经驱动从 USART2 取原始字节、CRC 校验等，见 simulink_protocol） */
+        if (Svc_SimulinkProtocol_UnpackControl(&struCtrl) != SIMULINK_PROTOCOL_OK)
         {
-						//printf("error\n");
-						//printf("指令有误！\n");
-            /* 队列空 / 帧不完整 / CRC错误：继续等待下一帧 */
+            /* 队列空、长度/CRC/类型错误等：等待下一帧 */
             continue;
         }
 
-        /* 2) 根据控制帧 PWM(-10000~10000) 设置占空比 */
-        if (Svc_MotorService_SetDutyCycle(ctrl.pwm) != MOTOR_SVC_OK)
+        /* 2) 按控制帧转速万分比设置电机（内部经驱动层映射为 HRTIM PWM） */
+        if (Svc_MotorService_SetMotorSpeedPermyriad(struCtrl.s16Pwm) != MOTOR_SVC_OK)
         {
-            //Svc_StateMachine_OnDutyWriteFailed(motorRet, &ctrl);
-            continue;
-        }
-        /* 4) 写入成功：获取电机反馈数据 */
-        if (Svc_MotorService_GetFeedbackData(&fb) != MOTOR_SVC_OK)
-        {
-            /* 编码器解析失败：可选进入安全态或上报，此处继续使用已有 fb 并组帧 */
             continue;
         }
 
-        /* 5) 填充 Simulink 反馈载荷并组帧 */
-        #if 1
-        fb_tx.motor_current     = fb.motor_current;
-        fb_tx.motor_position    = fb.motor_position;
-        fb_tx.motor_speed       = fb.motor_speed;
-        fb_tx.axis_position     = fb.axis_position;
-        fb_tx.axis_speed        = fb.axis_speed;
-        fb_tx.pendulum_position = fb.pendulum_position;
-        fb_tx.pendulum_speed    = fb.pendulum_speed;
-        #endif
-
-        if (Svc_SimulinkProtocol_PublishFeedback(&fb_tx) != SIMULINK_PROTOCOL_OK)
+        /* 3) 读取编码器与电流等反馈（经驱动层 usart/adc） */
+        if (Svc_MotorService_GetFeedbackData(&struFb) != MOTOR_SVC_OK)
         {
-            /* 组帧失败：暂不处理，等待下一次控制 */
+            continue;
+        }
+
+        /* 4) 组装反馈载荷（字段与协议结构体一致） */
+        struFbTx.s16MotorCurrent     = struFb.s16MotorCurrent;
+        struFbTx.s32MotorPosition    = struFb.s32MotorPosition;
+        struFbTx.s32MotorSpeed       = struFb.s32MotorSpeed;
+        struFbTx.s32AxisPosition     = struFb.s32AxisPosition;
+        struFbTx.s32AxisSpeed        = struFb.s32AxisSpeed;
+        struFbTx.s32PendulumPosition = struFb.s32PendulumPosition;
+        struFbTx.s32PendulumSpeed    = struFb.s32PendulumSpeed;
+
+        /* 5) 组帧并经 USART2 DMA 发送反馈 */
+        if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx) != SIMULINK_PROTOCOL_OK)
+        {
             continue;
         }
     }
@@ -95,16 +89,5 @@ void Svc_StateMachine_MainLoop(void)
 
 /* USER CODE END Implementation */
 
-/* ======================== 7. 私有函数实现 ======================== */
-/**
- * @brief 占空比写入失败时的占位处理（记录安全态/上报等可在此扩展）
- * @param ret Svc_MotorService_SetDutyCycle 等返回的错误码
- * @param pCtrl 失败当次的控制帧快照
- */
-static void Svc_StateMachine_OnDutyWriteFailed(MotorServiceResult_t ret,       /* 电机服务错误码 */
-                                          const SimulinkProtocolControlData_t *pCtrl)  /* 失败时的控制帧 */
-{
-    (void)ret;
-    (void)pCtrl;
-    /* TODO: 错误处理占位（记录错误码/进入安全状态/上报错误帧等） */
-}
+/* ======================== 8. 私有函数实现 ======================== */
+/* 无 */

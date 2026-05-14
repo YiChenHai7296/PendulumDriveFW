@@ -32,7 +32,7 @@ uint16_t u16TargePulse = 0;
 uint8_t u8FlagPulse = 0;
 
 /* HRTIM 内部私有：Compare 回调里装载比较寄存器 */
-static Drv_StatusTypeDef PWM_Write_Pulse(uint16_t u16T2Pulse);
+static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse);
 
 
 
@@ -84,6 +84,15 @@ void MX_HRTIM1_Init(void)
     Error_Handler();
   }
   pADCTriggerCfg.UpdateSource = HRTIM_ADCTRIGGERUPDATE_TIMER_A;
+  pADCTriggerCfg.Trigger = HRTIM_ADCTRIGGEREVENT13_NONE;
+  if (HAL_HRTIM_ADCTriggerConfig(&hhrtim1, HRTIM_ADCTRIGGER_3, &pADCTriggerCfg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_HRTIM_ADCPostScalerConfig(&hhrtim1, HRTIM_ADCTRIGGER_3, 0x0) != HAL_OK)
+  {
+    Error_Handler();
+  }
   pADCTriggerCfg.Trigger = HRTIM_ADCTRIGGEREVENT6810_TIMERA_CMP2;
   if (HAL_HRTIM_ADCTriggerConfig(&hhrtim1, HRTIM_ADCTRIGGER_6, &pADCTriggerCfg) != HAL_OK)
   {
@@ -286,12 +295,12 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
 
 /**
  * @brief PWM 使能控制接口函数
- * @param NewState 使能状态：DRV_ENABLE / DRV_DISABLE
+ * @param NewState 使能状态：PRJ_ENABLE / PRJ_DISABLE
  * @note  使能时将 MotorEnableControl_Pin 置 1；失能时置 0，并清除待更新标志，防止停机后残留一次寄存器更新
  */
-void Drv_PWM_Enable(Drv_FunctionalState_t NewState)
+void Drv_PWM_Enable(FunctionalState_t NewState)
 {
-  if (NewState != DRV_DISABLE)
+  if (NewState != PRJ_DISABLE)
   {
     HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_SET);
   }
@@ -322,15 +331,15 @@ void Drv_PWM_DirControl(uint8_t dir)
 }
 
 
-Drv_StatusTypeDef Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue)
+Status_t Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue)
 {
   if (u16ExpectedValue > 10000U)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
   u16TargePulse = u16ExpectedValue;
   u8FlagPulse   = 1U;
-  return DRV_OK;
+  return STATUS_OK;
 }
 
 
@@ -338,20 +347,20 @@ Drv_StatusTypeDef Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue)
 /**
  * @brief 将占空比参数写入 HRTIM TimerA 比较寄存器（仅本文件调用）
  */
-static Drv_StatusTypeDef PWM_Write_Pulse(uint16_t u16T2Pulse)
+static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse)
 {
-  /* u16T2Pulse < 2：无法按占空比公式配置，比较器全部清零（安全停机/占位） */
-  if (u16T2Pulse < 2U)
+  /* u16T2Pulse < PWM_DUTY_CYCLE_MIN：无法按占空比公式配置，比较器全部清零（安全停机/占位） */
+  if (u16T2Pulse < PWM_DUTY_CYCLE_MIN)
   {
     HRTIM1->sTimerxRegs[0].CMP1xR = 0U;
     HRTIM1->sTimerxRegs[0].CMP2xR = 0U;
     HRTIM1->sTimerxRegs[0].CMP3xR = 0U;
-    return DRV_OK;
+    return STATUS_OK;
   }
 
   if (u16T2Pulse > 17000U)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
 
   /* 更新 HRTIM 定时器比较寄存器；CMP3：低电平区间中点附近触发 ADC */
@@ -359,7 +368,7 @@ static Drv_StatusTypeDef PWM_Write_Pulse(uint16_t u16T2Pulse)
   HRTIM1->sTimerxRegs[0].CMP2xR = u16T2Pulse / 2U - 1U;
   HRTIM1->sTimerxRegs[0].CMP3xR = (17000U - u16T2Pulse) / 2U + u16T2Pulse - 1U;
 
-  return DRV_OK;
+  return STATUS_OK;
 }
 
 
@@ -384,20 +393,20 @@ void PWM_TEST(void)
 
 
 
-void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,uint32_t TimerIdx)
+void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim, uint32_t u32TimerIdx)
 {
-  if(HRTIM_TIMERINDEX_TIMER_A == TimerIdx)
+  if(HRTIM_TIMERINDEX_TIMER_A == u32TimerIdx)
   {
     Drv_ADC_Motor_RawData_Snapshot();
     return;
   }
 
-  if(HRTIM_TIMERINDEX_TIMER_B == TimerIdx)
+  if(HRTIM_TIMERINDEX_TIMER_B == u32TimerIdx)
   {
     if (u8FlagPulse)
     {
       u8FlagPulse = 0;
-      if (PWM_Write_Pulse((uint16_t)((float)u16TargePulse * 1.7f)) != DRV_OK)
+      if (PWM_Write_Pulse((uint16_t)((float)u16TargePulse * 1.7f)) != STATUS_OK)
       {
         return;
       }

@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "driver_common.h"
+#include "common.h"
 /* USER CODE END Includes */
 
 extern ADC_HandleTypeDef hadc1;
@@ -39,7 +39,10 @@ extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
 
 /* USER CODE BEGIN Private defines */
-
+/** ADC 参考电压 (V)，与板级 VDDA 一致；原始码值换算电压时与服务层共用此宏 */
+#define ADC_REFERENCE_VOLTAGE_V  (3.3f)
+/** 原始码换算电压时的满量程（本工程 12 位右对齐 + 换算约定，与 `ADC_REFERENCE_VOLTAGE_V` 配套作除数使用） */
+#define ADC_RAW_FULL_RESOLUTION  (4096.0f)
 /* USER CODE END Private defines */
 
 void MX_ADC1_Init(void);
@@ -47,14 +50,18 @@ void MX_ADC2_Init(void);
 void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+/* 电机电流等 ADC 驱动层接口（`Core/Src/adc.c`，Drv_ADC_*），由 `User/Service` 等调用。 */
+
+/**
+ * @brief  调试：`Drv_ADC_Motor_RawData_Read` 与 `Drv_ADC_SoftRuler_RawData_Read` 取原始码，用 `ADC_REFERENCE_VOLTAGE_V` / `ADC_RAW_FULL_RESOLUTION` 换算电压后 `printf`
+ * @note   电机两路数据来自中断里已执行的 `Drv_ADC_Motor_RawData_Snapshot`；本函数不再打快照。`printf` 需 `DEBUG_PRINTF`。
+ */
 void Drv_ADC_TEST(void);
 
-float Drv_ADC_Read_MotorVol(void);
 void Drv_ADC_Motor_RawData_Snapshot(void);
-Drv_StatusTypeDef Drv_ADC_Motor_RawData_Read(uint16_t *pOut);
+Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut);
 
-uint16_t Drv_ADC3_ReadIn1Raw(void);
-float Drv_ADC3_ReadIn1Voltage(void);
+Status_t Drv_ADC_SoftRuler_RawData_Read(uint16_t *pOut);
 
 /* USER CODE END Prototypes */
 

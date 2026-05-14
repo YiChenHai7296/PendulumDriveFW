@@ -1,18 +1,34 @@
 /**
  * @file motor_service.c
- * @brief 电机功能服务实现：编码器解析、反馈数据、占空比控制
+ * @brief 服务层：电机与编码器语义实现
+ * @details 编码器帧解析使用 `common.h` 中 `Util_CalcCRC8`；电流与 PWM 经 `adc.h` / `hrtim.h`；
+ *          标定与等待使用 `bsp.h`（`Bsp_DelayMs`）。不向上层暴露 HAL 句柄。
  */
 
-/* ======================== 0. 头文件引用 ======================== */
+/* ======================== 1. 头文件引用 ======================== */
 #include "motor_service.h"
+#include "bsp.h"
+#include "usart.h"
+#include "adc.h"
+#include "hrtim.h"
 
-/* ======================== 1. 私有宏定义 ======================== */
+/* ======================== 2. 私有宏定义 ======================== */
 /* 编码器快照 12 字节：前6=最新帧，后6=上一帧 */
 #define ENCODER_FRAME_LENGTH_BYTES   6U      /* 编码器单帧长度：CM(1) + SA(1) + AS0~AS2(3) + CRC8(1) */
 #define ENCODER_CM_VALUE             0x02U  /* 编码器帧头标识 */
 #define ENCODER_SA_COUNT_ERROR_BIT   (1U << 4)  /* SA字节第4位：计数错误标志 */
 #define ENCODER_SA_MT_BATT_ERR_BIT   (1U << 5)  /* SA字节第5位：多圈/电池错误标志 */
 #define ENCODER_ABS_POSITION_MASK    0x001FFFFFU  /* 21位绝对位置掩码 */
+
+/** 各编码器绝对位置计数最大值（2^bits - 1），与 `ENCODER_BITS_*` 一致 */
+#define ENCODER_ABS_POSITION_MAX_21BIT  ((1U << 21) - 1U)
+#define ENCODER_ABS_POSITION_MAX_20BIT  ((1U << 20) - 1U)
+#define ENCODER_ABS_POSITION_MAX_17BIT  ((1U << 17) - 1U)
+
+/** 一整圈机械角（°），仅用于本文件 `Svc_EncoderSpeed_Calc` */
+#define ROUND_ANGLE            (360.0f)
+/** 编码器双帧转速计算的采样间隔（s），当前 1ms */
+#define FRAME_INTERVAL_TIME    (0.001f)
 
 /* 电机电流检测参数 */
 #define MOTOR_CURRENT_OFFSET_V       1.6f    /* ADC电压偏置（V） */
@@ -22,16 +38,13 @@
 #define MOTOR_FEEDBACK_CURRENT_MIN   (-2000) /* 反馈电流下限 */
 #define MOTOR_CURRENT_TO_FEEDBACK_A  1000.0f /* 电流单位转换系数（A -> 反馈单位） */
 #define MOTOR_CURRENT_ZERO_CALIB_SAMPLES 64U /* 零点标定采样次数 */
-#define MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS 20U /* 标零前等待采样链路稳定时间 */
+#define MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS 200U /* 标零前等待采样链路稳定（ms） */
+#define MOTOR_CURRENT_ZERO_CALIB_INTERVAL_MS 2U /* 标零采样周期间隔（ms），每次读电流后延时 */
 #define MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES 16U /* 标零前丢弃样本数 */
 #define MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A 1.0f /* 零点偏置绝对值上限（异常保护） */
 
-/* 电流零点偏置校准开关：1=启用校准并扣除偏置，0=关闭校准并直接上报原始电流 */
-#define MOTOR_CURRENT_ZERO_CALIB_ENABLE 1U
-/* PWM 指令映射模式开关：1=拟合反推（上位机给目标实际值），0=直通（上位机给直接给定值） */
-#define MOTOR_PWM_USE_FIT_MAPPING 1U
 
-/* ======================== 2. 私有类型定义 ======================== */
+/* ======================== 3. 私有类型定义 ======================== */
 /* 编码器协议解析结果 */
 typedef enum
 {
@@ -45,17 +58,17 @@ typedef enum
 /* 编码器单帧数据 */
 typedef struct
 {
-    uint8_t  count_error;           /* 计数错误标志 */
-    uint8_t  mt_or_batt_error;      /* 多圈/电池错误标志 */
-    uint32_t absolute_position;     /* 21位绝对位置 */
-} EncoderProtocolData_t;
+    uint8_t  u8CountErr;           /* 计数错误标志 */
+    uint8_t  u8MtOrBattError;      /* 多圈/电池错误标志 */
+    uint32_t u32AbsolutePosition;   /* 21位绝对位置 */
+} EncoderFrame_t;
 
 /* 编码器双帧数据（最新帧 + 上一帧，用于速度计算） */
 typedef struct
 {
-    EncoderProtocolData_t latest;   /* 最新帧 */
-    EncoderProtocolData_t previous; /* 上一帧 */
-} EncoderProtocolDataDual_t;
+    EncoderFrame_t struLatest;    /* 最新帧 */
+    EncoderFrame_t struPrevious; /* 上一帧 */
+} EncoderDual_t;
 
 /* 编码器位数枚举 */
 typedef enum
@@ -65,105 +78,221 @@ typedef enum
     ENCODER_BITS_17 = 17   /* 17位编码器（摆臂） */
 } EncoderBits_t;
 
-/* ======================== 3. 私有变量 ======================== */
-/* 输出轴速度滤波：抑制 ±1 抖动及异常跳变（如 -3 与 -30 交替） */
-#define AXIS_SPEED_FILTER_ALPHA  0.6f   /* 滤波系数：越大越平滑，0=无滤波 */
-static float s_axis_speed_filtered = 0.0f;
-static uint8_t s_axis_speed_filter_init = 0U;
+/* ======================== 4. 私有变量 ======================== */
 /* 电机电流零点偏置（A）：电机未启动时采样得到，后续采样均需扣除此偏置 */
-static float s_motor_current_zero_offset_A = 0.0f;
+static float sMotorCurrentZeroOffsetA = 0.0f;
 
-/* ======================== 4. 对外变量定义 ======================== */
+/* ======================== 5. 对外变量定义 ======================== */
 /* 无 */
 
-/* ======================== 5. 私有函数声明 ======================== */
-static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pFrame,
-                                                          uint16_t length,
-                                                          EncoderProtocolData_t *pOut);
-static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderProtocolDataDual_t *pOut);
-static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderProtocolDataDual_t *pOut);
-static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderProtocolDataDual_t *pOut);
-static float Svc_EncoderSpeed_Calc(uint32_t pos_prev, uint32_t pos_curr, EncoderBits_t bits);
-static float Svc_EncoderSpeed_CalcMotor(const EncoderProtocolDataDual_t *pDual);
-static float Svc_EncoderSpeed_CalcOutputShaft(const EncoderProtocolDataDual_t *pDual);
-static float Svc_EncoderSpeed_CalcSwingArm(const EncoderProtocolDataDual_t *pDual);
+/* ======================== 6. 私有函数声明 ======================== */
+static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pu8Frame,
+                                                          uint16_t u16Length,
+                                                          EncoderFrame_t *struOut);
+static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderDual_t *struOut);
+static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t *struOut);
+static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderDual_t *struOut);
+
+static float Svc_EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, EncoderBits_t bits);
+static float Svc_EncoderSpeed_CalcMotor(const EncoderDual_t *struDual);
+static float Svc_EncoderSpeed_CalcOutputShaft(const EncoderDual_t *struDual);
+static float Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual);
+
 static float Svc_MotorService_GetMotorVoltage(void);
 static float Svc_MotorService_GetMotorCurrentRaw(void);
+static void  Svc_MotorService_SetDisable(void);
 static float Svc_MotorService_GetMotorCurrent(void);
-static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t duty_permille_abs);
+
+static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t u16DutyPermilleAbs);
 
 
-static void Svc_MotorService_CalibrateCurrentZero(void);
+
 static MotorServiceResult_t Svc_MotorService_MapEncoderResult(EncoderProtocolResult_t encRes,
                                                           MotorServiceResult_t encoderErr);
 
-/* ======================== 6. 接口函数实现 ======================== */
+/* ======================== 7. 接口函数实现 ======================== */
 /**
- * @brief 电机使能状态统一设置（合并原初始化 / 关闭路径）
- * @param enable SVC_ENABLE：延时后做电流零点标定（PWM 仍保持失能）；SVC_DISABLE：失能、占空比清零、方向置正向
- */
-void Svc_MotorService_SetEnable(Svc_FunctionalState_t enable)
-{
-    if (enable == SVC_ENABLE)
-    {
-        /* 初始化阶段默认停机，等待上位机首帧非零指令再使能 */
-        Drv_PWM_Enable(DRV_DISABLE);
-        Drv_PWM_DirControl(MOTOR_DIR_FORWARD);
-
-        HAL_Delay(2000);
-
-        Svc_MotorService_CalibrateCurrentZero();
-    }
-    else
-    {
-        /* 先关使能，确保不会在停机过程中再输出 PWM */
-        Drv_PWM_Enable(DRV_DISABLE);
-        /* 停机态仅预置寄存器目标值，不等待回调触发 */
-        (void)Drv_PWM_TargePulse_Set(0U);
-        Drv_PWM_DirControl(MOTOR_DIR_FORWARD);
-    }
-}
-
-/**
- * @brief 电机电流零点标定（仅本模块内调用）
+ * @brief 电机电流零点标定（由上层在 PWM 失能、电机静止下调用，如上电主循环入口一次）
  * @details 在电机未启动状态下采样电流，求平均后写入静态零点偏置变量；
- *          开启 MOTOR_CURRENT_ZERO_CALIB_ENABLE 时含预热丢弃样本与异常幅值保护
- * @note 由 Svc_MotorService_SetEnable(SVC_ENABLE) 在延时后触发
+ *          开启 `MOTOR_CURRENT_ZERO_CALIB_ENABLE` 时含预热丢弃样本与异常幅值保护
+ * @note 受 `MOTOR_CURRENT_ZERO_CALIB_ENABLE` 控制；关闭时仅将偏置置 0
  */
-static void Svc_MotorService_CalibrateCurrentZero(void)
+void Svc_MotorService_CalibrateCurrentZero(void)
 {
 #if MOTOR_CURRENT_ZERO_CALIB_ENABLE
-    uint32_t i;
+    uint32_t u32I;
     float sum_A = 0.0f;
 
     /* 标定前确保电机处于失能状态，避免运动电流污染零点 */
-    Drv_PWM_Enable(DRV_DISABLE);
-    HAL_Delay(MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS);
+    Drv_PWM_Enable(PRJ_DISABLE);
+    Bsp_DelayMs(MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS);
 
     /* 丢弃启动阶段样本，避免把 DMA 初值或瞬态当成零点 */
-    for (i = 0U; i < MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES; i++)
+    for (u32I = 0U; u32I < MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES; u32I++)
     {
         (void)Svc_MotorService_GetMotorCurrentRaw();
-        HAL_Delay(1U);
+        Bsp_DelayMs(MOTOR_CURRENT_ZERO_CALIB_INTERVAL_MS);
     }
 
-    for (i = 0U; i < MOTOR_CURRENT_ZERO_CALIB_SAMPLES; i++)
+    for (u32I = 0U; u32I < MOTOR_CURRENT_ZERO_CALIB_SAMPLES; u32I++)
     {
         sum_A += Svc_MotorService_GetMotorCurrentRaw();
-        HAL_Delay(1U);
+        Bsp_DelayMs(MOTOR_CURRENT_ZERO_CALIB_INTERVAL_MS);
     }
-    s_motor_current_zero_offset_A = sum_A / (float)MOTOR_CURRENT_ZERO_CALIB_SAMPLES;
+    sMotorCurrentZeroOffsetA = sum_A / (float)MOTOR_CURRENT_ZERO_CALIB_SAMPLES;
 
     /* 保护：若零点偏置明显异常，则放弃本次标零，防止反馈整体漂移到满量程附近 */
-    if ((s_motor_current_zero_offset_A > MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A) ||
-        (s_motor_current_zero_offset_A < -MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A))
+    if ((sMotorCurrentZeroOffsetA > MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A) ||
+        (sMotorCurrentZeroOffsetA < -MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A))
     {
-        s_motor_current_zero_offset_A = 0.0f;
+        sMotorCurrentZeroOffsetA = 0.0f;
     }
 #else
     /* 关闭零点标定：偏置固定为0，反馈直接使用原始电流 */
-    s_motor_current_zero_offset_A = 0.0f;
+    sMotorCurrentZeroOffsetA = 0.0f;
 #endif
+}
+
+/**
+ * @brief 获取电机反馈数据
+ * @details 读取三个编码器的位置数据，计算转速，读取电机电流，统一填入反馈结构体
+ * @param struOut 反馈数据输出缓冲区
+ * @return 操作结果，任一编码器解析失败时返回对应错误码，struOut 可能包含部分有效数据
+ */
+MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struOut)
+{
+    EncoderDual_t struMotorDual;
+    EncoderDual_t struShaftDual;
+    EncoderDual_t struSwingDual;
+    EncoderProtocolResult_t  encRes;
+    float currentA;
+    float speedF;
+    int32_t s32Val;
+
+    if (struOut == NULL)
+    {
+        return MOTOR_SVC_ERR_NULL;
+    }
+
+    /* 读取三个编码器的双帧数据 */
+    encRes = Svc_EncoderProtocol_ReadMotor(&struMotorDual);
+    if (encRes != ENCODER_PROTOCOL_OK)
+    {
+        return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
+    }
+
+    encRes = Svc_EncoderProtocol_ReadSwingArm(&struSwingDual);
+    if (encRes != ENCODER_PROTOCOL_OK)
+    {
+        return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SWING);
+    }
+
+    encRes = Svc_EncoderProtocol_ReadOutputShaft(&struShaftDual);
+    if (encRes != ENCODER_PROTOCOL_OK)
+    {
+        return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SHAFT);
+    }
+
+    /* 读取并转换电机电流，限制在有效范围内 */
+    currentA = Svc_MotorService_GetMotorCurrent();
+
+    s32Val = (int32_t)(currentA * MOTOR_CURRENT_TO_FEEDBACK_A);
+    //printf("currentA = %f,val = %d\n",currentA,val);
+
+    if (s32Val > MOTOR_FEEDBACK_CURRENT_MAX)
+    {
+        s32Val = MOTOR_FEEDBACK_CURRENT_MAX;
+    }
+    else if (s32Val < MOTOR_FEEDBACK_CURRENT_MIN)
+    {
+        s32Val = MOTOR_FEEDBACK_CURRENT_MIN;
+    }
+    struOut->s16MotorCurrent = (int16_t)s32Val;
+
+    /* 填充位置数据（取最新帧的绝对位置） */
+    struOut->s32MotorPosition    = (int32_t)struMotorDual.struLatest.u32AbsolutePosition;
+    struOut->s32AxisPosition     = (int32_t)(struShaftDual.struLatest.u32AbsolutePosition & 0xFFFFFU);  /* 20位掩码 */
+    struOut->s32PendulumPosition = (int32_t)(struSwingDual.struLatest.u32AbsolutePosition & 0x1FFFFU); /* 17位掩码 */
+
+    /* 计算并填充转速数据（基于双帧位置差） */
+    speedF = Svc_EncoderSpeed_CalcMotor(&struMotorDual);
+    struOut->s32MotorSpeed = (int32_t)speedF;
+
+    speedF = Svc_EncoderSpeed_CalcOutputShaft(&struShaftDual);
+    struOut->s32AxisSpeed =  (int32_t)speedF;
+
+    speedF = Svc_EncoderSpeed_CalcSwingArm(&struSwingDual);
+    struOut->s32PendulumSpeed = (int32_t)speedF;
+
+    return MOTOR_SVC_OK;
+}
+
+/**
+ * @brief 按转速万分比（permyriad）设置电机输出：-10000~10000 对应 -100.00%~+100.00%（每 1 = 0.01%），内部转为 PWM
+ * @param s16SpeedPermyriad 转速万分比整数（-10000~10000）
+ * @note  正负用于区分转向：正为正转，负为反转
+ * @return 操作结果
+ */
+MotorServiceResult_t Svc_MotorService_SetMotorSpeedPermyriad(int16_t s16SpeedPermyriad)
+{
+    uint16_t u16Duty = 0U;
+    uint16_t u16DutyOutput = 0U;
+
+    /* 合法范围：±SPEED_PERMYRIAD_MAX */
+    if (s16SpeedPermyriad < -SPEED_PERMYRIAD_MAX || s16SpeedPermyriad > SPEED_PERMYRIAD_MAX)
+    {
+        return MOTOR_SVC_ERR_PARAM;
+    }
+
+    /* 正转 / 反转 / 零指令：零指令走停机路径（与原先 u16Duty==0 分支一致） */
+    if (s16SpeedPermyriad > 0)
+    {
+        /* 正指令：电机正转 */
+        Drv_PWM_DirControl(MOTOR_DIR_FORWARD);
+        u16Duty = (uint16_t)s16SpeedPermyriad;
+    }
+    else if (s16SpeedPermyriad < 0)
+    {
+        /* 负指令：电机反转 */
+        Drv_PWM_DirControl(MOTOR_DIR_REVERSE);
+        u16Duty = (uint16_t)(-s16SpeedPermyriad);
+    }
+    else
+    {
+        /* 指令为 0：失能电机（`Svc_MotorService_SetDisable` 内将方向脚置为正向），输出 0 占空比 */
+        Svc_MotorService_SetDisable();
+        return MOTOR_SVC_OK;
+    }
+
+    /* 通过宏选择占空比路径：拟合反推或直通 */
+#if MOTOR_PWM_USE_FIT_MAPPING
+    /* 上位机下发“目标实际占空比”，这里反推“应给定占空比”用于 PWM 发生 */
+    u16DutyOutput = Svc_MotorService_MapPwmDutyPermille(u16Duty);
+#else
+    /* 直通模式：上位机下发即最终给定值 */
+    u16DutyOutput = u16Duty;
+#endif
+
+    /* 非零占空比：确保驱动使能后再更新 PWM */
+    Drv_PWM_Enable(PRJ_ENABLE);
+    if (Drv_PWM_TargePulse_Set((uint16_t)u16DutyOutput) != STATUS_OK)
+    {
+        return MOTOR_SVC_ERR_DRIVER;
+    }
+    return MOTOR_SVC_OK;
+}
+
+/* ======================== 8. 私有函数实现 ======================== */
+/**
+ * @brief 电机停机去使能（本文件内）：关 PWM 使能、占空比置 0、方向置正向
+ */
+static void Svc_MotorService_SetDisable(void)
+{
+    /* 先关使能，确保不会在停机过程中再输出 PWM */
+    Drv_PWM_Enable(PRJ_DISABLE);
+    /* 停机态仅预置寄存器目标值，不等待回调触发 */
+    (void)Drv_PWM_TargePulse_Set(0U);
+    Drv_PWM_DirControl(MOTOR_DIR_FORWARD);
 }
 
 /**
@@ -187,221 +316,85 @@ static MotorServiceResult_t Svc_MotorService_MapEncoderResult(EncoderProtocolRes
 }
 
 /**
- * @brief 获取电机反馈数据
- * @details 读取三个编码器的位置数据，计算转速，读取电机电流，统一填入反馈结构体
- * @param pOut 反馈数据输出缓冲区
- * @return 操作结果，任一编码器解析失败时返回对应错误码，pOut 可能包含部分有效数据
- */
-MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *pOut)
-{
-    EncoderProtocolDataDual_t motor_dual;
-    EncoderProtocolDataDual_t shaft_dual;
-    EncoderProtocolDataDual_t swing_dual;
-    EncoderProtocolResult_t  encRes;
-    float current_A;
-    float speed_f;
-    int32_t val;
-
-    if (pOut == NULL)
-    {
-        return MOTOR_SVC_ERR_NULL;
-    }
-
-    /* 读取三个编码器的双帧数据 */
-    encRes = Svc_EncoderProtocol_ReadMotor(&motor_dual);
-    if (encRes != ENCODER_PROTOCOL_OK)
-    {
-        return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
-    }
-#if 1
-    encRes = Svc_EncoderProtocol_ReadSwingArm(&swing_dual);
-    if (encRes != ENCODER_PROTOCOL_OK)
-    {
-        return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SWING);
-    }
-#endif
-
-    encRes = Svc_EncoderProtocol_ReadOutputShaft(&shaft_dual);
-    if (encRes != ENCODER_PROTOCOL_OK)
-    {
-        return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SHAFT);
-    }
-
-    /* 读取并转换电机电流，限制在有效范围内 */
-    current_A = Svc_MotorService_GetMotorCurrent();
-
-    val = (int32_t)(current_A * MOTOR_CURRENT_TO_FEEDBACK_A);
-    //printf("current_A = %f,val = %d\n",current_A,val);
-
-    if (val > MOTOR_FEEDBACK_CURRENT_MAX)
-    {
-        val = MOTOR_FEEDBACK_CURRENT_MAX;
-    }
-    else if (val < MOTOR_FEEDBACK_CURRENT_MIN)
-    {
-        val = MOTOR_FEEDBACK_CURRENT_MIN;
-    }
-    pOut->motor_current = (int16_t)val;
-
-    /* 填充位置数据（取最新帧的绝对位置） */
-    pOut->motor_position    = (int32_t)motor_dual.latest.absolute_position;
-    pOut->axis_position     = (int32_t)(shaft_dual.latest.absolute_position & 0xFFFFFU);  /* 20位掩码 */
-    pOut->pendulum_position = (int32_t)(swing_dual.latest.absolute_position & 0x1FFFFU); /* 17位掩码 */
-
-    /* 计算并填充转速数据（基于双帧位置差） */
-    speed_f = Svc_EncoderSpeed_CalcMotor(&motor_dual);
-    pOut->motor_speed = (int32_t)speed_f;
-
-    speed_f = Svc_EncoderSpeed_CalcOutputShaft(&shaft_dual);
-    pOut->axis_speed =  (int32_t)speed_f;
-
-    speed_f = Svc_EncoderSpeed_CalcSwingArm(&swing_dual);
-    pOut->pendulum_speed = (int32_t)speed_f;
-
-    return MOTOR_SVC_OK;
-}
-
-/**
- * @brief 设置电机占空比
- * @param duty_permille 占空比指令（-10000~10000，对应 -100.00%~100.00%）
- * @note  占空比正负用于区分转向：正为正转，负为反转
- * @return 操作结果
- */
-MotorServiceResult_t Svc_MotorService_SetDutyCycle(int16_t duty_permille)
-{
-    uint16_t duty_u16 = 0U;
-    uint16_t duty_output_u16 = 0U;
-
-    /* 合法范围：-10000~10000 */
-    if (duty_permille < -10000 || duty_permille > 10000)
-    {
-        return MOTOR_SVC_ERR_PARAM;
-    }
-
-    /* 根据占空比正负决定电机方向，并取绝对值作为占空比大小 */
-    if (duty_permille > 6)
-    {
-        /* 正占空比：电机正转 */
-        Drv_PWM_DirControl(MOTOR_DIR_FORWARD);
-        duty_u16 = (uint16_t)duty_permille;
-    }
-    else if (duty_permille < -6)
-    {
-        /* 负占空比：电机反转 */
-        Drv_PWM_DirControl(MOTOR_DIR_REVERSE);
-        duty_u16 = (uint16_t)(-duty_permille);
-    }
-    else
-    {
-        /* 占空比为 0：失能电机（并在 SetEnable(SVC_DISABLE) 里将方向脚置为正向），输出 0 占空比 */
-        duty_u16 = 0U;
-    }
-    if (duty_u16 == 0U)
-    {
-        /* 0 占空比采用显式停机路径，避免触发底层最小脉宽限制 */
-        Svc_MotorService_SetEnable(SVC_DISABLE);
-        return MOTOR_SVC_OK;
-    }
-
-    /* 通过宏选择占空比路径：拟合反推或直通 */
-#if MOTOR_PWM_USE_FIT_MAPPING
-    /* 上位机下发“目标实际占空比”，这里反推“应给定占空比”用于 PWM 发生 */
-    duty_output_u16 = Svc_MotorService_MapPwmDutyPermille(duty_u16);
-#else
-    /* 直通模式：上位机下发即最终给定值 */
-    duty_output_u16 = duty_u16;
-#endif
-
-    /* 非零占空比：确保驱动使能后再更新 PWM */
-    Drv_PWM_Enable(DRV_ENABLE);
-    if (Drv_PWM_TargePulse_Set((uint16_t)duty_output_u16) != DRV_OK)
-    {
-        return MOTOR_SVC_ERR_DRIVER;
-    }
-    return MOTOR_SVC_OK;
-}
-
-/* ======================== 7. 私有函数实现 ======================== */
-/**
  * @brief 解析编码器单帧数据
- * @param pFrame 帧数据缓冲区（6字节）
- * @param length 缓冲区长度
- * @param pOut 解析结果输出
+ * @param pu8Frame 帧数据缓冲区（6字节）
+ * @param u16Length 缓冲区长度
+ * @param struOut 解析结果输出
  * @return 解析结果
  */
-static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pFrame,
-                                                          uint16_t length,
-                                                          EncoderProtocolData_t *pOut)
+static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pu8Frame,
+                                                          uint16_t u16Length,
+                                                          EncoderFrame_t *struOut)
 {
-    uint8_t cm, sa, as0, as1, as2;
-    uint32_t raw_position;
-    uint8_t crc_calc, crc_recv;
+    uint8_t u8Cm, u8Sa, u8As0, u8As1, u8As2;
+    uint32_t u32RawPosition;
+    uint8_t u8CrcCalc, u8CrcRecv;
 
-    if ((pFrame == NULL) || (pOut == NULL))
+    if ((pu8Frame == NULL) || (struOut == NULL))
     {
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
-    if (length < ENCODER_FRAME_LENGTH_BYTES)
+    if (u16Length < ENCODER_FRAME_LENGTH_BYTES)
     {
         return ENCODER_PROTOCOL_ERR_LENGTH;
     }
 
     /* 提取帧字段：CM(帧头) SA(状态) AS0~AS2(位置) CRC8(校验) */
-    cm = pFrame[0];
-    sa = pFrame[1];
-    as0 = pFrame[2];
-    as1 = pFrame[3];
-    as2 = pFrame[4];
-    crc_recv = pFrame[5];
+    u8Cm = pu8Frame[0];
+    u8Sa = pu8Frame[1];
+    u8As0 = pu8Frame[2];
+    u8As1 = pu8Frame[3];
+    u8As2 = pu8Frame[4];
+    u8CrcRecv = pu8Frame[5];
 
     /* 校验帧头 */
-    if (cm != ENCODER_CM_VALUE)
+    if (u8Cm != ENCODER_CM_VALUE)
     {
         return ENCODER_PROTOCOL_ERR_LENGTH;
     }
 
     /* 校验CRC（前5字节） */
-    crc_calc = Svc_CalcCRC8(pFrame, 5U);
-    if (crc_calc != crc_recv)
+    u8CrcCalc = Util_CalcCRC8(pu8Frame, 5U);
+    if (u8CrcCalc != u8CrcRecv)
     {
         return ENCODER_PROTOCOL_ERR_CRC;
     }
 
     /* 解析状态标志位 */
-    pOut->count_error      = ((sa & ENCODER_SA_COUNT_ERROR_BIT) != 0U);
-    pOut->mt_or_batt_error = ((sa & ENCODER_SA_MT_BATT_ERR_BIT) != 0U);
+    struOut->u8CountErr      = (uint8_t)(((u8Sa & ENCODER_SA_COUNT_ERROR_BIT) != 0U) ? 1U : 0U);
+    struOut->u8MtOrBattError = (uint8_t)(((u8Sa & ENCODER_SA_MT_BATT_ERR_BIT) != 0U) ? 1U : 0U);
 
     /* 组合21位绝对位置（小端序） */
-    raw_position = (uint32_t)as0 | ((uint32_t)as1 << 8) | ((uint32_t)as2 << 16);
-    pOut->absolute_position = raw_position & ENCODER_ABS_POSITION_MASK;
+    u32RawPosition = (uint32_t)u8As0 | ((uint32_t)u8As1 << 8) | ((uint32_t)u8As2 << 16);
+    struOut->u32AbsolutePosition = u32RawPosition & ENCODER_ABS_POSITION_MASK;
 
     return ENCODER_PROTOCOL_OK;
 }
 
 /**
  * @brief 读取电机编码器双帧数据
- * @param pOut 双帧数据输出
+ * @param struOut 双帧数据输出
  * @return 解析结果
  */
-static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderProtocolDataDual_t *pOut)
+static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderDual_t *struOut)
 {
-    uint8_t rawBuf[ENCODER_SNAPSHOT_BYTES];
+    uint8_t au8RawBuf[ENCODER_SNAPSHOT_BYTES];
     EncoderProtocolResult_t resLatest;
     EncoderProtocolResult_t resPrev;
 
-    if (pOut == NULL)
+    if (struOut == NULL)
     {
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
     /* 从USART3获取12字节快照（前6=最新帧，后6=上一帧） */
-    if (Drv_MotorEncoder_GetData(rawBuf) != DRV_OK)
+    if (Drv_MotorEncoder_GetData(au8RawBuf) != STATUS_OK)
     {
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = Svc_EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
-    resPrev   = Svc_EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
+    resLatest = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &struOut->struLatest);
+    resPrev   = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
     {
         return resLatest;
@@ -415,27 +408,27 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderProtocolData
 
 /**
  * @brief 读取输出轴编码器双帧快照并解析（20 位绝对位置）
- * @param pOut 输出：最新帧 + 上一帧；高位已按 20 位掩码处理，便于转速计算
+ * @param struOut 输出：最新帧 + 上一帧；高位已按 20 位掩码处理，便于转速计算
  * @return 解析或驱动读取失败时的协议错误码
  */
-static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderProtocolDataDual_t *pOut)
+static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t *struOut)
 {
-    uint8_t rawBuf[ENCODER_SNAPSHOT_BYTES];
+    uint8_t au8RawBuf[ENCODER_SNAPSHOT_BYTES];
     EncoderProtocolResult_t resLatest;
     EncoderProtocolResult_t resPrev;
 
-    if (pOut == NULL)
+    if (struOut == NULL)
     {
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
     /* 从 UART5 获取 12 字节快照（前6=最新帧，后6=上一帧） */
-    if (Drv_OutputShaftEncoder_GetData(rawBuf) != DRV_OK)
+    if (Drv_OutputShaftEncoder_GetData(au8RawBuf) != STATUS_OK)
     {
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = Svc_EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
-    resPrev   = Svc_EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
+    resLatest = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &struOut->struLatest);
+    resPrev   = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
     {
         return resLatest;
@@ -445,34 +438,34 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderProtoc
         return resPrev;
     }
     /* 输出轴为 20 位编码器，屏蔽高位；否则第 21 位干扰会导致速度跳变（如 -3 与 -30 交替） */
-    pOut->latest.absolute_position   &= 0x000FFFFFU;
-    pOut->previous.absolute_position &= 0x000FFFFFU;
+    struOut->struLatest.u32AbsolutePosition   &= 0x000FFFFFU;
+    struOut->struPrevious.u32AbsolutePosition &= 0x000FFFFFU;
     return ENCODER_PROTOCOL_OK;
 }
 
 /**
  * @brief 读取摆臂编码器双帧快照并解析（17 位绝对位置）
- * @param pOut 输出：最新帧 + 上一帧；高位已按 17 位掩码处理，与 ENCODER_BITS_17 一致
+ * @param struOut 输出：最新帧 + 上一帧；高位已按 17 位掩码处理，与 ENCODER_BITS_17 一致
  * @return 解析或驱动读取失败时的协议错误码
  */
-static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderProtocolDataDual_t *pOut)
+static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderDual_t *struOut)
 {
-    uint8_t rawBuf[ENCODER_SNAPSHOT_BYTES];
+    uint8_t au8RawBuf[ENCODER_SNAPSHOT_BYTES];
     EncoderProtocolResult_t resLatest;
     EncoderProtocolResult_t resPrev;
 
-    if (pOut == NULL)
+    if (struOut == NULL)
     {
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
     /* 从 UART4 获取 12 字节快照（前6=最新帧，后6=上一帧） */
-    if (Drv_SwingArmEncoder_GetData(rawBuf) != DRV_OK)
+    if (Drv_SwingArmEncoder_GetData(au8RawBuf) != STATUS_OK)
     {
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = Svc_EncoderProtocol_ParseFrame(&rawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &pOut->latest);
-    resPrev   = Svc_EncoderProtocol_ParseFrame(&rawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &pOut->previous);
+    resLatest = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &struOut->struLatest);
+    resPrev   = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
     {
         return resLatest;
@@ -482,40 +475,40 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderProtocolD
         return resPrev;
     }
     /* 摆杆为 17 位编码器，屏蔽高位；与速度计算 ENCODER_BITS_17 一致，避免误用高电平位导致钳位失真 */
-    pOut->latest.absolute_position   &= 0x0001FFFFU;
-    pOut->previous.absolute_position &= 0x0001FFFFU;
+    struOut->struLatest.u32AbsolutePosition   &= 0x0001FFFFU;
+    struOut->struPrevious.u32AbsolutePosition &= 0x0001FFFFU;
     return ENCODER_PROTOCOL_OK;
 }
 
 /**
  * @brief 计算编码器角速度（基于前后两帧位置差）
  * @details 编码器位置范围0~max对应0~360°，自动处理过零情况。
- *          正转（位置增加）：delta_raw>0 且不过零 → 速度为正；
- *          反转（位置减少）：delta_raw<0 且不过零 → 速度为负，符合设计。
- * @param pos_prev 上一帧位置
- * @param pos_curr 当前帧位置
+ *          正转（位置增加）：deltaRaw>0 且不过零 → 速度为正；
+ *          反转（位置减少）：deltaRaw<0 且不过零 → 速度为负，符合设计。
+ * @param u32PosPrev 上一帧位置
+ * @param u32PosCurr 当前帧位置
  * @param bits 编码器位数（21/20/17）
  * @return 角速度（°/s），正=正转、负=反转，采样间隔1ms
  */
-static float Svc_EncoderSpeed_Calc(uint32_t pos_prev, uint32_t pos_curr, EncoderBits_t bits)
+static float Svc_EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, EncoderBits_t bits)
 {
-    uint32_t max_val;
-    uint32_t half;
-    int32_t  delta_raw;
-    int32_t  delta;
-    float    speed_deg_s;
+    uint32_t u32MaxVal;
+    uint32_t u32Half;
+    int32_t  s32DeltaRaw;
+    int32_t  s32Delta;
+    float    speedDegS;
 
     /* 根据编码器位数确定最大值 */
     switch (bits)
     {
         case ENCODER_BITS_21:
-            max_val = 2097151U;  /* 2^21 - 1 */
+            u32MaxVal = ENCODER_ABS_POSITION_MAX_21BIT;
             break;
         case ENCODER_BITS_20:
-            max_val = 1048575U;  /* 2^20 - 1 */
+            u32MaxVal = ENCODER_ABS_POSITION_MAX_20BIT;
             break;
         case ENCODER_BITS_17:
-            max_val = 131071U;   /* 2^17 - 1 */
+            u32MaxVal = ENCODER_ABS_POSITION_MAX_17BIT;
             break;
         default:
         {
@@ -524,94 +517,79 @@ static float Svc_EncoderSpeed_Calc(uint32_t pos_prev, uint32_t pos_curr, Encoder
     }
 
     /* 限制位置值在有效范围内 */
-    pos_prev = (pos_prev > max_val) ? max_val : pos_prev;
-    pos_curr = (pos_curr > max_val) ? max_val : pos_curr;
+    u32PosPrev = (u32PosPrev > u32MaxVal) ? u32MaxVal : u32PosPrev;
+    u32PosCurr = (u32PosCurr > u32MaxVal) ? u32MaxVal : u32PosCurr;
 
     /* 计算位置差，处理过零情况（编码器从max跳转到0或从0跳转到max） */
-    delta_raw = (int32_t)pos_curr - (int32_t)pos_prev;
-    half      = (max_val + 1U) >> 1;  /* 中点值 */
+    s32DeltaRaw = (int32_t)u32PosCurr - (int32_t)u32PosPrev;
+    u32Half      = (u32MaxVal + 1U) >> 1;  /* 中点值 */
 
-    if (delta_raw > (int32_t)half)
+    if (s32DeltaRaw > (int32_t)u32Half)
     {
         /* 正向过零：实际是反向运动 */
-        delta = delta_raw - (int32_t)(max_val + 1U);
+        s32Delta = s32DeltaRaw - (int32_t)(u32MaxVal + 1U);
     }
-    else if (delta_raw < -(int32_t)half)
+    else if (s32DeltaRaw < -(int32_t)u32Half)
     {
         /* 反向过零：实际是正向运动 */
-        delta = delta_raw + (int32_t)(max_val + 1U);
+        s32Delta = s32DeltaRaw + (int32_t)(u32MaxVal + 1U);
     }
     else
     {
-        /* 正常情况：delta_raw>0 正转，delta_raw<0 反转，直接使用 */
-        delta = delta_raw;
+        /* 正常情况：s32DeltaRaw>0 正转，s32DeltaRaw<0 反转，直接使用 */
+        s32Delta = s32DeltaRaw;
     }
-    /* 转换为角速度（°/s）：delta / (max+1) * 360° / 0.001s */
-    speed_deg_s = (float)delta * 360000.0f / (float)(max_val + 1U);
-    return speed_deg_s;
+    /* 角速度（°/s）：(delta/(N)) * 360° / 0.001s */
+    speedDegS = (float)s32Delta * ROUND_ANGLE / FRAME_INTERVAL_TIME / (float)(u32MaxVal + 1U);
+    return speedDegS;
 
-    #if 0
-    if(delta>0)
-    {
-      /* 转换为角速度（°/s）：delta / (max+1) * 360° / 0.001s */
-      speed_deg_s = (float)delta * 360000.0f / (float)(max_val + 1U);
-      return speed_deg_s;
-    }
-    else
-    {
-      delta = -delta;
-      /* 转换为角速度（°/s）：delta / (max+1) * 360° / 0.001s */
-      speed_deg_s = -(float)delta * 360000.0f / (float)(max_val + 1U);
-      return speed_deg_s;
-    }
-    #endif
 }
 
 /**
  * @brief 计算电机编码器转速（21位）
- * @param pDual 电机编码器双帧数据
+ * @param struDual 电机编码器双帧数据
  * @return 角速度（°/s）
  */
-static float Svc_EncoderSpeed_CalcMotor(const EncoderProtocolDataDual_t *pDual)
+static float Svc_EncoderSpeed_CalcMotor(const EncoderDual_t *struDual)
 {
-    if (pDual == NULL)
+    if (struDual == NULL)
     {
         return 0.0f;
     }
-    return Svc_EncoderSpeed_Calc(pDual->previous.absolute_position,
-                             pDual->latest.absolute_position,
+    return Svc_EncoderSpeed_Calc(struDual->struPrevious.u32AbsolutePosition,
+                             struDual->struLatest.u32AbsolutePosition,
                              ENCODER_BITS_21);
 }
 
 /**
  * @brief 计算输出轴编码器转速（20位）
- * @param pDual 输出轴编码器双帧数据
+ * @param struDual 输出轴编码器双帧数据
  * @return 角速度（°/s）
  */
-static float Svc_EncoderSpeed_CalcOutputShaft(const EncoderProtocolDataDual_t *pDual)
+static float Svc_EncoderSpeed_CalcOutputShaft(const EncoderDual_t *struDual)
 {
-    if (pDual == NULL)
+    if (struDual == NULL)
     {
         return 0.0f;
     }
-    return Svc_EncoderSpeed_Calc(pDual->previous.absolute_position,
-                             pDual->latest.absolute_position,
+    return Svc_EncoderSpeed_Calc(struDual->struPrevious.u32AbsolutePosition,
+                             struDual->struLatest.u32AbsolutePosition,
                              ENCODER_BITS_20);
 }
 
 /**
  * @brief 计算摆臂编码器转速（17位）
- * @param pDual 摆臂编码器双帧数据
+ * @param struDual 摆臂编码器双帧数据
  * @return 角速度（°/s）
  */
-static float Svc_EncoderSpeed_CalcSwingArm(const EncoderProtocolDataDual_t *pDual)
+static float Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual)
 {
-    if (pDual == NULL)
+    if (struDual == NULL)
     {
         return 0.0f;
     }
-    return Svc_EncoderSpeed_Calc(pDual->previous.absolute_position,
-                             pDual->latest.absolute_position,
+    return Svc_EncoderSpeed_Calc(struDual->struPrevious.u32AbsolutePosition,
+                             struDual->struLatest.u32AbsolutePosition,
                              ENCODER_BITS_17);
 }
 
@@ -621,14 +599,14 @@ static float Svc_EncoderSpeed_CalcSwingArm(const EncoderProtocolDataDual_t *pDua
  */
 static float Svc_MotorService_GetMotorVoltage(void)
 {
-    uint16_t rawAdc[2];
+    uint16_t au16RawAdc[2];
 
-    if (Drv_ADC_Motor_RawData_Read(rawAdc) != DRV_OK)
+    if (Drv_ADC_Motor_RawData_Read(au16RawAdc) != STATUS_OK)
     {
         return 0.0f;
     }
     /* 两路 ADC 原始值（12 位）平均后转换为电压（参考电压 3.3V） */
-    return ((float)rawAdc[0] + (float)rawAdc[1]) / 2.0f * 3.3f / 4096.0f;
+    return ((float)au16RawAdc[0] + (float)au16RawAdc[1]) / 2.0f * ADC_REFERENCE_VOLTAGE_V / ADC_RAW_FULL_RESOLUTION;
 }
 
 /**
@@ -640,7 +618,7 @@ static float Svc_MotorService_GetMotorCurrent(void)
 {
 #if MOTOR_CURRENT_ZERO_CALIB_ENABLE
     /* 采样结果减去零点偏置，得到校零后的电流 */
-    return Svc_MotorService_GetMotorCurrentRaw() - s_motor_current_zero_offset_A;
+    return Svc_MotorService_GetMotorCurrentRaw() - sMotorCurrentZeroOffsetA;
 #else
     /* 关闭零点标定时，直接返回原始电流 */
     return Svc_MotorService_GetMotorCurrentRaw();
@@ -656,16 +634,15 @@ static float Svc_MotorService_GetMotorCurrentRaw(void)
 {
     float v_adc  = Svc_MotorService_GetMotorVoltage();
     float v_diff = v_adc - MOTOR_CURRENT_OFFSET_V;  /* 减去模拟前端偏置电压 */
-    //printf("v_adc = %f   v_diff = %f\n",v_adc,v_diff);
     return v_diff / MOTOR_CURRENT_GAIN / MOTOR_CURRENT_SHUNT_R;
 }
 
 /**
  * @brief PWM 占空比映射（按上位机目标占空比曲线补偿）
- * @param duty_permille_abs 绝对值占空比（0~10000，单位 0.01%）
+ * @param dutyPermilleAbs 绝对值占空比（0~10000，单位 0.01%）
  * @return 映射后的绝对值占空比（0~10000，单位 0.01%）
  */
-static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t duty_permille_abs)
+static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t u16DutyPermilleAbs)
 {
     /* 标定表（单位：0.01%）
        actual_tbl：实际上位机目标占空比（期望实际输出）
@@ -683,43 +660,43 @@ static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t duty_permille_abs)
         5000U, 6000U, 7000U, 8000U, 9000U, 9500U, 9590U
     };
 
-    uint16_t i;
+    uint16_t u16I;
     const uint16_t tbl_size = (uint16_t)(sizeof(actual_tbl) / sizeof(actual_tbl[0]));
 
-    /* 特殊需求：上位机给定为 0 时，单片机固定输出 50（0.50%） */
-    if (duty_permille_abs == 0U)
+    /* 特殊需求：上位机给定为 0 时绝对为0 */
+    if (u16DutyPermilleAbs == 0U)
     {
-        return 50U;
+        return 0U;
     }
 
     /* 实际目标上限限制为 95.00%（给定值可大于95%） */
-    if (duty_permille_abs > 9500U)
+    if (u16DutyPermilleAbs > 9500U)
     {
-        duty_permille_abs = 9500U;
+        u16DutyPermilleAbs = 9500U;
     }
 
-    if (duty_permille_abs <= actual_tbl[0])
+    if (u16DutyPermilleAbs <= actual_tbl[0])
     {
         return given_tbl[0];
     }
-    if (duty_permille_abs >= actual_tbl[tbl_size - 1U])
+    if (u16DutyPermilleAbs >= actual_tbl[tbl_size - 1U])
     {
         return given_tbl[tbl_size - 1U];
     }
 
-    for (i = 0U; i < (tbl_size - 1U); i++)
+    for (u16I = 0U; u16I < (tbl_size - 1U); u16I++)
     {
-        uint16_t x0 = actual_tbl[i];
-        uint16_t x1 = actual_tbl[i + 1U];
-        if (duty_permille_abs <= x1)
+        uint16_t u16X0 = actual_tbl[u16I];
+        uint16_t u16X1 = actual_tbl[u16I + 1U];
+        if (u16DutyPermilleAbs <= u16X1)
         {
-            uint16_t y0 = given_tbl[i];
-            uint16_t y1 = given_tbl[i + 1U];
-            uint32_t dx = (uint32_t)x1 - (uint32_t)x0;
-            uint32_t dy = (uint32_t)y1 - (uint32_t)y0;
-            uint32_t num = ((uint32_t)duty_permille_abs - (uint32_t)x0) * dy;
+            uint16_t u16Y0 = given_tbl[u16I];
+            uint16_t u16Y1 = given_tbl[u16I + 1U];
+            uint32_t u32Dx = (uint32_t)u16X1 - (uint32_t)u16X0;
+            uint32_t u32Dy = (uint32_t)u16Y1 - (uint32_t)u16Y0;
+            uint32_t u32Num = ((uint32_t)u16DutyPermilleAbs - (uint32_t)u16X0) * u32Dy;
             /* 四舍五入的分段线性插值 */
-            return (uint16_t)((uint32_t)y0 + (num + (dx / 2U)) / dx);
+            return (uint16_t)((uint32_t)u16Y0 + (u32Num + (u32Dx / 2U)) / u32Dx);
         }
     }
 

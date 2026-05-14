@@ -22,12 +22,14 @@
 #include "crc.h"
 #include "dma.h"
 #include "hrtim.h"
+#include "iwdg.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "bsp.h"
 #include "simulink_protocol.h"
 #include "State_Machine.h"
 #include "motor_service.h"
@@ -40,14 +42,23 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+/*
+ * 驱动自测开关（仅写在本段内，CubeMX 重生成会保留 USER CODE BEGIN/END PD）。
+ * - TEST_DRV=0：正常应用，调用 App_StateMachine_MainLoop()（永不返回）。
+ * - TEST_DRV=1：进入下方自测死循环；IWDG 仍依赖 TIM2 更新中断内 HAL_IWDG_Refresh。
+ * - TEST_ADC 仅在 TEST_DRV=1 时生效：1 周期调用 Drv_ADC_TEST()；0 仅 Bsp_DelayMs(200)。
+ * 注意：本段在「Private includes」之后，故不可用 TEST_DRV 去条件包含头文件。
+ */
+#ifndef TEST_DRV
+#define TEST_DRV 0
+#endif
+#ifndef TEST_ADC
+#define TEST_ADC 0
+#endif
 
-#define Debug_Menu_WORKING    0x31
-#define Debug_Menu_ADC_TEST   0x32
-//#define Debug_Menu_USART_TSET 0x32
-#define Debug_Menu_PWM_TEST   0x33
-#define Debug_Menu_CRC_TEST   0x34
-/* 1: 主循环打印 ADC3_IN1；0: 正常状态机流程 */
-#define MAIN_LOOP_ADC3_DEBUG_PRINT 0
+#if (TEST_ADC != 0) && (TEST_DRV == 0)
+#error "TEST_ADC=1 时必须同时 TEST_DRV=1，否则主循环不会调用 Drv_ADC_TEST"
+#endif
 
 /* USER CODE END PD */
 
@@ -59,13 +70,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t u8DebugMenuChoose = 0;
-
-uint8_t pbuff[10] = {0};
-
-int i = 0;
-int User_uart_status = 0;
-
 
 
 /* USER CODE END PV */
@@ -74,49 +78,12 @@ int User_uart_status = 0;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
-unsigned int u32CRC_TEST();
 
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-
-
-
-unsigned int u32CRC_TEST()
-{
-  uint32_t crc = 0U;
-  uint8_t au8CrcData[12] = {1,2,3,4,5,6,7,8,9,0,1,2};
-
-  crc = HAL_CRC_Accumulate(&hcrc,(unsigned int *)au8CrcData,12);
-  printf("CRC:0x%x \n",crc);
-
-  return crc;
-}
-
-
-
-
-HAL_StatusTypeDef StatusU5 = 0;
-
-
-
-
-
-void Working_Task()
-{
-  
-
-
-
-  return;
-}
-
-
-
-
 
 
 
@@ -130,19 +97,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  //uint8_t tcp_demo_sendbuf[80]="G4 Uart Test \n";
-  int i = 655356;
-  uint32_t crc = 0;
 
-
-  uint32_t crc_Data[6] = {0x00010203,0x09080607,0x0002,0x0003,0x0004,0x0005};
-  int j = 0;
-
-
-  uint32_t TEST = 0x12345678;
-  uint32_t *p_TEST = &TEST;
-
-    
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -151,7 +106,6 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  //__disable_irq();
 
   /* USER CODE END Init */
 
@@ -173,9 +127,11 @@ int main(void)
   MX_USART3_UART_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
+  MX_ADC3_Init();
   MX_HRTIM1_Init();
   MX_TIM1_Init();
-  MX_ADC3_Init();
+  MX_IWDG_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -190,118 +146,31 @@ int main(void)
   /* 串口启动 */
   HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  Svc_MotorService_SetEnable(SVC_ENABLE);
+#if TEST_DRV
+  /* 驱动自测：不调用应用状态机；IWDG 仍依赖 TIM2 更新中断内 HAL_IWDG_Refresh */
+  while (1)
+  {
+#if TEST_ADC
+    Drv_ADC_TEST();
+    Bsp_DelayMs(200);
+#endif
+  }
+#else
+  App_StateMachine_MainLoop();
+#endif
 
-  printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
-  printf("                          编译日期:%s\n",__DATE__);
-
-
-  Svc_StateMachine_MainLoop();
-
-
-
-#if 0 
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
-    #if 0
-		Protocol_FeedbackFrame_t pFeedbackFrame_test;
-    uint8_t pbufftest[32]= 0;
-
-    pFeedbackFrame_test.motor_current = 0x12;
-    pFeedbackFrame_test.motor_position = 0x1234;
-    pFeedbackFrame_test.motor_speed = 0x1234;
-    pFeedbackFrame_test.axis_position = 0x1234;
-    pFeedbackFrame_test.axis_speed = 0x123;
-    pFeedbackFrame_test.pendulum_position = 0x5678;
-    pFeedbackFrame_test.pendulum_speed = 0x123;
-
-
-
-    Protocol_PackFeedbackFrame(&pFeedbackFrame_test, pbufftest);
-#endif
-
-
-
-
-    //HAL_UART_Transmit(&huart1, tcp_demo_sendbuf, 15, 10000);
-
-    printf("\n\n  ========== DCM_G474_V1.0 Menu ========== \n" );
-    printf("                          编译日期:%s\n",__DATE__);
-    printf("  1. ADC 采集精度测试  \n" );
-    printf("  2. PWM占空比修改测�??  \n" );
-    printf("  3. CRC校验计算测试...  \n" );
-    printf("  ==================================== \n" );
-
-    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,1,200));
-
-    u8DebugMenuChoose = g_au8DebugRxBuff[0];
-    
-    switch(u8DebugMenuChoose)
-    {
-        case Debug_Menu_WORKING:
-        {
-            printf("  进入正常工作模式!  \n");
-            Working_Task();
-            break;
-        }
-    
-        case Debug_Menu_ADC_TEST:
-        {
-            printf("  进入ADC精度测试  \n" );
-            Drv_ADC_TEST();
-            break;
-        }
-
-        case Debug_Menu_PWM_TEST:
-        {
-            printf("  进入PWM波发生测试！  \n" );
-            PWM_TEST();
-            break;
-        }
-
-        case Debug_Menu_CRC_TEST:
-        {
-            printf("  进入CRC校验计算测试  \n" );
-            u32CRC_TEST();
-            break;
-        }
-
-        default:
-        {
-            printf("  键入有误，请重试  \n" );
-        }
-    }
-
-    u8DebugMenuChoose = 0;
-
-    HAL_Delay(500);
-
-
-#if 0
-
-    crc = HAL_CRC_Accumulate(&hcrc,crc_Data,24);
-		//crc = HAL_CRC_Accumulate(&hcrc,crc_Data,24);
-    //HAL_UART_Transmit_IT(&huart1,(const uint8_t *)"\n CRC:",7);
-  StatusU5 = HAL_UART_Transmit_IT(&huart1,(const uint8_t *)&crc,4);
-
-crc = HAL_CRC_Accumulate(&hcrc,crc_Data,24);
-
-#endif
-
-
-
   }
-	#endif
   /* USER CODE END 3 */
 }
 
@@ -321,8 +190,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV6;
@@ -365,7 +235,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-		printf("err\n");
+    printf("err\n");
   }
   /* USER CODE END Error_Handler_Debug */
 }

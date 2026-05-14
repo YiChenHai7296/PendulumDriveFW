@@ -1,12 +1,19 @@
 /**
  * @file simulink_protocol.c
- * @brief Simulink 上位机通信协议栈实现：组帧与解帧，支持控制帧与反馈帧
+ * @brief 服务层：Simulink 协议组帧/解帧实现
+ * @details 控制/反馈载荷字段校验在本模块；载荷打包/解包使用 `common.h` 小端工具；
+ *          帧 CRC16 使用 BSP 硬件 `Bsp_Crc16Modbus_Byte`（须已 `MX_CRC_Init`）；USART2 收发经 `usart.h` 中 `Drv_Simulink_*`。
+ *          `printf` 仅用于开发期错误打印（未受 `DEBUG_PRINTF` 开关约束，发布前宜收敛）。
  */
 
+/* ======================== 1. 头文件引用 ======================== */
 #include "simulink_protocol.h"
-#include "service_common.h"
+#include <stdio.h>            /* printf（错误打印）          */
+#include "bsp.h"
+#include "common.h"
+#include "usart.h"
 
-/* ======================== 1. 私有宏定义 ======================== */
+/* ======================== 2. 私有宏定义 ======================== */
 /* 帧格式 */
 #define SIMULINK_HEAD_BYTE0        0x5AU
 #define SIMULINK_HEAD_BYTE1        0xA5U
@@ -34,109 +41,108 @@
 #define SIMULINK_AXIS_SPEED_MIN    (-4000)
 #define SIMULINK_AXIS_SPEED_MAX    4000
 #define SIMULINK_PENDULUM_POSITION_MIN 0
-#define SIMULINK_PENDULUM_POSITION_MAX 131072
+#define SIMULINK_PENDULUM_POSITION_MAX 131071   /* 17 位：2^17 - 1，与电机服务中摆臂位置掩码一致 */
 #define SIMULINK_PENDULUM_SPEED_MIN (-4000)
 #define SIMULINK_PENDULUM_SPEED_MAX 4000
 
-/* ======================== 2. 私有类型定义 ======================== */
+/* ======================== 3. 私有类型定义 ======================== */
 /* 无 */
 
-/* ======================== 3. 私有变量 ======================== */
-static uint8_t s_feedback_tx_buf[SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE];  /* 反馈帧发送缓冲区 */
+/* ======================== 4. 私有变量 ======================== */
+static uint8_t s_au8FeedbackTxBuf[SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE];  /* 反馈帧发送缓冲区 */
 
-/* ======================== 4. 对外变量定义 ======================== */
+/* ======================== 5. 对外变量定义 ======================== */
 /* 无 */
 
-/* ======================== 5. 私有函数声明 ======================== */
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pFrame,
-                                                                   uint16_t length,
-                                                                   SimulinkProtocolControlData_t *pOut);
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *pIn,
-                                                                       uint8_t *pBuf,
-                                                                       uint16_t bufSize,
-                                                                       uint16_t *pOutLen);
+/* ======================== 6. 私有函数声明 ======================== */
+static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pu8Frame,
+                                                                   uint16_t u16Length,
+                                                                   SimulinkProtocolControlData_t *struOut);
+static SimulinkProtocolResult_t Svc_SimulinkProtocol_AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *struIn,
+                                                                       uint8_t *pu8Buf,
+                                                                       uint16_t u16BufSize,
+                                                                       uint16_t *pu16OutLen);
 
-/* ======================== 6. 对外接口：解包控制 / 发布反馈 ======================== */
+/* ======================== 7. 接口函数实现 ======================== */
 /**
- * @brief 从 USART 控制通道取一帧并解析为控制量（PWM、电流设定）
- * @details 调用底层 Drv_Simulink_ControlFrame_GetData，长度须为 SIMULINK_CONTROL_FRAME_LEN，再解帧与 CRC 校验
- * @param pOut 输出：解析后的控制数据
- * @return SIMULINK_PROTOCOL_OK 或各类错误码（空指针、长度、CRC、范围等）
+ * @brief 从 USART2 控制通道取一帧并解析为控制量（转速万分比、电流设定）
+ * @details 调用驱动层 `Drv_Simulink_ControlFrame_GetData` 取原始字节，长度须为 `SIMULINK_CONTROL_FRAME_LEN`；
+ *          CRC 校验使用 `Bsp_Crc16Modbus_Byte`（与 `Util_CalcCRC16Modbus` 等价）。
+ * @param[out] struOut 解析得到的控制数据
+ * @retval SIMULINK_PROTOCOL_OK 或错误码（空指针、长度、CRC、范围等）
  */
-SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *pOut)
+SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *struOut)
 {
-    uint8_t rxBuf[SIMULINK_CONTROL_FRAME_LEN];  /* 控制帧原始字节缓冲 */
-    uint16_t len = 0U;                          /* 实际接收长度 */
+    uint8_t au8RxBuf[SIMULINK_CONTROL_FRAME_LEN];  /* 控制帧原始字节缓冲 */
+    uint16_t u16Len = 0U;                          /* 实际接收长度 */
 
-    if (pOut == NULL)
+    if (struOut == NULL)
     {
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
-    if (Drv_Simulink_ControlFrame_GetData(rxBuf, sizeof(rxBuf), &len) != DRV_OK)
-    {
-       // printf("data err \n");
-        return SIMULINK_PROTOCOL_ERR_LENGTH;
-    }
-#if 1
-    if (len != SIMULINK_CONTROL_FRAME_LEN)
+    if (Drv_Simulink_ControlFrame_GetData(au8RxBuf, sizeof(au8RxBuf), &u16Len) != STATUS_OK)
     {
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
-#endif
-    return Svc_SimulinkProtocol_ParseControlFrame(rxBuf, len, pOut);
+    if (u16Len != SIMULINK_CONTROL_FRAME_LEN)
+    {
+        return SIMULINK_PROTOCOL_ERR_LENGTH;
+    }
+    return Svc_SimulinkProtocol_ParseControlFrame(au8RxBuf, u16Len, struOut);
 }
 
 /**
- * @brief 校验反馈载荷范围、按协议组帧并通过 USART 发送反馈帧
- * @param pIn 待上报的反馈数据（字段范围见宏 SIMULINK_*_MIN/MAX）
- * @return SIMULINK_PROTOCOL_OK；否则为范围错误、组帧失败或底层发送失败
+ * @brief 校验反馈载荷、组 Simulink 反馈帧并经 USART2 DMA 发送
+ * @details 字段范围校验后组帧；CRC16 由 `Bsp_Crc16Modbus_Byte` 计算；发送由 `Drv_Simulink_Feedback_Send` 完成。
+ * @param[in] struIn 待上报的反馈数据（各字段须满足宏 `SIMULINK_*_MIN` / `MAX`）
+ * @retval SIMULINK_PROTOCOL_OK；否则为范围、组帧或发送错误码
  */
-SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *pIn)
+SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn)
 {
     SimulinkProtocolResult_t res;   /* 组帧结果 */
 
-    if (pIn == NULL)
+    if (struIn == NULL)
     {
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
-    if (pIn->motor_current < SIMULINK_MOTOR_CURRENT_MIN || pIn->motor_current > SIMULINK_MOTOR_CURRENT_MAX)
+    if (struIn->s16MotorCurrent < SIMULINK_MOTOR_CURRENT_MIN || struIn->s16MotorCurrent > SIMULINK_MOTOR_CURRENT_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (pIn->motor_position < SIMULINK_MOTOR_POSITION_MIN || pIn->motor_position > SIMULINK_MOTOR_POSITION_MAX)
+    if (struIn->s32MotorPosition < SIMULINK_MOTOR_POSITION_MIN || struIn->s32MotorPosition > SIMULINK_MOTOR_POSITION_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (pIn->motor_speed < SIMULINK_MOTOR_SPEED_MIN || pIn->motor_speed > SIMULINK_MOTOR_SPEED_MAX)
+    if (struIn->s32MotorSpeed < SIMULINK_MOTOR_SPEED_MIN || struIn->s32MotorSpeed > SIMULINK_MOTOR_SPEED_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (pIn->axis_position < SIMULINK_AXIS_POSITION_MIN || pIn->axis_position > SIMULINK_AXIS_POSITION_MAX)
+    if (struIn->s32AxisPosition < SIMULINK_AXIS_POSITION_MIN || struIn->s32AxisPosition > SIMULINK_AXIS_POSITION_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (pIn->axis_speed < SIMULINK_AXIS_SPEED_MIN || pIn->axis_speed > SIMULINK_AXIS_SPEED_MAX)
+    if (struIn->s32AxisSpeed < SIMULINK_AXIS_SPEED_MIN || struIn->s32AxisSpeed > SIMULINK_AXIS_SPEED_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (pIn->pendulum_position < SIMULINK_PENDULUM_POSITION_MIN || pIn->pendulum_position > SIMULINK_PENDULUM_POSITION_MAX)
+    if (struIn->s32PendulumPosition < SIMULINK_PENDULUM_POSITION_MIN || struIn->s32PendulumPosition > SIMULINK_PENDULUM_POSITION_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (pIn->pendulum_speed < SIMULINK_PENDULUM_SPEED_MIN || pIn->pendulum_speed > SIMULINK_PENDULUM_SPEED_MAX)
+    if (struIn->s32PendulumSpeed < SIMULINK_PENDULUM_SPEED_MIN || struIn->s32PendulumSpeed > SIMULINK_PENDULUM_SPEED_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
 
-    res = Svc_SimulinkProtocol_AssembleFeedbackFrame(pIn, s_feedback_tx_buf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
+    res = Svc_SimulinkProtocol_AssembleFeedbackFrame(struIn, s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
     if (res != SIMULINK_PROTOCOL_OK)
     {
         return res;
     }
 
-    if (Drv_Simulink_Feedback_Send(s_feedback_tx_buf, SIMULINK_FEEDBACK_FRAME_LEN) != DRV_OK)
+    if (Drv_Simulink_Feedback_Send(s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN) != STATUS_OK)
     {
         return SIMULINK_PROTOCOL_ERR_SEND;
     }
@@ -144,132 +150,134 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProt
     return SIMULINK_PROTOCOL_OK;
 }
 
-/* ======================== 7. 私有函数实现 ======================== */
+/* ======================== 8. 私有函数实现 ======================== */
 /**
  * @brief 从原始字节流解析一帧 Simulink 控制指令并校验 CRC 与字段范围
- * @param pFrame 完整控制帧缓冲区
- * @param length 实际长度，须不小于 SIMULINK_CONTROL_FRAME_LEN
- * @param pOut 输出：PWM（permille）、电流设定等
+ * @details CRC 覆盖帧头至载荷末尾（不含 CRC 两字节），计算使用 `Bsp_Crc16Modbus_Byte`。
+ * @param pu8Frame 完整控制帧缓冲区
+ * @param u16Length 实际长度，须不小于 SIMULINK_CONTROL_FRAME_LEN
+ * @param struOut 输出：转速万分比（-10000~10000）、电流设定等
  * @return SIMULINK_PROTOCOL_OK；否则为空指针、长度、类型、CRC、范围错误
  */
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pFrame,
-                                                                   uint16_t length,
-                                                                   SimulinkProtocolControlData_t *pOut)
+static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pu8Frame,
+                                                                   uint16_t u16Length,
+                                                                   SimulinkProtocolControlData_t *struOut)
 {
-    uint16_t offset = 0U;   /* 帧内解析偏移 */
-    uint16_t crc_calc;      /* 计算得到的 CRC */
-    uint16_t crc_recv;      /* 帧内接收的 CRC */
+    uint16_t u16Offset = 0U;   /* 帧内解析偏移 */
+    uint16_t u16CrcCalc;      /* 计算得到的 CRC */
+    uint16_t u16CrcRecv;      /* 帧内接收的 CRC */
 
-    if ((pFrame == NULL) || (pOut == NULL))
+    if ((pu8Frame == NULL) || (struOut == NULL))
     {
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
-    if (length < SIMULINK_CONTROL_FRAME_LEN)
+    if (u16Length < SIMULINK_CONTROL_FRAME_LEN)
     {
         printf("指令长度非法！\n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
-    if (pFrame[offset++] != SIMULINK_HEAD_BYTE0 || pFrame[offset++] != SIMULINK_HEAD_BYTE1)
+    if (pu8Frame[u16Offset++] != SIMULINK_HEAD_BYTE0 || pu8Frame[u16Offset++] != SIMULINK_HEAD_BYTE1)
     {
         printf("指令帧头错误！\n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
-    if (pFrame[offset++] != SIMULINK_TYPE_CONTROL)
+    if (pu8Frame[u16Offset++] != SIMULINK_TYPE_CONTROL)
     {
         printf("指令类型错误！\n");
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
-    if (pFrame[offset++] != SIMULINK_LEN_CONTROL)
+    if (pu8Frame[u16Offset++] != SIMULINK_LEN_CONTROL)
     {
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
-    pOut->pwm    = Svc_UnpackInt16LE(&pFrame[offset]);
-    offset += 2U;
-    pOut->current = Svc_UnpackInt16LE(&pFrame[offset]);
-    offset += 2U;
+    struOut->s16Pwm    = Util_UnpackInt16LE(&pu8Frame[u16Offset]);
+    u16Offset += 2U;
+    struOut->s16Current = Util_UnpackInt16LE(&pu8Frame[u16Offset]);
+    u16Offset += 2U;
 
-    crc_recv  = (uint16_t)pFrame[offset] | ((uint16_t)pFrame[offset + 1] << 8);
-    crc_calc  = Svc_CalcCRC16Modbus(pFrame, offset);
-		#if 1
-    if (crc_calc != crc_recv)
+    u16CrcRecv  = (uint16_t)pu8Frame[u16Offset] | ((uint16_t)pu8Frame[u16Offset + 1] << 8);
+    u16CrcCalc  = Bsp_Crc16Modbus_Byte(pu8Frame, u16Offset);
+
+    if (u16CrcCalc != u16CrcRecv)
     {
-        printf("crc校验有误，接收值 %x , 计算值 %x \n",crc_recv,crc_calc);
+        printf("crc校验有误，接收值 %x , 计算值 %x \n",u16CrcRecv,u16CrcCalc);
         return SIMULINK_PROTOCOL_ERR_CRC;
     }
-#endif
-    if (pOut->pwm < SIMULINK_PWM_MIN || pOut->pwm > SIMULINK_PWM_MAX)
+
+    if (struOut->s16Pwm < SIMULINK_PWM_MIN || struOut->s16Pwm > SIMULINK_PWM_MAX)
     {
-        printf("pwm参数范围有误： %x  \n",pOut->pwm);
+        printf("转速万分比范围有误： %d\n", (int)struOut->s16Pwm);
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-		#if 1
-    if (pOut->current < SIMULINK_CURRENT_MIN || pOut->current > SIMULINK_CURRENT_MAX)
+
+    if (struOut->s16Current < SIMULINK_CURRENT_MIN || struOut->s16Current > SIMULINK_CURRENT_MAX)
     {
-        printf("pwm参数范围有误： %x  \n",pOut->current);
+        printf("电流设定范围有误： %d\n", (int)struOut->s16Current);
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-#endif
+
     return SIMULINK_PROTOCOL_OK;
 }
 
 /**
- * @brief 将反馈数据按 Simulink 反馈帧格式写入缓冲区（小端字段 + MODBUS CRC16）
- * @param pIn 反馈数据源
- * @param pBuf 目标缓冲区
- * @param bufSize 缓冲区容量，须不小于 SIMULINK_FEEDBACK_FRAME_LEN
- * @param pOutLen 可选：写入的总字节数（含 CRC）；可为 NULL
+ * @brief 将反馈数据按 Simulink 反馈帧格式写入缓冲区（小端字段 + CRC16）
+ * @details CRC16 由 `Bsp_Crc16Modbus_Byte` 计算后低字节在前写入缓冲区尾部。
+ * @param struIn 反馈数据源
+ * @param pu8Buf 目标缓冲区
+ * @param u16BufSize 缓冲区容量，须不小于 SIMULINK_FEEDBACK_FRAME_LEN
+ * @param pu16OutLen 可选：写入的总字节数（含 CRC）；可为 NULL
  * @return SIMULINK_PROTOCOL_OK；否则为空指针或缓冲区不足
  */
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *pIn,
-                                                                       uint8_t *pBuf,
-                                                                       uint16_t bufSize,
-                                                                       uint16_t *pOutLen)
+static SimulinkProtocolResult_t Svc_SimulinkProtocol_AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *struIn,
+                                                                       uint8_t *pu8Buf,
+                                                                       uint16_t u16BufSize,
+                                                                       uint16_t *pu16OutLen)
 {
-    uint16_t offset = 0U;  /* 帧内组帧偏移 */
-    uint16_t crc16;        /* 帧 CRC16 校验值 */
+    uint16_t u16Offset = 0U;  /* 帧内组帧偏移 */
+    uint16_t u16Crc16;        /* 帧 CRC16 校验值 */
 
-    if ((pIn == NULL) || (pBuf == NULL))
+    if ((struIn == NULL) || (pu8Buf == NULL))
     {
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
-    if (bufSize < SIMULINK_FEEDBACK_FRAME_LEN)
+    if (u16BufSize < SIMULINK_FEEDBACK_FRAME_LEN)
     {
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
 
-    pBuf[offset++] = SIMULINK_HEAD_BYTE0;
-    pBuf[offset++] = SIMULINK_HEAD_BYTE1;
-    pBuf[offset++] = SIMULINK_TYPE_FEEDBACK;
-    pBuf[offset++] = SIMULINK_LEN_FEEDBACK;
+    pu8Buf[u16Offset++] = SIMULINK_HEAD_BYTE0;
+    pu8Buf[u16Offset++] = SIMULINK_HEAD_BYTE1;
+    pu8Buf[u16Offset++] = SIMULINK_TYPE_FEEDBACK;
+    pu8Buf[u16Offset++] = SIMULINK_LEN_FEEDBACK;
 
-    Svc_PackInt16LE(&pBuf[offset], pIn->motor_current);
-    offset += 2U;
-    Svc_PackInt32LE(&pBuf[offset], pIn->motor_position);
-    offset += 4U;
-    Svc_PackInt32LE(&pBuf[offset], pIn->motor_speed);
-    offset += 4U;
-    Svc_PackInt32LE(&pBuf[offset], pIn->axis_position);
-    offset += 4U;
-    Svc_PackInt32LE(&pBuf[offset], pIn->axis_speed);
-    offset += 4U;
-    Svc_PackInt32LE(&pBuf[offset], pIn->pendulum_position);
-    offset += 4U;
-    Svc_PackInt32LE(&pBuf[offset], pIn->pendulum_speed);
-    offset += 4U;
+    Util_PackInt16LE(&pu8Buf[u16Offset], struIn->s16MotorCurrent);
+    u16Offset += 2U;
+    Util_PackInt32LE(&pu8Buf[u16Offset], struIn->s32MotorPosition);
+    u16Offset += 4U;
+    Util_PackInt32LE(&pu8Buf[u16Offset], struIn->s32MotorSpeed);
+    u16Offset += 4U;
+    Util_PackInt32LE(&pu8Buf[u16Offset], struIn->s32AxisPosition);
+    u16Offset += 4U;
+    Util_PackInt32LE(&pu8Buf[u16Offset], struIn->s32AxisSpeed);
+    u16Offset += 4U;
+    Util_PackInt32LE(&pu8Buf[u16Offset], struIn->s32PendulumPosition);
+    u16Offset += 4U;
+    Util_PackInt32LE(&pu8Buf[u16Offset], struIn->s32PendulumSpeed);
+    u16Offset += 4U;
 
-    crc16 = Svc_CalcCRC16Modbus(pBuf, offset);
-    pBuf[offset++] = (uint8_t)(crc16 & 0xFFU);
-    pBuf[offset++] = (uint8_t)((crc16 >> 8) & 0xFFU);
+    u16Crc16 = Bsp_Crc16Modbus_Byte(pu8Buf, u16Offset);
+    pu8Buf[u16Offset++] = (uint8_t)(u16Crc16 & 0xFFU);
+    pu8Buf[u16Offset++] = (uint8_t)((u16Crc16 >> 8) & 0xFFU);
 
-    if (pOutLen != NULL)
+    if (pu16OutLen != NULL)
     {
-        *pOutLen = offset;
+        *pu16OutLen = u16Offset;
     }
 
     return SIMULINK_PROTOCOL_OK;

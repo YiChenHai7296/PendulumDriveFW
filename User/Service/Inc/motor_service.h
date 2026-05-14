@@ -1,6 +1,9 @@
 /**
  * @file motor_service.h
- * @brief 电机功能服务对外接口：反馈数据、占空比控制
+ * @brief 服务层：电机相关语义接口（反馈、转速/占空比、电流零点标定）
+ * @details 模块路径：`User/Service`。对上提供 `Svc_MotorService_*`，对下通过 `hrtim.h` / `usart.h` / `adc.h` 等
+ *          驱动层 `Drv_*` 访问外设（具体 include 仅在对应 `.c`）。
+ *          类型与返回值与 `common.h` 中 `Status_t`、`FunctionalState_t` 对齐。
  */
 
 #ifndef MOTOR_SERVICE_H
@@ -8,13 +11,25 @@
 
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
-#include "service_common.h"
-#include "usart.h"
-#include "adc.h"
-#include "hrtim.h"
+#include "common.h"
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
-/* 无 */
+/**
+ * @brief 电流零点偏置校准开关
+ * @note  1: 启用校准，反馈电流扣除零点偏置
+ *        0: 关闭校准，直接上报原始电流
+ */
+#define MOTOR_CURRENT_ZERO_CALIB_ENABLE   1U
+
+/**
+ * @brief PWM 指令映射模式开关
+ * @note  1: 拟合反推（上位机给"目标实际占空比"，内部反推"应给定值"）
+ *        0: 直通（上位机给定值即最终输出值）
+ */
+#define MOTOR_PWM_USE_FIT_MAPPING         1U
+
+/** 转速指令万分比绝对值上限（与 Simulink 控制帧一致） */
+#define SPEED_PERMYRIAD_MAX  (10000)
 
 /* ======================== 3. 类型定义 ======================== */
 /**
@@ -36,13 +51,13 @@ typedef enum
  */
 typedef struct
 {
-    int16_t motor_current;       /**< 电机电流，范围 -2000~2000 */
-    int32_t motor_position;     /**< 电机位置，21 位编码器 */
-    int32_t motor_speed;        /**< 电机转速（°/s） */
-    int32_t axis_position;      /**< 轴位置，20 位编码器 */
-    int32_t axis_speed;         /**< 轴转速（°/s） */
-    int32_t pendulum_position;  /**< 摆位置，17 位编码器 */
-    int32_t pendulum_speed;     /**< 摆转速（°/s） */
+    int16_t s16MotorCurrent;       /**< 电机电流，范围 -2000~2000 */
+    int32_t s32MotorPosition;      /**< 电机位置，21 位编码器 */
+    int32_t s32MotorSpeed;         /**< 电机转速（°/s） */
+    int32_t s32AxisPosition;       /**< 轴位置，20 位编码器 */
+    int32_t s32AxisSpeed;          /**< 轴转速（°/s） */
+    int32_t s32PendulumPosition;   /**< 摆位置，17 位编码器 */
+    int32_t s32PendulumSpeed;      /**< 摆转速（°/s） */
 } MotorFeedbackData_t;
 
 /* ======================== 4. 对外变量声明 ======================== */
@@ -50,25 +65,24 @@ typedef struct
 
 /* ======================== 5. 接口函数声明 ======================== */
 /**
- * @brief 电机使能状态统一设置
- * @param enable SVC_ENABLE：上电初始化序列（默认停机、延时后电流零点标定）；SVC_DISABLE：停机（失能、占空比置 0、方向正向）
- * @note  SVC_ENABLE 用于系统上电或需重新做启动标定时调用；SVC_ENABLE 不直接打开 PWM，仍保持 DRV_DISABLE 直至占空比指令非零
+ * @brief 电机电流零点标定（须在 PWM 失能、电机静止下调用，如上电主循环入口一次）
+ * @note 受 `MOTOR_CURRENT_ZERO_CALIB_ENABLE` 控制；关闭时仅将偏置置 0
  */
-void Svc_MotorService_SetEnable(Svc_FunctionalState_t enable);
+void Svc_MotorService_CalibrateCurrentZero(void);
 
 /**
- * @brief 获取电机反馈数据：刷新编码器与电流，填位置/转速/电流到 pOut，供上位机或 Simulink 组帧
- * @param[out] pOut 反馈数据结构，与 SimulinkProtocolFeedbackData_t 布局一致
- * @return 操作结果，编码器解析失败时 pOut 可能包含无效数据
+ * @brief 获取电机反馈数据：读编码器与电流，填入输出结构
+ * @param[out] struOut 反馈数据；与 `SimulinkProtocolFeedbackData_t` 字段布局一致，便于上层组帧
+ * @return 操作结果；任一编码器解析失败时返回对应错误码，`struOut` 可能部分无效
  */
-MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *pOut);
+MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struOut);
 
 /**
- * @brief 电机转速/占空比控制：-10000~10000 对应 -100.00%~100.00%
- * @note  占空比正负用于区分电机转向：正为正转，负为反转
- * @param duty_permille 目标占空比指令，范围 -10000~10000
+ * @brief 按转速万分比（permyriad）设置电机输出：±`SPEED_PERMYRIAD_MAX` 对应满量程方向，内部映射为 PWM
+ * @note  正负用于区分电机转向：正为正转，负为反转
+ * @param s16SpeedPermyriad 转速万分比整数，合法范围为 `[-SPEED_PERMYRIAD_MAX, SPEED_PERMYRIAD_MAX]`
  * @return 操作结果
  */
-MotorServiceResult_t Svc_MotorService_SetDutyCycle(int16_t duty_permille);
+MotorServiceResult_t Svc_MotorService_SetMotorSpeedPermyriad(int16_t s16SpeedPermyriad);
 
 #endif /* MOTOR_SERVICE_H */

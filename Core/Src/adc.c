@@ -21,21 +21,17 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
-#include "usart.h"
-
+#include <stdio.h>
 
 #define ADC_DMA_RX_BUFF_LEN 1
 /* ADC采集原始数据 */
 __IO uint16_t g_au16ADC1VolValue[ADC_DMA_RX_BUFF_LEN]; /* 电机电压 ADC1 */
 __IO uint16_t g_au16ADC2VolValue[ADC_DMA_RX_BUFF_LEN];
+__IO uint16_t g_au16ADC3VolValue[ADC_DMA_RX_BUFF_LEN]; /* ADC3_IN1，HRTIM+DMA 循环缓冲 */
 static volatile uint32_t g_u32MotorADCRawSnapshotPack = 0U;
 
 /* ADC 测试输入电压值 */
 float g_fTestValue = 1.6f;
-
-/* ADC误差计算 */
-
-extern uint8_t g_au8DebugRxBuff[100];
 
 /* USER CODE END 0 */
 
@@ -44,6 +40,7 @@ ADC_HandleTypeDef hadc2;
 ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
+DMA_HandleTypeDef hdma_adc3;
 
 /* ADC1 init function */
 void MX_ADC1_Init(void)
@@ -108,6 +105,8 @@ void MX_ADC1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
+
+  Bsp_DelayMs(2000);/* 等待模拟前端稳定再校准 */
   if (HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED) != HAL_OK)
   {
     Error_Handler();
@@ -118,11 +117,6 @@ void MX_ADC1_Init(void)
     Error_Handler();
   }
   
-
- // HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
-  // HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&g_au16ADC1VolValue, 2);
-
-
   /* USER CODE END ADC1_Init 2 */
 
 }
@@ -185,7 +179,6 @@ void MX_ADC2_Init(void)
     Error_Handler();
   }
 
-  // HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)&g_au16ADC1VolValue, 1);
   if (HAL_ADC_Start_DMA(&hadc2, (uint32_t *)g_au16ADC2VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
   {
     Error_Handler();
@@ -223,8 +216,8 @@ void MX_ADC3_Init(void)
   hadc3.Init.ContinuousConvMode = DISABLE;
   hadc3.Init.NbrOfConversion = 1;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
-  hadc3.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIG_HRTIM_TRG6;
+  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
   hadc3.Init.DMAContinuousRequests = DISABLE;
   hadc3.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc3.Init.OversamplingMode = ENABLE;
@@ -258,7 +251,15 @@ void MX_ADC3_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC3_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
+  if (HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  if (HAL_ADC_Start_DMA(&hadc3, (uint32_t *)g_au16ADC3VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
   /* USER CODE END ADC3_Init 2 */
 
@@ -402,6 +403,24 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /* ADC3 DMA Init */
+    /* ADC3 Init */
+    hdma_adc3.Instance = DMA1_Channel5;
+    hdma_adc3.Init.Request = DMA_REQUEST_ADC3;
+    hdma_adc3.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_adc3.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_adc3.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_adc3.Init.Mode = DMA_CIRCULAR;
+    hdma_adc3.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_adc3) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc3);
+
   /* USER CODE BEGIN ADC3_MspInit 1 */
 
   /* USER CODE END ADC3_MspInit 1 */
@@ -468,6 +487,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_1);
 
+    /* ADC3 DMA DeInit */
+    HAL_DMA_DeInit(adcHandle->DMA_Handle);
   /* USER CODE BEGIN ADC3_MspDeInit 1 */
 
   /* USER CODE END ADC3_MspDeInit 1 */
@@ -476,39 +497,26 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
-float Drv_ADC_Read_MotorVol(void)
-{
-    float fADC1VolResult[2];
-    float fADC2VolResult[2];
-    float fMotorVol = 0.0f; /* 输出电压值 */
-
-    fADC1VolResult[0] = (float)g_au16ADC1VolValue[0] * (float)3.3f / 4096.0f;
-    fADC2VolResult[0] = (float)g_au16ADC2VolValue[0] * (float)3.3f / 4096.0f;
-
-    fMotorVol = (fADC1VolResult[0] + fADC2VolResult[0]) / 2.0f;
-
-    return fMotorVol;
-}
 /**
   * @brief  读取 ADC1、ADC2 快照中的原始采样值（各 12 位有效）
   * @note   数据来自 Drv_ADC_Motor_RawData_Snapshot 写入的快照；本函数将 32 位快照一次拆成两路，
   *         避免两次读 16 位期间被更新导致跨周期混叠。
   * @param  pOut  至少 2 个 uint16_t：pOut[0]=ADC1，pOut[1]=ADC2
-  * @retval DRV_OK 写入成功；DRV_ERROR 指针无效（pOut 为 NULL）
+  * @retval STATUS_OK 写入成功；STATUS_ERROR 指针无效（pOut 为 NULL）
   */
-Drv_StatusTypeDef Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
+Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
 {
     uint32_t u32RawPack;
 
     if (pOut == NULL)
     {
-        return DRV_ERROR;
+        return STATUS_ERROR;
     }
 
     u32RawPack = g_u32MotorADCRawSnapshotPack;
     pOut[0] = (uint16_t)(u32RawPack & 0xFFFFU);
     pOut[1] = (uint16_t)((u32RawPack >> 16) & 0xFFFFU);
-    return DRV_OK;
+    return STATUS_OK;
 }
 
 void Drv_ADC_Motor_RawData_Snapshot(void)
@@ -519,111 +527,52 @@ void Drv_ADC_Motor_RawData_Snapshot(void)
 }
 
 /**
-  * @brief  软件触发读取 ADC3_IN1 原始值（12位）
-  * @retval 原始 ADC 码值；若转换失败返回 0xFFFF
+  * @brief  读取 SoftRuler 通道（ADC3_IN1）当前 DMA 缓冲中的原始值（12 位有效）
+  * @details 与 ADC1/2 一致为 HRTIM 触发 + DMA 循环；单通道单 halfword，无需 32 位快照打包。
+  * @param[out] pOut 输出 1 个 uint16_t
+  * @retval STATUS_OK / STATUS_ERROR（pOut 为空）
   */
-uint16_t Drv_ADC3_ReadIn1Raw(void)
+Status_t Drv_ADC_SoftRuler_RawData_Read(uint16_t *pOut)
 {
-    if (HAL_ADC_Start(&hadc3) != HAL_OK)
+    if (pOut == NULL)
     {
-        return 0xFFFFU;
+        return STATUS_ERROR;
     }
 
-    if (HAL_ADC_PollForConversion(&hadc3, 10U) != HAL_OK)
-    {
-        (void)HAL_ADC_Stop(&hadc3);
-        return 0xFFFFU;
-    }
-
-    {
-        uint16_t u16Raw = (uint16_t)HAL_ADC_GetValue(&hadc3);
-        (void)HAL_ADC_Stop(&hadc3);
-        return u16Raw;
-    }
+    *pOut = g_au16ADC3VolValue[0];
+    return STATUS_OK;
 }
 
-/**
-  * @brief  软件触发读取 ADC3_IN1 电压值（V）
-  * @retval 电压值；若读取失败返回负值
-  */
-float Drv_ADC3_ReadIn1Voltage(void)
+void Drv_ADC_TEST(void)
 {
-    uint16_t u16Raw = Drv_ADC3_ReadIn1Raw();
-    if (u16Raw == 0xFFFFU)
+    uint16_t au16MotorRaw[2];
+    uint16_t u16SoftRaw;
+    float     fVmotor1;
+    float     fVmotor2;
+    float     fVsoft;
+
+    /* 电机快照仅由中断里 `Drv_ADC_Motor_RawData_Snapshot` 更新；此处只读上次快照 */
+    if (Drv_ADC_Motor_RawData_Read(au16MotorRaw) != STATUS_OK)
     {
-        return -1.0f;
-    }
-    return ((float)u16Raw * 3.3f) / 4095.0f;
-}
-
-void Drv_ADC_TEST()
-{
-    uint8_t u8TargeValueInt = 0;
-    unsigned int u16TargeValueFloat = 0;
-
-    uint8_t u8StopFlag = 0;
-
-    float        fTargetValue  = 0.0;     //测试电压
-    float        fMotorVol     = 0.0;     //当前采集电压
-    float        fSingleVolErr = 0.0;     //单次误差
-    float        fAverVolErr   = 0.0;     //平均误差
-    unsigned int u32TempI      = 0U;      //采集计数
-    float        fMaxVolErr    = 0.0;     /* �?大误�? */
-    float        fTotalVolErr  = 0.0;     /* 总误�? */
-
-
-    HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,10,100);  /* 清除串口缓冲�? */
-
-    printf("\n 请输入测试目标电压：(整数部分)\n");
-    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,1,1000));
-    u8TargeValueInt = g_au8DebugRxBuff[0]-0x30;
-
-    HAL_Delay(500);
-    
-    printf("\n 请输入测试目标电压：(四位小数部分)\n");
-    while(HAL_OK != HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,4,1000));
-    u16TargeValueFloat = (g_au8DebugRxBuff[0]-0x30)*1000+(g_au8DebugRxBuff[1]-0x30)*100+(g_au8DebugRxBuff[2]-0x30)*10+(g_au8DebugRxBuff[3]-0x30);
-
-    fTargetValue = u8TargeValueInt + u16TargeValueFloat/10000.0;
-
-    printf("\n 目标电压值：%f ，开始测试！\n",fTargetValue);
-
-    
-    while(!u8StopFlag)
-    {
-        /* 获取当前示数 */
-        fMotorVol = Drv_ADC_Read_MotorVol();
-
-        /* 单次误差计算 */
-        fSingleVolErr = fTargetValue - fMotorVol;
-        if(fSingleVolErr < 0)
-        {
-            fSingleVolErr = 0 - fSingleVolErr;
-        }
-        /* 判断�?大误�? */
-        if(fSingleVolErr > fMaxVolErr)
-        {
-            fMaxVolErr = fSingleVolErr;
-        }
-
-        /* 计算平均误差 */
-        fTotalVolErr += fSingleVolErr;
-        u32TempI++;
-        fAverVolErr = fTotalVolErr / (float)u32TempI;
-
-        printf("fMotorVol = %f  fSingleVolErr = %f  fAverVolErr = %f  fMaxVolErr = %f  \n",fMotorVol,fSingleVolErr,fAverVolErr,fMaxVolErr);
-        HAL_Delay(400); 
-
-
-        if(HAL_OK == HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,1,100))
-        {
-            u8StopFlag = 1;
-
-            HAL_UART_Receive(DEBUG_UART,g_au8DebugRxBuff,100,100);  /* 清除串口缓冲�? */
-        }
-        
+        printf("[ADC_TEST] Drv_ADC_Motor_RawData_Read fail\r\n");
+        return;
     }
 
+    if (Drv_ADC_SoftRuler_RawData_Read(&u16SoftRaw) != STATUS_OK)
+    {
+        printf("[ADC_TEST] Drv_ADC_SoftRuler_RawData_Read fail\r\n");
+        return;
+    }
+
+    fVmotor1 = (float)au16MotorRaw[0] * ADC_REFERENCE_VOLTAGE_V / ADC_RAW_FULL_RESOLUTION;
+    fVmotor2 = (float)au16MotorRaw[1] * ADC_REFERENCE_VOLTAGE_V / ADC_RAW_FULL_RESOLUTION;
+    fVsoft   = (float)u16SoftRaw * ADC_REFERENCE_VOLTAGE_V / ADC_RAW_FULL_RESOLUTION;
+
+    /* 依次：电机1 原始、电压 → 电机2 原始、电压 → 软尺 原始、电压 */
+    printf("[ADC_TEST] motor(ADC1) raw=%u  V=%.4f ; motor(ADC2) raw=%u  V=%.4f ; SoftRuler(ADC3) raw=%u  V=%.4f\r\n",
+           (unsigned int)au16MotorRaw[0], (double)fVmotor1,
+           (unsigned int)au16MotorRaw[1], (double)fVmotor2,
+           (unsigned int)u16SoftRaw, (double)fVsoft);
 }
 
 

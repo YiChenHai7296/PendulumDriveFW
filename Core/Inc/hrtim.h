@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "driver_common.h"
+#include "common.h"
 /* USER CODE END Includes */
 
 extern HRTIM_HandleTypeDef hhrtim1;
@@ -39,6 +39,9 @@ extern HRTIM_HandleTypeDef hhrtim1;
 #define MOTOR_DIR_FORWARD  0U
 #define MOTOR_DIR_REVERSE  1U
 
+/** PWM 占空比/指令有效下限（与此比较）；低于则视为无效脉宽或停机死区 */
+#define PWM_DUTY_CYCLE_MIN  (2U)
+
 /* USER CODE END Private defines */
 
 void MX_HRTIM1_Init(void);
@@ -46,9 +49,11 @@ void MX_HRTIM1_Init(void);
 void HAL_HRTIM_MspPostInit(HRTIM_HandleTypeDef *hhrtim);
 
 /* USER CODE BEGIN Prototypes */
-Drv_StatusTypeDef Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue);
+/* 电机 PWM 驱动层接口（`Core/Src/hrtim.c`，Drv_PWM_*），由 `User/Service` 电机服务等调用。 */
+
+Status_t Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue);
 void Drv_PWM_DirControl(uint8_t dir);
-void Drv_PWM_Enable(Drv_FunctionalState_t NewState);
+void Drv_PWM_Enable(FunctionalState_t NewState);
 
 /* USER CODE END Prototypes */
 

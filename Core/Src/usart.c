@@ -29,7 +29,7 @@
 #define UART_ENCODER_DMA_RX_BUFF     ENCODER_FRAME_LENGTH_BYTES
 #define ENCODER_SNAPSHOT_BYTES       12U   /* 前6字节=最新帧，后6字节=上一帧 */
 
-/* seqlock 读侧最大尝试次数（每次循环含「奇序等待」或「拷贝后 seq 变化」）；超限返回 DRV_TIMEOUT，避免极端争用忙等不止 */
+/* seqlock 读侧最大尝试次数（每次循环含「奇序等待」或「拷贝后 seq 变化」）；超限返回 STATUS_TIMEOUT，避免极端争用忙等不止 */
 #define ENC_SNAPSHOT_SEQLOCK_MAX_RETRY  8U
 
 /* UART3/4/5 编码器 DMA 接收缓冲 */
@@ -54,9 +54,9 @@ static volatile uint8_t g_u8Motor_front_idx       = 0U;
 static volatile uint8_t g_u8SwingArm_front_idx    = 0U;
 static volatile uint8_t g_u8OutputShaft_front_idx = 0U;
 
-static volatile uint32_t g_au32Motor_slot_seq[ENCODER_SNAPSHOT_POOL_NUM]       = {0};
-static volatile uint32_t g_au32SwingArm_slot_seq[ENCODER_SNAPSHOT_POOL_NUM]    = {0};
-static volatile uint32_t g_au32OutputShaft_slot_seq[ENCODER_SNAPSHOT_POOL_NUM] = {0};
+static volatile uint32_t g_u32MotorSlotSeq[ENCODER_SNAPSHOT_POOL_NUM]       = {0};
+static volatile uint32_t g_u32SwingArmSlotSeq[ENCODER_SNAPSHOT_POOL_NUM]    = {0};
+static volatile uint32_t g_u32OutputShaftSlotSeq[ENCODER_SNAPSHOT_POOL_NUM] = {0};
 
 /* 线上相邻帧链：保存「上一 IRQ 已成功录入」的 6 字节；本 IRQ 与 g_au8UartxDMABuff 拼成时间上相邻两帧（假定每回调 1 帧） */
 static uint8_t g_au8Motor_wire_prev[ENCODER_FRAME_LENGTH_BYTES];
@@ -78,14 +78,14 @@ rfq_queue_t g_struUart2RxRfq;
 
 
 /* 编码器快照 seqlock：实现位于 HAL_UART_TxCpltCallback 之前 */
-static void EncoderSnapshot_BeginSlotAssembly(volatile uint32_t *pSeqSlot);
-static void EncoderSnapshot_EndSlotPublish(volatile uint32_t *pSeqSlot,
+static void EncoderSnapshot_BeginSlotAssembly(volatile uint32_t *pu32SeqSlot);
+static void EncoderSnapshot_EndSlotPublish(volatile uint32_t *pu32SeqSlot,
                                            volatile uint8_t *pFrontIdx,
                                            uint8_t u8SlotIdx);
-static Drv_StatusTypeDef EncoderSnapshot_ReadDualSlot(volatile const uint32_t au32Seq[ENCODER_SNAPSHOT_POOL_NUM],
-                                                      const uint8_t au8Pool[ENCODER_SNAPSHOT_POOL_NUM][ENCODER_SNAPSHOT_BYTES],
-                                                      volatile const uint8_t *pu8FrontIdx,
-                                                      uint8_t *pOut);
+static Status_t EncoderSnapshot_ReadDualSlot(volatile const uint32_t *pu32SlotSeq,
+                                             const uint8_t au8Pool[ENCODER_SNAPSHOT_POOL_NUM][ENCODER_SNAPSHOT_BYTES],
+                                             volatile const uint8_t *pu8FrontIdx,
+                                             uint8_t *pu8Out);
 
 
 /* USER CODE END 0 */
@@ -229,7 +229,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-  Drv_RFQ_Init(&g_struUart1RxRfq);
+  Util_RFQ_Init(&g_struUart1RxRfq);
   HAL_UARTEx_ReceiveToIdle_DMA(&huart1, g_au8Uart1RecvBuff, UART_1_RX_BUFF_LEN);
 
   /* USER CODE END USART1_Init 2 */
@@ -275,7 +275,7 @@ void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-  Drv_RFQ_Init(&g_struUart2RxRfq);
+  Util_RFQ_Init(&g_struUart2RxRfq);
   HAL_UARTEx_ReceiveToIdle_DMA(&huart2, g_au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
 
   /* USER CODE END USART2_Init 2 */
@@ -783,56 +783,56 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   * @param  pBuf      数据存放的缓冲区指针
   * @param  bufMaxLen 缓冲区最大长度（字节）
   * @param  pOutLen   本次出队的实际长度，可为 NULL
-  * @retval DRV_OK 成功；DRV_ERROR 队列空或参数 pBuf/bufMaxLen 无效
+  * @retval STATUS_OK 成功；STATUS_ERROR 队列空或参数 pBuf/bufMaxLen 无效
   */
-Drv_StatusTypeDef Drv_Simulink_ControlFrame_GetData(uint8_t *pBuf, uint16_t bufMaxLen, uint16_t *pOutLen)
+Status_t Drv_Simulink_ControlFrame_GetData(uint8_t *pu8Buf, uint16_t u16BufMaxLen, uint16_t *pu16OutLen)
 {
-  if (pBuf == NULL || bufMaxLen == 0U)
+  if (pu8Buf == NULL || u16BufMaxLen == 0U)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
-  if (Drv_RFQ_Is_Empty(&g_struUart2RxRfq))
+  if (Util_RFQ_Is_Empty(&g_struUart2RxRfq))
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
   rfq_frame_t struRxFrame;
-  if (Drv_RFQ_Pop(&g_struUart2RxRfq, &struRxFrame) != 0)
+  if (Util_RFQ_Pop(&g_struUart2RxRfq, &struRxFrame) != 0)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
-  uint16_t u16CopyLen = struRxFrame.len;
-  if (u16CopyLen > bufMaxLen)
+  uint16_t u16CopyLen = struRxFrame.u16Len;
+  if (u16CopyLen > u16BufMaxLen)
   {
-    u16CopyLen = bufMaxLen;
+    u16CopyLen = u16BufMaxLen;
   }
-  memcpy(pBuf, struRxFrame.data, u16CopyLen);
+  memcpy(pu8Buf, struRxFrame.au8Bytes, u16CopyLen);
 
-  if (pOutLen != NULL)
+  if (pu16OutLen != NULL)
   {
-    *pOutLen = struRxFrame.len;
+    *pu16OutLen = struRxFrame.u16Len;
   }
-  return DRV_OK;
+  return STATUS_OK;
 }
 
 /**
   * @brief  通过 USART2 使用 DMA 发送一帧数据
   * @param  pBuf  待发送的数据缓冲区指针
   * @param  len   待发送的数据长度（字节）
-  * @retval DRV_OK 成功；DRV_ERROR 参数非法或底层发送失败
+  * @retval STATUS_OK 成功；STATUS_ERROR 参数非法或底层发送失败
   */
-Drv_StatusTypeDef Drv_Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
+Status_t Drv_Simulink_Feedback_Send(const uint8_t *pu8Buf, uint16_t u16Len)
 {
-  if (pBuf == NULL || len == 0U)
+  if (pu8Buf == NULL || u16Len == 0U)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
 
-  if (HAL_UART_Transmit_DMA(&huart2, (uint8_t *)pBuf, len) != HAL_OK)
+  if (HAL_UART_Transmit_DMA(&huart2, (uint8_t *)pu8Buf, u16Len) != HAL_OK)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
 
-  return DRV_OK;
+  return STATUS_OK;
 }
 
 /**
@@ -841,7 +841,7 @@ Drv_StatusTypeDef Drv_Simulink_Feedback_Send(const uint8_t *pBuf, uint16_t len)
   */
 void Drv_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel)
 {
-  Drv_EncoderLevelShifter_SetEnable(uart_sel, DRV_ENABLE);
+  Drv_EncoderLevelShifter_SetEnable(uart_sel, PRJ_ENABLE);
   switch (uart_sel)
   {
     case ENCODER_UART_MOTOR:
@@ -864,61 +864,61 @@ void Drv_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel)
 /**
   * @brief  获取电机编码器当前数据（UART3），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 12 字节的缓冲区
-  * @retval DRV_OK 已写入快照；DRV_ERROR 指针无效；DRV_TIMEOUT 序列锁重试耗尽（极少见）
+  * @retval STATUS_OK 已写入快照；STATUS_ERROR 指针无效；STATUS_TIMEOUT 序列锁重试耗尽（极少见）
  * @note  双槽每槽序列锁 + front；读侧再慢亦不会产生撕裂（可能多轮重试，有上限）。
  */
-Drv_StatusTypeDef Drv_MotorEncoder_GetData(uint8_t *pOut)
+Status_t Drv_MotorEncoder_GetData(uint8_t *pu8Out)
 {
-  if (pOut == NULL)
+  if (pu8Out == NULL)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
 
-  return EncoderSnapshot_ReadDualSlot(g_au32Motor_slot_seq, g_au8MotorEncoderBuffPool, &g_u8Motor_front_idx, pOut);
+  return EncoderSnapshot_ReadDualSlot(g_u32MotorSlotSeq, g_au8MotorEncoderBuffPool, &g_u8Motor_front_idx, pu8Out);
 }
 
 /**
   * @brief  获取输出轴编码器当前数据（UART5），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 12 字节的缓冲区
-  * @retval DRV_OK / DRV_ERROR / DRV_TIMEOUT 同 Drv_MotorEncoder_GetData
+  * @retval STATUS_OK / STATUS_ERROR / STATUS_TIMEOUT 同 Drv_MotorEncoder_GetData
  * @note  与 Drv_MotorEncoder_GetData 相同（双槽序列锁）。
  */
-Drv_StatusTypeDef Drv_OutputShaftEncoder_GetData(uint8_t *pOut)
+Status_t Drv_OutputShaftEncoder_GetData(uint8_t *pu8Out)
 {
-  if (pOut == NULL)
+  if (pu8Out == NULL)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
 
-  return EncoderSnapshot_ReadDualSlot(g_au32OutputShaft_slot_seq, g_au8OutputShaftEncoderBuffPool,
-                                      &g_u8OutputShaft_front_idx, pOut);
+  return EncoderSnapshot_ReadDualSlot(g_u32OutputShaftSlotSeq, g_au8OutputShaftEncoderBuffPool,
+                                      &g_u8OutputShaft_front_idx, pu8Out);
 }
 
 /**
   * @brief  获取摆杆编码器当前数据（UART4），12 字节；前6字节=最新帧，后6字节=上一帧
   * @param  pOut  指向至少 12 字节的缓冲区
-  * @retval DRV_OK / DRV_ERROR / DRV_TIMEOUT 同 Drv_MotorEncoder_GetData
+  * @retval STATUS_OK / STATUS_ERROR / STATUS_TIMEOUT 同 Drv_MotorEncoder_GetData
  * @note  与 Drv_MotorEncoder_GetData 相同（双槽序列锁）。
  */
-Drv_StatusTypeDef Drv_SwingArmEncoder_GetData(uint8_t *pOut)
+Status_t Drv_SwingArmEncoder_GetData(uint8_t *pu8Out)
 {
-  if (pOut == NULL)
+  if (pu8Out == NULL)
   {
-    return DRV_ERROR;
+    return STATUS_ERROR;
   }
 
-  return EncoderSnapshot_ReadDualSlot(g_au32SwingArm_slot_seq, g_au8SwingArmEncoderBuffPool,
-                                      &g_u8SwingArm_front_idx, pOut);
+  return EncoderSnapshot_ReadDualSlot(g_u32SwingArmSlotSeq, g_au8SwingArmEncoderBuffPool,
+                                      &g_u8SwingArm_front_idx, pu8Out);
 }
 
 /**
   * @brief  控制编码器串口对应电平转换芯片的使能引脚（高=发送使能，低=接收使能）
   * @param  uart_sel 串口选择：ENCODER_UART_MOTOR(3)=PB4，ENCODER_UART_SWING(4)=PB9，ENCODER_UART_SHAFT(5)=PC13
-  * @param  state    DRV_ENABLE=高电平可发送，DRV_DISABLE=低电平可接收
+  * @param  state    PRJ_ENABLE=高电平可发送，PRJ_DISABLE=低电平可接收
   */
-void Drv_EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, Drv_FunctionalState_t state)
+void Drv_EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, FunctionalState_t state)
 {
-  GPIO_PinState pin_state = (state != DRV_DISABLE) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+  GPIO_PinState pin_state = (state != PRJ_DISABLE) ? GPIO_PIN_SET : GPIO_PIN_RESET;
 
   switch (uart_sel)
   {
@@ -939,33 +939,33 @@ void Drv_EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, Drv_Functional
 /**
  * @brief  ISR：开始对 wslot 组帧（seq 置奇，读侧跳过该槽）
  */
-static void EncoderSnapshot_BeginSlotAssembly(volatile uint32_t *pSeqSlot)
+static void EncoderSnapshot_BeginSlotAssembly(volatile uint32_t *pu32SeqSlot)
 {
-  (*pSeqSlot)++;
+  (*pu32SeqSlot)++;
   __COMPILER_BARRIER();
 }
 
 /**
  * @brief  ISR：本槽 12 字节已写完 — seq 置偶并公布 front（读侧可读该槽）
  */
-static void EncoderSnapshot_EndSlotPublish(volatile uint32_t *pSeqSlot,
+static void EncoderSnapshot_EndSlotPublish(volatile uint32_t *pu32SeqSlot,
                                            volatile uint8_t *pFrontIdx,
                                            uint8_t u8SlotIdx)
 {
   __COMPILER_BARRIER();
-  (*pSeqSlot)++;
+  (*pu32SeqSlot)++;
   __COMPILER_BARRIER();
   *pFrontIdx = u8SlotIdx;
 }
 
 /**
  * @brief  任务侧：从 front 所指槽拷贝，该槽 seq 偶且前后一致则成功
- * @retval DRV_OK 拷贝成功；DRV_TIMEOUT 超过 ENC_SNAPSHOT_SEQLOCK_MAX_RETRY（此时 pOut 填 0）
+ * @retval STATUS_OK 拷贝成功；STATUS_TIMEOUT 超过 ENC_SNAPSHOT_SEQLOCK_MAX_RETRY（此时 pu8Out 填 0）
  */
-static Drv_StatusTypeDef EncoderSnapshot_ReadDualSlot(volatile const uint32_t au32Seq[ENCODER_SNAPSHOT_POOL_NUM],
-                                                    const uint8_t au8Pool[ENCODER_SNAPSHOT_POOL_NUM][ENCODER_SNAPSHOT_BYTES],
-                                                    volatile const uint8_t *pu8FrontIdx,
-                                                    uint8_t *pOut)
+static Status_t EncoderSnapshot_ReadDualSlot(volatile const uint32_t *pu32SlotSeq,
+                                             const uint8_t au8Pool[ENCODER_SNAPSHOT_POOL_NUM][ENCODER_SNAPSHOT_BYTES],
+                                             volatile const uint8_t *pu8FrontIdx,
+                                             uint8_t *pu8Out)
 {
   uint32_t u32Attempt;
 
@@ -981,36 +981,36 @@ static Drv_StatusTypeDef EncoderSnapshot_ReadDualSlot(volatile const uint32_t au
       u8Idx = 0U;
     }
 
-    u32S1 = au32Seq[u8Idx];
+    u32S1 = pu32SlotSeq[u8Idx];
     if ((u32S1 & 1U) != 0U)
     {
       continue;
     }
-    memcpy(pOut, au8Pool[u8Idx], ENCODER_SNAPSHOT_BYTES);
-    u32S2 = au32Seq[u8Idx];
+    memcpy(pu8Out, au8Pool[u8Idx], ENCODER_SNAPSHOT_BYTES);
+    u32S2 = pu32SlotSeq[u8Idx];
     if (u32S1 == u32S2)
     {
-      return DRV_OK;
+      return STATUS_OK;
     }
   }
 
-  (void)memset(pOut, 0, ENCODER_SNAPSHOT_BYTES);
-  return DRV_TIMEOUT;
+  (void)memset(pu8Out, 0, ENCODER_SNAPSHOT_BYTES);
+  return STATUS_TIMEOUT;
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart->Instance == USART3)
   {
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, DRV_DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, PRJ_DISABLE);
   }
   else if (huart->Instance == UART4)
   {
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, DRV_DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, PRJ_DISABLE);
   }
   else if (huart->Instance == UART5)
   {
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, DRV_DISABLE);
+    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, PRJ_DISABLE);
   }
 }
 
@@ -1061,7 +1061,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     if (Size > 0U)
     {
-      Drv_RFQ_Push(&g_struUart1RxRfq, g_au8Uart1RecvBuff, Size);
+      Util_RFQ_Push(&g_struUart1RxRfq, g_au8Uart1RecvBuff, Size);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart1, g_au8Uart1RecvBuff, UART_1_RX_BUFF_LEN);
   }
@@ -1069,7 +1069,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     if (Size > 0U)
     {
-      Drv_RFQ_Push(&g_struUart2RxRfq, g_au8Uart2RecvBuff, Size);
+      Util_RFQ_Push(&g_struUart2RxRfq, g_au8Uart2RecvBuff, Size);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart2, g_au8Uart2RecvBuff, UART2_RX_BUFF_LEN);
   }
@@ -1082,7 +1082,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     {
       uint8_t u8Wslot = (uint8_t)(g_u8Motor_front_idx ^ 1U);
 
-      EncoderSnapshot_BeginSlotAssembly(&g_au32Motor_slot_seq[u8Wslot]);
+      EncoderSnapshot_BeginSlotAssembly(&g_u32MotorSlotSeq[u8Wslot]);
 
       /* 组 12 字节：[0..5]=g_au8Uart3DMABuff 本拍；[6..11]=g_au8Motor_wire_prev 上一拍（接收顺序相邻） */
       if (g_u8Motor_chain_valid == 0U)
@@ -1101,7 +1101,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
              ENCODER_FRAME_LENGTH_BYTES);
       memcpy(g_au8Motor_wire_prev, g_au8Uart3DMABuff, ENCODER_FRAME_LENGTH_BYTES);
       g_u8Motor_chain_valid = 1U;
-      EncoderSnapshot_EndSlotPublish(&g_au32Motor_slot_seq[u8Wslot], &g_u8Motor_front_idx, u8Wslot);
+      EncoderSnapshot_EndSlotPublish(&g_u32MotorSlotSeq[u8Wslot], &g_u8Motor_front_idx, u8Wslot);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, g_au8Uart3DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
@@ -1111,7 +1111,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     {
       uint8_t u8Wslot = (uint8_t)(g_u8SwingArm_front_idx ^ 1U);
 
-      EncoderSnapshot_BeginSlotAssembly(&g_au32SwingArm_slot_seq[u8Wslot]);
+      EncoderSnapshot_BeginSlotAssembly(&g_u32SwingArmSlotSeq[u8Wslot]);
 
       if (g_u8SwingArm_chain_valid == 0U)
       {
@@ -1129,7 +1129,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
              ENCODER_FRAME_LENGTH_BYTES);
       memcpy(g_au8SwingArm_wire_prev, g_au8Uart4DMABuff, ENCODER_FRAME_LENGTH_BYTES);
       g_u8SwingArm_chain_valid = 1U;
-      EncoderSnapshot_EndSlotPublish(&g_au32SwingArm_slot_seq[u8Wslot], &g_u8SwingArm_front_idx, u8Wslot);
+      EncoderSnapshot_EndSlotPublish(&g_u32SwingArmSlotSeq[u8Wslot], &g_u8SwingArm_front_idx, u8Wslot);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart4, g_au8Uart4DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
@@ -1140,7 +1140,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     {
       uint8_t u8Wslot = (uint8_t)(g_u8OutputShaft_front_idx ^ 1U);
 
-      EncoderSnapshot_BeginSlotAssembly(&g_au32OutputShaft_slot_seq[u8Wslot]);
+      EncoderSnapshot_BeginSlotAssembly(&g_u32OutputShaftSlotSeq[u8Wslot]);
 
       if (g_u8OutputShaft_chain_valid == 0U)
       {
@@ -1158,7 +1158,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
              ENCODER_FRAME_LENGTH_BYTES);
       memcpy(g_au8OutputShaft_wire_prev, g_au8Uart5DMABuff, ENCODER_FRAME_LENGTH_BYTES);
       g_u8OutputShaft_chain_valid = 1U;
-      EncoderSnapshot_EndSlotPublish(&g_au32OutputShaft_slot_seq[u8Wslot], &g_u8OutputShaft_front_idx, u8Wslot);
+      EncoderSnapshot_EndSlotPublish(&g_u32OutputShaftSlotSeq[u8Wslot], &g_u8OutputShaft_front_idx, u8Wslot);
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart5, g_au8Uart5DMABuff, UART_ENCODER_DMA_RX_BUFF);
   }
