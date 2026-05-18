@@ -53,8 +53,9 @@ void MX_ADC3_Init(void);
 /* 电机电流等 ADC 驱动层接口（`Core/Src/adc.c`，Drv_ADC_*），由 `User/Service` 等调用。 */
 
 /**
- * @brief  调试：`Drv_ADC_Motor_RawData_Read` 与 `Drv_ADC_SoftRuler_RawData_Read` 取原始码，用 `ADC_REFERENCE_VOLTAGE_V` / `ADC_RAW_FULL_RESOLUTION` 换算电压后 `printf`
- * @note   电机两路数据来自中断里已执行的 `Drv_ADC_Motor_RawData_Snapshot`；本函数不再打快照。`printf` 需 `DEBUG_PRINTF`。
+ * @brief  调试：读电机 ADC1/2 与摆杆 SoftRuler(ADC3) 原始码，换算采样电压并计算理论量后 `printf`
+ * @note   电机侧理论电流：(Vadc-1.6)/41/0.02（A）；摆杆侧理论输入电压：(Vadc-1.6)/0.16（V）。
+ *         电机两路数据来自中断里已执行的 `Drv_ADC_Motor_RawData_Snapshot`；本函数不再打快照。`printf` 需 `DEBUG_PRINTF`。
  */
 void Drv_ADC_TEST(void);
 

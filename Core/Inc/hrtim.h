@@ -39,8 +39,12 @@ extern HRTIM_HandleTypeDef hhrtim1;
 #define MOTOR_DIR_FORWARD  0U
 #define MOTOR_DIR_REVERSE  1U
 
-/** PWM 占空比/指令有效下限（与此比较）；低于则视为无效脉宽或停机死区 */
-#define PWM_DUTY_CYCLE_MIN  (2U)
+/** PWM 占空比/指令有效下限（与此比较）；低于则视为无效脉宽或停机死区。
+ *  须 ≥4：关断占位用同一套 CMP 公式时，k<4 会使 CMP2=k/2-1=0，ADC2 外触发(TRG6←CMP2)失效。 */
+#define PWM_DUTY_CYCLE_MIN  (8U)
+#if (PWM_DUTY_CYCLE_MIN < 4U)
+#error "PWM_DUTY_CYCLE_MIN must be >= 4 (ADC2 uses HRTIM TimerA CMP2 external trigger)"
+#endif
 
 /* USER CODE END Private defines */
 

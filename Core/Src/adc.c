@@ -312,7 +312,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_adc1.Init.Mode = DMA_CIRCULAR;
-    hdma_adc1.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_MEDIUM;
     if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
     {
       Error_Handler();
@@ -364,7 +364,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc2.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_adc2.Init.Mode = DMA_CIRCULAR;
-    hdma_adc2.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_adc2.Init.Priority = DMA_PRIORITY_MEDIUM;
     if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
     {
       Error_Handler();
@@ -413,7 +413,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_adc3.Init.Mode = DMA_CIRCULAR;
-    hdma_adc3.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_adc3.Init.Priority = DMA_PRIORITY_MEDIUM;
     if (HAL_DMA_Init(&hdma_adc3) != HAL_OK)
     {
       Error_Handler();
@@ -550,6 +550,13 @@ void Drv_ADC_TEST(void)
     float     fVmotor1;
     float     fVmotor2;
     float     fVsoft;
+    float     fImotor1Theory;
+    float     fImotor2Theory;
+    float     fVinSoftTheory;
+    const float fOffsetV       = 1.6f;   /* 运放/偏置扣除 */
+    const float fMotorGain     = 41.0f;  /* 电流放大倍数 */
+    const float fShuntOhm      = 0.02f;  /* 采样电阻 20 mΩ */
+    const float fSoftVinDiv    = 0.16f;  /* 摆杆侧：(Vadc-1.6)/0.16 → 输入电压理论值 */
 
     /* 电机快照仅由中断里 `Drv_ADC_Motor_RawData_Snapshot` 更新；此处只读上次快照 */
     if (Drv_ADC_Motor_RawData_Read(au16MotorRaw) != STATUS_OK)
@@ -568,11 +575,18 @@ void Drv_ADC_TEST(void)
     fVmotor2 = (float)au16MotorRaw[1] * ADC_REFERENCE_VOLTAGE_V / ADC_RAW_FULL_RESOLUTION;
     fVsoft   = (float)u16SoftRaw * ADC_REFERENCE_VOLTAGE_V / ADC_RAW_FULL_RESOLUTION;
 
-    /* 依次：电机1 原始、电压 → 电机2 原始、电压 → 软尺 原始、电压 */
-    printf("[ADC_TEST] motor(ADC1) raw=%u  V=%.4f ; motor(ADC2) raw=%u  V=%.4f ; SoftRuler(ADC3) raw=%u  V=%.4f\r\n",
-           (unsigned int)au16MotorRaw[0], (double)fVmotor1,
-           (unsigned int)au16MotorRaw[1], (double)fVmotor2,
-           (unsigned int)u16SoftRaw, (double)fVsoft);
+    /* 电机侧理论电流(A)：(Vadc-1.6)/41/20mΩ */
+    fImotor1Theory = (fVmotor1 - fOffsetV) / fMotorGain / fShuntOhm;
+    fImotor2Theory = (fVmotor2 - fOffsetV) / fMotorGain / fShuntOhm;
+    /* 摆杆侧理论输入电压(V)：(Vadc-1.6)/0.16 */
+    fVinSoftTheory = (fVsoft - fOffsetV) / fSoftVinDiv;
+
+    printf("\n[ADC_TEST] motor(ADC1) raw=%u ; V=%.4f ; I_theory=%.4fA\r\n",
+           (unsigned int)au16MotorRaw[0], (double)fVmotor1, (double)fImotor1Theory);
+    printf("[ADC_TEST] motor(ADC2) raw=%u ; V=%.4f ; I_theory=%.4fA\r\n",
+           (unsigned int)au16MotorRaw[1], (double)fVmotor2, (double)fImotor2Theory);
+    printf("[ADC_TEST] SoftRuler(ADC3) raw=%u ; V=%.4f ; Vin_theory=%.4fV\r\n",
+           (unsigned int)u16SoftRaw, (double)fVsoft, (double)fVinSoftTheory);
 }
 
 

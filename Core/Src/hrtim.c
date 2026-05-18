@@ -143,7 +143,7 @@ void MX_HRTIM1_Init(void)
   {
     Error_Handler();
   }
-  pTimerCfg.InterruptRequests = HRTIM_TIM_IT_NONE;
+  pTimerCfg.InterruptRequests = HRTIM_TIM_IT_CMP1;
   pTimerCfg.DMARequests = HRTIM_TIM_DMA_NONE;
   pTimerCfg.RepetitionUpdate = HRTIM_UPDATEONREPETITION_ENABLED;
   pTimerCfg.PushPull = HRTIM_TIMPUSHPULLMODE_DISABLED;
@@ -158,7 +158,6 @@ void MX_HRTIM1_Init(void)
   {
     Error_Handler();
   }
-  pTimerCfg.InterruptRequests = HRTIM_TIM_IT_CMP1;
   pTimerCfg.PreloadEnable = HRTIM_PRELOAD_DISABLED;
   pTimerCfg.RepetitionUpdate = HRTIM_UPDATEONREPETITION_DISABLED;
   if (HAL_HRTIM_WaveformTimerConfig(&hhrtim1, HRTIM_TIMERINDEX_TIMER_B, &pTimerCfg) != HAL_OK)
@@ -210,7 +209,8 @@ void MX_HRTIM1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN HRTIM1_Init 2 */
-
+  /* Timer A CMP1 中断：由上方 MX 配置 InterruptRequests=HRTIM_TIM_IT_CMP1 使能；
+   * HAL_HRTIM_Compare1EventCallback(TIMER_A) 内 Drv_ADC_Motor_RawData_Snapshot 依赖此事件。 */
   /* USER CODE END HRTIM1_Init 2 */
   HAL_HRTIM_MspPostInit(&hhrtim1);
 
@@ -228,11 +228,11 @@ void HAL_HRTIM_MspInit(HRTIM_HandleTypeDef* hrtimHandle)
     __HAL_RCC_HRTIM1_CLK_ENABLE();
 
     /* HRTIM1 interrupt Init */
-    HAL_NVIC_SetPriority(HRTIM1_Master_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(HRTIM1_Master_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_Master_IRQn);
-    HAL_NVIC_SetPriority(HRTIM1_TIMA_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(HRTIM1_TIMA_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_TIMA_IRQn);
-    HAL_NVIC_SetPriority(HRTIM1_TIMB_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(HRTIM1_TIMB_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_TIMB_IRQn);
   /* USER CODE BEGIN HRTIM1_MspInit 1 */
 
@@ -349,12 +349,17 @@ Status_t Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue)
  */
 static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse)
 {
-  /* u16T2Pulse < PWM_DUTY_CYCLE_MIN：无法按占空比公式配置，比较器全部清零（安全停机/占位） */
+  /* 低于 PWM_DUTY_CYCLE_MIN：逻辑关断。不可把 TimerA 三比较器全写 0：
+   * ADC1/2 由 HRTIM TimerA 的 CMP3/CMP2 外触发，全 0 时外触发与 DMA 停步，
+   * Drv_ADC_Motor_RawData_Snapshot 仍读旧缓冲，电流反馈会卡在上一非零占空比时的值（如约 -170mA）。 */
   if (u16T2Pulse < PWM_DUTY_CYCLE_MIN)
   {
-    HRTIM1->sTimerxRegs[0].CMP1xR = 0U;
-    HRTIM1->sTimerxRegs[0].CMP2xR = 0U;
-    HRTIM1->sTimerxRegs[0].CMP3xR = 0U;
+    /* 占位：CMP 用 PWM_DUTY_CYCLE_MIN（≥4，见 hrtim.h），保证 CMP2≠0、ADC 外触发不断 */
+    const uint16_t u16Keep = PWM_DUTY_CYCLE_MIN;
+
+    HRTIM1->sTimerxRegs[0].CMP1xR = u16Keep - 1U;
+    HRTIM1->sTimerxRegs[0].CMP2xR = u16Keep / 2U - 1U;
+    HRTIM1->sTimerxRegs[0].CMP3xR = (17000U - u16Keep) / 2U + u16Keep - 1U;
     return STATUS_OK;
   }
 

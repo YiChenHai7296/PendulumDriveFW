@@ -142,11 +142,6 @@ int main(void)
   HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_B);
   HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_MASTER);
 
-
-  /* 串口启动 */
-  HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
-
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -158,7 +153,7 @@ int main(void)
   {
 #if TEST_ADC
     Drv_ADC_TEST();
-    Bsp_DelayMs(200);
+    Bsp_DelayMs(500);
 #endif
   }
 #else

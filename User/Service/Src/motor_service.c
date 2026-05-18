@@ -12,6 +12,11 @@
 #include "adc.h"
 #include "hrtim.h"
 
+/* 指令死区与 `PWM_DUTY_CYCLE_MIN`（hrtim.h）同数值；此处用无后缀十进制，参与比较有符号整型提升，
+ * 杜绝 `s16 > 8U` 一类把负数变成巨大无符号数的陷阱。若改 HRTIM 下限须同步改此处并通过 #if。 */
+
+
+
 /* ======================== 2. 私有宏定义 ======================== */
 /* 编码器快照 12 字节：前6=最新帧，后6=上一帧 */
 #define ENCODER_FRAME_LENGTH_BYTES   6U      /* 编码器单帧长度：CM(1) + SA(1) + AS0~AS2(3) + CRC8(1) */
@@ -74,8 +79,8 @@ typedef struct
 typedef enum
 {
     ENCODER_BITS_21 = 21,  /* 21位编码器（电机） */
-    ENCODER_BITS_20 = 20,  /* 20位编码器（输出轴） */
-    ENCODER_BITS_17 = 17   /* 17位编码器（摆臂） */
+    ENCODER_BITS_20 = 20,  /* 20 位（预留/其它） */
+    ENCODER_BITS_17 = 17   /* 17 位：摆臂、输出轴 */
 } EncoderBits_t;
 
 /* ======================== 4. 私有变量 ======================== */
@@ -86,7 +91,8 @@ static float sMotorCurrentZeroOffsetA = 0.0f;
 /* 无 */
 
 /* ======================== 6. 私有函数声明 ======================== */
-static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pu8Frame,
+static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(EncoderUartSel_t uartSel,
+                                                          const uint8_t *pu8Frame,
                                                           uint16_t u16Length,
                                                           EncoderFrame_t *struOut);
 static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderDual_t *struOut);
@@ -94,9 +100,9 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t
 static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderDual_t *struOut);
 
 static float Svc_EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, EncoderBits_t bits);
-static float Svc_EncoderSpeed_CalcMotor(const EncoderDual_t *struDual);
-static float Svc_EncoderSpeed_CalcOutputShaft(const EncoderDual_t *struDual);
-static float Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual);
+static float   Svc_EncoderSpeed_CalcMotor(const EncoderDual_t *struDual);
+static float   Svc_EncoderSpeed_CalcOutputShaft(const EncoderDual_t *struDual);
+static float   Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual);
 
 static float Svc_MotorService_GetMotorVoltage(void);
 static float Svc_MotorService_GetMotorCurrentRaw(void);
@@ -109,6 +115,15 @@ static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t u16DutyPermilleAbs)
 
 static MotorServiceResult_t Svc_MotorService_MapEncoderResult(EncoderProtocolResult_t encRes,
                                                           MotorServiceResult_t encoderErr);
+
+/** 与 `simulink_protocol.c` 中反馈帧字段校验范围一致，避免 float→int32 未定义行为及异常尖峰 */
+#define FEEDBACK_SPD_MOTOR_MAX_ABS     40000
+#define FEEDBACK_SPD_AXIS_PEND_MAX_ABS 4000
+
+/** 摆杆速度 |°/s| 超过该阈值时 printf 打印双帧绝对位置（调试用） */
+#define PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS  (60000.0f)
+
+static int32_t Svc_EncoderSpeed_FloatToInt32Clamped(float v, int32_t s32Lo, int32_t s32Hi);
 
 /* ======================== 7. 接口函数实现 ======================== */
 /**
@@ -125,6 +140,8 @@ void Svc_MotorService_CalibrateCurrentZero(void)
 
     /* 标定前确保电机处于失能状态，避免运动电流污染零点 */
     Drv_PWM_Enable(PRJ_DISABLE);
+    /* 同步 HRTIM 比较器到“逻辑关断”占位，否则仍可能停在 Cube 初值或大占空比，标零会采到错误母线电流 */
+    (void)Drv_PWM_TargePulse_Set(0U);
     Bsp_DelayMs(MOTOR_CURRENT_ZERO_CALIB_WARMUP_MS);
 
     /* 丢弃启动阶段样本，避免把 DMA 初值或瞬态当成零点 */
@@ -175,24 +192,30 @@ MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struO
     }
 
     /* 读取三个编码器的双帧数据 */
+    #if 1
     encRes = Svc_EncoderProtocol_ReadMotor(&struMotorDual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
+        printf("电机编码器读取失败\n");
         return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
     }
-
+#endif
+#if 1
     encRes = Svc_EncoderProtocol_ReadSwingArm(&struSwingDual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
+        printf("摆杆编码器读取失败\n");
         return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SWING);
     }
-
+    #endif
+#if 1
     encRes = Svc_EncoderProtocol_ReadOutputShaft(&struShaftDual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
+        printf("输出轴编码器读取失败\n");
         return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SHAFT);
     }
-
+#endif
     /* 读取并转换电机电流，限制在有效范围内 */
     currentA = Svc_MotorService_GetMotorCurrent();
 
@@ -211,19 +234,28 @@ MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struO
 
     /* 填充位置数据（取最新帧的绝对位置） */
     struOut->s32MotorPosition    = (int32_t)struMotorDual.struLatest.u32AbsolutePosition;
-    struOut->s32AxisPosition     = (int32_t)(struShaftDual.struLatest.u32AbsolutePosition & 0xFFFFFU);  /* 20位掩码 */
-    struOut->s32PendulumPosition = (int32_t)(struSwingDual.struLatest.u32AbsolutePosition & 0x1FFFFU); /* 17位掩码 */
+    struOut->s32AxisPosition     = (int32_t)(struShaftDual.struLatest.u32AbsolutePosition & ENCODER_ABS_POSITION_MAX_17BIT);
+    struOut->s32PendulumPosition = (int32_t)(struSwingDual.struLatest.u32AbsolutePosition & ENCODER_ABS_POSITION_MAX_17BIT);
 
-    /* 计算并填充转速数据（基于双帧位置差） */
+    /* 计算并填充转速数据（基于双帧位置差）；饱和+NaN 防护，与上位机反馈范围一致 */
+    #if 1
     speedF = Svc_EncoderSpeed_CalcMotor(&struMotorDual);
-    struOut->s32MotorSpeed = (int32_t)speedF;
-
+    struOut->s32MotorSpeed = Svc_EncoderSpeed_FloatToInt32Clamped(speedF,
+                                                                -FEEDBACK_SPD_MOTOR_MAX_ABS,
+                                                                FEEDBACK_SPD_MOTOR_MAX_ABS);
+#endif
+#if 1
     speedF = Svc_EncoderSpeed_CalcOutputShaft(&struShaftDual);
-    struOut->s32AxisSpeed =  (int32_t)speedF;
-
+    struOut->s32AxisSpeed = Svc_EncoderSpeed_FloatToInt32Clamped(speedF,
+                                                                -FEEDBACK_SPD_AXIS_PEND_MAX_ABS,
+                                                                FEEDBACK_SPD_AXIS_PEND_MAX_ABS);
+#endif
+#if 1
     speedF = Svc_EncoderSpeed_CalcSwingArm(&struSwingDual);
-    struOut->s32PendulumSpeed = (int32_t)speedF;
-
+    struOut->s32PendulumSpeed = Svc_EncoderSpeed_FloatToInt32Clamped(speedF,
+                                                                      -FEEDBACK_SPD_AXIS_PEND_MAX_ABS,
+                                                                      FEEDBACK_SPD_AXIS_PEND_MAX_ABS);
+#endif
     return MOTOR_SVC_OK;
 }
 
@@ -244,14 +276,15 @@ MotorServiceResult_t Svc_MotorService_SetMotorSpeedPermyriad(int16_t s16SpeedPer
         return MOTOR_SVC_ERR_PARAM;
     }
 
-    /* 正转 / 反转 / 零指令：零指令走停机路径（与原先 u16Duty==0 分支一致） */
-    if (s16SpeedPermyriad > 0)
+    /* 正转 / 反转 / 零指令：与 `MOTOR_SVC_SPEED_CMD_DEADBAND`（=PWM_DUTY_CYCLE_MIN 数值）比较有符号整型，
+     * 勿写 `s16 > PWM_DUTY_CYCLE_MIN`：`PWM_DUTY_CYCLE_MIN` 为 8U 时负指令会误判为真。 */
+    if (s16SpeedPermyriad > (int16_t)PWM_DUTY_CYCLE_MIN)
     {
         /* 正指令：电机正转 */
         Drv_PWM_DirControl(MOTOR_DIR_FORWARD);
         u16Duty = (uint16_t)s16SpeedPermyriad;
     }
-    else if (s16SpeedPermyriad < 0)
+    else if (s16SpeedPermyriad < -(int16_t)PWM_DUTY_CYCLE_MIN)
     {
         /* 负指令：电机反转 */
         Drv_PWM_DirControl(MOTOR_DIR_REVERSE);
@@ -322,7 +355,8 @@ static MotorServiceResult_t Svc_MotorService_MapEncoderResult(EncoderProtocolRes
  * @param struOut 解析结果输出
  * @return 解析结果
  */
-static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pu8Frame,
+static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(EncoderUartSel_t uartSel,
+                                                          const uint8_t *pu8Frame,
                                                           uint16_t u16Length,
                                                           EncoderFrame_t *struOut)
 {
@@ -351,6 +385,16 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pu8
     /* 校验帧头 */
     if (u8Cm != ENCODER_CM_VALUE)
     {
+        printf("帧头错误: CM=0x%02X 期望=0x%02X 六字节整帧: %02X %02X %02X %02X %02X %02X",
+               (unsigned int)u8Cm,
+               (unsigned int)ENCODER_CM_VALUE,
+               (unsigned int)pu8Frame[0],
+               (unsigned int)pu8Frame[1],
+               (unsigned int)pu8Frame[2],
+               (unsigned int)pu8Frame[3],
+               (unsigned int)pu8Frame[4],
+               (unsigned int)pu8Frame[5]);
+        Drv_EncoderUart_LogHwErrorFlags(uartSel);
         return ENCODER_PROTOCOL_ERR_LENGTH;
     }
 
@@ -358,6 +402,16 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(const uint8_t *pu8
     u8CrcCalc = Util_CalcCRC8(pu8Frame, 5U);
     if (u8CrcCalc != u8CrcRecv)
     {
+        printf("CRC校验失败: 计算=0x%02X 接收=0x%02X 六字节整帧: %02X %02X %02X %02X %02X %02X",
+               (unsigned int)u8CrcCalc,
+               (unsigned int)u8CrcRecv,
+               (unsigned int)pu8Frame[0],
+               (unsigned int)pu8Frame[1],
+               (unsigned int)pu8Frame[2],
+               (unsigned int)pu8Frame[3],
+               (unsigned int)pu8Frame[4],
+               (unsigned int)pu8Frame[5]);
+        Drv_EncoderUart_LogHwErrorFlags(uartSel);
         return ENCODER_PROTOCOL_ERR_CRC;
     }
 
@@ -385,30 +439,40 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderDual_t *stru
 
     if (struOut == NULL)
     {
+        printf("指针为空！\n");
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
     /* 从USART3获取12字节快照（前6=最新帧，后6=上一帧） */
     if (Drv_MotorEncoder_GetData(au8RawBuf) != STATUS_OK)
     {
+        printf("数据获取失败！\n");
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &struOut->struLatest);
-    resPrev   = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &struOut->struPrevious);
+    resLatest = Svc_EncoderProtocol_ParseFrame(ENCODER_UART_MOTOR,
+                                               &au8RawBuf[0],
+                                               ENCODER_FRAME_LENGTH_BYTES,
+                                               &struOut->struLatest);
+    resPrev   = Svc_EncoderProtocol_ParseFrame(ENCODER_UART_MOTOR,
+                                               &au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
+                                               ENCODER_FRAME_LENGTH_BYTES,
+                                               &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
     {
+        printf("电机编码器最新帧解析失败。\n");
         return resLatest;
     }
     if (resPrev != ENCODER_PROTOCOL_OK)
     {
+        printf("电机编码器上一帧解析失败。\n");
         return resPrev;
     }
     return ENCODER_PROTOCOL_OK;
 }
 
 /**
- * @brief 读取输出轴编码器双帧快照并解析（20 位绝对位置）
- * @param struOut 输出：最新帧 + 上一帧；高位已按 20 位掩码处理，便于转速计算
+ * @brief 读取输出轴编码器双帧快照并解析（17 位绝对位置）
+ * @param struOut 输出：最新帧 + 上一帧；高位已按 17 位掩码处理，与 `ENCODER_BITS_17` 及转速计算一致
  * @return 解析或驱动读取失败时的协议错误码
  */
 static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t *struOut)
@@ -427,8 +491,14 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t
     {
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &struOut->struLatest);
-    resPrev   = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &struOut->struPrevious);
+    resLatest = Svc_EncoderProtocol_ParseFrame(ENCODER_UART_SHAFT,
+                                               &au8RawBuf[0],
+                                               ENCODER_FRAME_LENGTH_BYTES,
+                                               &struOut->struLatest);
+    resPrev   = Svc_EncoderProtocol_ParseFrame(ENCODER_UART_SHAFT,
+                                               &au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
+                                               ENCODER_FRAME_LENGTH_BYTES,
+                                               &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
     {
         return resLatest;
@@ -437,9 +507,9 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t
     {
         return resPrev;
     }
-    /* 输出轴为 20 位编码器，屏蔽高位；否则第 21 位干扰会导致速度跳变（如 -3 与 -30 交替） */
-    struOut->struLatest.u32AbsolutePosition   &= 0x000FFFFFU;
-    struOut->struPrevious.u32AbsolutePosition &= 0x000FFFFFU;
+    /* 输出轴为 17 位编码器，屏蔽高位；与摆杆一致，避免误用 AS2 以上位导致钳位/过零展开错误 */
+    struOut->struLatest.u32AbsolutePosition   &= ENCODER_ABS_POSITION_MAX_17BIT;
+    struOut->struPrevious.u32AbsolutePosition &= ENCODER_ABS_POSITION_MAX_17BIT;
     return ENCODER_PROTOCOL_OK;
 }
 
@@ -464,8 +534,14 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderDual_t *s
     {
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[0], ENCODER_FRAME_LENGTH_BYTES, &struOut->struLatest);
-    resPrev   = Svc_EncoderProtocol_ParseFrame(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES], ENCODER_FRAME_LENGTH_BYTES, &struOut->struPrevious);
+    resLatest = Svc_EncoderProtocol_ParseFrame(ENCODER_UART_SWING,
+                                               &au8RawBuf[0],
+                                               ENCODER_FRAME_LENGTH_BYTES,
+                                               &struOut->struLatest);
+    resPrev   = Svc_EncoderProtocol_ParseFrame(ENCODER_UART_SWING,
+                                               &au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
+                                               ENCODER_FRAME_LENGTH_BYTES,
+                                               &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
     {
         return resLatest;
@@ -475,9 +551,29 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderDual_t *s
         return resPrev;
     }
     /* 摆杆为 17 位编码器，屏蔽高位；与速度计算 ENCODER_BITS_17 一致，避免误用高电平位导致钳位失真 */
-    struOut->struLatest.u32AbsolutePosition   &= 0x0001FFFFU;
-    struOut->struPrevious.u32AbsolutePosition &= 0x0001FFFFU;
+    struOut->struLatest.u32AbsolutePosition   &= ENCODER_ABS_POSITION_MAX_17BIT;
+    struOut->struPrevious.u32AbsolutePosition &= ENCODER_ABS_POSITION_MAX_17BIT;
     return ENCODER_PROTOCOL_OK;
+}
+
+/**
+ * @brief 角速度 float→int32：NaN/Inf 置 0，再按 Simulink 反馈允许范围饱和
+ */
+static int32_t Svc_EncoderSpeed_FloatToInt32Clamped(float v, int32_t s32Lo, int32_t s32Hi)
+{
+    if ((v != v) || (v > 1.0e9f) || (v < -1.0e9f))
+    {
+        return 0;
+    }
+    if (v >= (float)s32Hi)
+    {
+        return s32Hi;
+    }
+    if (v <= (float)s32Lo)
+    {
+        return s32Lo;
+    }
+    return (int32_t)v;
 }
 
 /**
@@ -485,6 +581,8 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderDual_t *s
  * @details 编码器位置范围0~max对应0~360°，自动处理过零情况。
  *          正转（位置增加）：deltaRaw>0 且不过零 → 速度为正；
  *          反转（位置减少）：deltaRaw<0 且不过零 → 速度为负，符合设计。
+ * @note  17/20/21 位时半圈计数为 (max+1)/2；若 s32DeltaRaw 恰好等于 ±该半圈值，严格 `<`/`>` 比较不会进过零分支，
+ *        会留下该量级的伪差分（坏帧或边界条件），电机/输出轴/摆杆均不在此函数内做额外毛刺剔除。
  * @param u32PosPrev 上一帧位置
  * @param u32PosCurr 当前帧位置
  * @param bits 编码器位数（21/20/17）
@@ -496,9 +594,7 @@ static float Svc_EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, Enc
     uint32_t u32Half;
     int32_t  s32DeltaRaw;
     int32_t  s32Delta;
-    float    speedDegS;
 
-    /* 根据编码器位数确定最大值 */
     switch (bits)
     {
         case ENCODER_BITS_21:
@@ -511,42 +607,33 @@ static float Svc_EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, Enc
             u32MaxVal = ENCODER_ABS_POSITION_MAX_17BIT;
             break;
         default:
-        {
             return 0.0f;
-        }
     }
 
-    /* 限制位置值在有效范围内 */
     u32PosPrev = (u32PosPrev > u32MaxVal) ? u32MaxVal : u32PosPrev;
     u32PosCurr = (u32PosCurr > u32MaxVal) ? u32MaxVal : u32PosCurr;
 
-    /* 计算位置差，处理过零情况（编码器从max跳转到0或从0跳转到max） */
     s32DeltaRaw = (int32_t)u32PosCurr - (int32_t)u32PosPrev;
-    u32Half      = (u32MaxVal + 1U) >> 1;  /* 中点值 */
+    u32Half     = (u32MaxVal + 1U) >> 1;
 
     if (s32DeltaRaw > (int32_t)u32Half)
     {
-        /* 正向过零：实际是反向运动 */
         s32Delta = s32DeltaRaw - (int32_t)(u32MaxVal + 1U);
     }
     else if (s32DeltaRaw < -(int32_t)u32Half)
     {
-        /* 反向过零：实际是正向运动 */
         s32Delta = s32DeltaRaw + (int32_t)(u32MaxVal + 1U);
     }
     else
     {
-        /* 正常情况：s32DeltaRaw>0 正转，s32DeltaRaw<0 反转，直接使用 */
         s32Delta = s32DeltaRaw;
     }
-    /* 角速度（°/s）：(delta/(N)) * 360° / 0.001s */
-    speedDegS = (float)s32Delta * ROUND_ANGLE / FRAME_INTERVAL_TIME / (float)(u32MaxVal + 1U);
-    return speedDegS;
 
+    return (float)s32Delta * ROUND_ANGLE / FRAME_INTERVAL_TIME / (float)(u32MaxVal + 1U);
 }
 
 /**
- * @brief 计算电机编码器转速（21位）
+ * @brief 计算电机编码器转速（21位） 
  * @param struDual 电机编码器双帧数据
  * @return 角速度（°/s）
  */
@@ -562,7 +649,7 @@ static float Svc_EncoderSpeed_CalcMotor(const EncoderDual_t *struDual)
 }
 
 /**
- * @brief 计算输出轴编码器转速（20位）
+ * @brief 计算输出轴编码器转速（17位）
  * @param struDual 输出轴编码器双帧数据
  * @return 角速度（°/s）
  */
@@ -574,23 +661,39 @@ static float Svc_EncoderSpeed_CalcOutputShaft(const EncoderDual_t *struDual)
     }
     return Svc_EncoderSpeed_Calc(struDual->struPrevious.u32AbsolutePosition,
                              struDual->struLatest.u32AbsolutePosition,
-                             ENCODER_BITS_20);
+                             ENCODER_BITS_17);
 }
 
 /**
  * @brief 计算摆臂编码器转速（17位）
+ * @details 若本次计算得到的角速度绝对值大于 `PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS`（°/s），
+ *          通过 `printf` 打印上一帧与当前帧绝对位置，便于排查坏帧/过零异常。
  * @param struDual 摆臂编码器双帧数据
  * @return 角速度（°/s）
  */
 static float Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual)
 {
+    float fSpd;
+
     if (struDual == NULL)
     {
         return 0.0f;
     }
-    return Svc_EncoderSpeed_Calc(struDual->struPrevious.u32AbsolutePosition,
-                             struDual->struLatest.u32AbsolutePosition,
-                             ENCODER_BITS_17);
+
+    fSpd = Svc_EncoderSpeed_Calc(struDual->struPrevious.u32AbsolutePosition,
+                                 struDual->struLatest.u32AbsolutePosition,
+                                 ENCODER_BITS_17);
+
+    if (fSpd > PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS || fSpd < -PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS)
+    {
+        printf("[摆杆速度] |spd|>%.0f deg/s: spd=%.2f 上一帧位置=%lu 当前帧位置=%lu\r\n",
+               (double)PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS,
+               (double)fSpd,
+               (unsigned long)struDual->struPrevious.u32AbsolutePosition,
+               (unsigned long)struDual->struLatest.u32AbsolutePosition);
+    }
+
+    return fSpd;
 }
 
 /**

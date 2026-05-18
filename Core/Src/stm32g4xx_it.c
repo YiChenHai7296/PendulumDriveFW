@@ -27,7 +27,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-extern uint8_t tcp_demo_sendbuf[80]="G4 Uart Test \n";
 
 /* USER CODE END TD */
 
@@ -63,7 +62,9 @@ extern DMA_HandleTypeDef hdma_adc3;
 extern HRTIM_HandleTypeDef hhrtim1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
+extern DMA_HandleTypeDef hdma_usart1_rx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
+extern DMA_HandleTypeDef hdma_usart2_rx;
 extern DMA_HandleTypeDef hdma_usart2_tx;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
@@ -71,7 +72,9 @@ extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
-
+extern DMA_HandleTypeDef hdma_usart3_rx;
+extern DMA_HandleTypeDef hdma_uart4_rx;
+extern DMA_HandleTypeDef hdma_uart5_rx;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -241,6 +244,20 @@ void DMA1_Channel2_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA1 channel3 global interrupt.
+  */
+void DMA1_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart1_rx);
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 channel4 global interrupt.
   */
 void DMA1_Channel4_IRQHandler(void)
@@ -359,17 +376,17 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-
-  /* USER CODE END USART3_IRQn 0 */
-  HAL_UART_IRQHandler(&huart3);
-  /* USER CODE BEGIN USART3_IRQn 1 */
-  /* 编码器触发单字节发送完成：清 TC、关 TCIE；电平转换高=发/低=收，拉低以切到接收 */
-  if ((USART3->ISR & USART_ISR_TC) != 0u) 
+  if ((USART3->ISR & USART_ISR_TC) != 0u)
   {
-    __HAL_UART_CLEAR_FLAG(&huart3, UART_CLEAR_TCF);
+    USART3->ICR = USART_ICR_TCCF;
     CLEAR_BIT(USART3->CR1, USART_CR1_TCIE);
     Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, PRJ_DISABLE);
   }
+  Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(ENCODER_UART_MOTOR);
+  /* USER CODE END USART3_IRQn 0 */
+  HAL_UART_IRQHandler(&huart3);
+  /* USER CODE BEGIN USART3_IRQn 1 */
+
   /* USER CODE END USART3_IRQn 1 */
 }
 
@@ -379,16 +396,17 @@ void USART3_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
-
-  /* USER CODE END UART4_IRQn 0 */
-  HAL_UART_IRQHandler(&huart4);
-  /* USER CODE BEGIN UART4_IRQn 1 */
-  if ((UART4->ISR & USART_ISR_TC) != 0u) 
+  if ((UART4->ISR & USART_ISR_TC) != 0u)
   {
-    __HAL_UART_CLEAR_FLAG(&huart4, UART_CLEAR_TCF);
+    UART4->ICR = USART_ICR_TCCF;
     CLEAR_BIT(UART4->CR1, USART_CR1_TCIE);
     Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, PRJ_DISABLE);
   }
+  Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(ENCODER_UART_SWING);
+  /* USER CODE END UART4_IRQn 0 */
+  HAL_UART_IRQHandler(&huart4);
+  /* USER CODE BEGIN UART4_IRQn 1 */
+
   /* USER CODE END UART4_IRQn 1 */
 }
 
@@ -398,16 +416,17 @@ void UART4_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
   /* USER CODE BEGIN UART5_IRQn 0 */
-
-  /* USER CODE END UART5_IRQn 0 */
-  HAL_UART_IRQHandler(&huart5);
-  /* USER CODE BEGIN UART5_IRQn 1 */
-  if ((UART5->ISR & USART_ISR_TC) != 0u) 
+  if ((UART5->ISR & USART_ISR_TC) != 0u)
   {
-    __HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_TCF);
+    UART5->ICR = USART_ICR_TCCF;
     CLEAR_BIT(UART5->CR1, USART_CR1_TCIE);
     Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, PRJ_DISABLE);
   }
+  Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(ENCODER_UART_SHAFT);
+  /* USER CODE END UART5_IRQn 0 */
+  HAL_UART_IRQHandler(&huart5);
+  /* USER CODE BEGIN UART5_IRQn 1 */
+
   /* USER CODE END UART5_IRQn 1 */
 }
 
@@ -453,6 +472,36 @@ void HRTIM1_TIMB_IRQHandler(void)
   /* USER CODE END HRTIM1_TIMB_IRQn 1 */
 }
 
-/* USER CODE BEGIN 1 */
+/**
+  * @brief This function handles DMA1 channel8 global interrupt.
+  */
+void DMA1_Channel8_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel8_IRQn 0 */
 
+  /* USER CODE END DMA1_Channel8_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_rx);
+  /* USER CODE BEGIN DMA1_Channel8_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel8_IRQn 1 */
+}
+
+/* USER CODE BEGIN 1 */
+/**
+ * @brief DMA2 Ch1 — USART3_RX（编码器电机）。须保留在 USER CODE：Cube 重新生成会删掉本文件其它处的同名 ISR。
+ */
+void DMA2_Channel1_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+}
+
+void DMA2_Channel2_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(&hdma_uart4_rx);
+}
+
+void DMA2_Channel3_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(&hdma_uart5_rx);
+}
 /* USER CODE END 1 */

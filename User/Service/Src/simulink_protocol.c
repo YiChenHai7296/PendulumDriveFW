@@ -37,11 +37,11 @@
 #define SIMULINK_MOTOR_SPEED_MIN   (-40000)
 #define SIMULINK_MOTOR_SPEED_MAX   40000
 #define SIMULINK_AXIS_POSITION_MIN 0
-#define SIMULINK_AXIS_POSITION_MAX 1048575   /* 20 位：2^20 - 1 */
+#define SIMULINK_AXIS_POSITION_MAX 131071    /* 17 位：2^17 - 1，与输出轴编码器一致 */
 #define SIMULINK_AXIS_SPEED_MIN    (-4000)
 #define SIMULINK_AXIS_SPEED_MAX    4000
 #define SIMULINK_PENDULUM_POSITION_MIN 0
-#define SIMULINK_PENDULUM_POSITION_MAX 131071   /* 17 位：2^17 - 1，与电机服务中摆臂位置掩码一致 */
+#define SIMULINK_PENDULUM_POSITION_MAX 131071   /* 17 位：2^17 - 1，与摆臂/输出轴位置量程一致 */
 #define SIMULINK_PENDULUM_SPEED_MIN (-4000)
 #define SIMULINK_PENDULUM_SPEED_MAX 4000
 
@@ -139,6 +139,7 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProt
     res = Svc_SimulinkProtocol_AssembleFeedbackFrame(struIn, s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
     if (res != SIMULINK_PROTOCOL_OK)
     {
+        printf("组帧失败\n");
         return res;
     }
 

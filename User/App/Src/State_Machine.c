@@ -57,6 +57,7 @@ void App_StateMachine_MainLoop(void)
         }
 
         /* 2) 按控制帧转速万分比设置电机（内部经驱动层映射为 HRTIM PWM） */
+      
         if (Svc_MotorService_SetMotorSpeedPermyriad(struCtrl.s16Pwm) != MOTOR_SVC_OK)
         {
             continue;
@@ -65,6 +66,7 @@ void App_StateMachine_MainLoop(void)
         /* 3) 读取编码器与电流等反馈（经驱动层 usart/adc） */
         if (Svc_MotorService_GetFeedbackData(&struFb) != MOTOR_SVC_OK)
         {
+            printf("反馈读取失败\n");
             continue;
         }
 
@@ -80,6 +82,7 @@ void App_StateMachine_MainLoop(void)
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
         if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx) != SIMULINK_PROTOCOL_OK)
         {
+            //printf("组帧失败！\n");
             continue;
         }
     }

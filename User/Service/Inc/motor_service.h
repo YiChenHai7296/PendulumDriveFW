@@ -54,7 +54,7 @@ typedef struct
     int16_t s16MotorCurrent;       /**< 电机电流，范围 -2000~2000 */
     int32_t s32MotorPosition;      /**< 电机位置，21 位编码器 */
     int32_t s32MotorSpeed;         /**< 电机转速（°/s） */
-    int32_t s32AxisPosition;       /**< 轴位置，20 位编码器 */
+    int32_t s32AxisPosition;       /**< 输出轴位置，17 位编码器 */
     int32_t s32AxisSpeed;          /**< 轴转速（°/s） */
     int32_t s32PendulumPosition;   /**< 摆位置，17 位编码器 */
     int32_t s32PendulumSpeed;      /**< 摆转速（°/s） */

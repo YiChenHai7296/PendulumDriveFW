@@ -22,12 +22,31 @@ Dialog DLL:      TCM.DLL V1.46.0.0
  
 <h2>Project:</h2>
 E:\Workingspace\a_RuanChiBai_Prj\SoftscalePendulumDriveBoard\MDK-ARM\SoftscalePendulumDriveBoard.uvprojx
-Project File Date:  05/14/2026
+Project File Date:  05/18/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 0 Warning(s).
+compiling usart.c...
+../User/Common/Inc/common.h(22): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
+  #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
+../Core/Src/usart.c(89): warning:  #223-D: function "printf" declared implicitly
+    printf(" %s[ORE=%u NE=%u FE=%u PE=%u]",
+../Core/Src/usart.c(1005): warning:  #223-D: function "printf" declared implicitly
+    printf("\r\n UART硬件锁存: RxEvent");
+../Core/Src/usart.c(1063): warning:  #167-D: argument of type "uint8_t (*)[12]" is incompatible with parameter of type "const uint8_t (*)[12]"
+    return EncoderSnapshot_ReadDualSlot(g_u32MotorSlotSeq, g_au8MotorEncoderBuffPool, &g_u8Motor_front_idx, pu8Out);
+../Core/Src/usart.c(1079): warning:  #167-D: argument of type "uint8_t (*)[12]" is incompatible with parameter of type "const uint8_t (*)[12]"
+    return EncoderSnapshot_ReadDualSlot(g_u32OutputShaftSlotSeq, g_au8OutputShaftEncoderBuffPool,
+../Core/Src/usart.c(1096): warning:  #167-D: argument of type "uint8_t (*)[12]" is incompatible with parameter of type "const uint8_t (*)[12]"
+    return EncoderSnapshot_ReadDualSlot(g_u32SwingArmSlotSeq, g_au8SwingArmEncoderBuffPool,
+../Core/Src/usart.c(1182): warning:  #223-D: function "printf" declared implicitly
+    printf("底层重试超时\n");
+../Core/Src/usart.c: 7 warnings, 0 errors
+linking...
+Program Size: Code=39496 RO-data=928 RW-data=152 ZI-data=4256  
+FromELF: creating hex file...
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 7 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +69,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:6.1.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

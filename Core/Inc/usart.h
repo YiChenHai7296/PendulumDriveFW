@@ -117,13 +117,27 @@ Status_t Drv_SwingArmEncoder_GetData(uint8_t *pu8Out);
 /** 驱动层内部配合：向指定编码器 UART 发送 0x02 触发（TIM1 分相：更新/比较1/比较2） */
 void Drv_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
 
-
 /**
   * @brief  控制编码器串口对应电平转换芯片的使能引脚
   * @param  uart_sel 串口选择：ENCODER_UART_MOTOR(3)/ENCODER_UART_SWING(4)/ENCODER_UART_SHAFT(5)
   * @param  state    使能状态：PRJ_ENABLE / PRJ_DISABLE（语义同 HAL ENABLE/DISABLE）
   */
 void Drv_EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, FunctionalState_t state);
+
+/**
+  * @brief  在 USART3/4/5 中断入口（调用 HAL_UART_IRQHandler 之前）锁存 ISR 错误位
+  */
+void Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(EncoderUartSel_t uart_sel);
+
+/**
+  * @brief  在编码器 RxEvent 回调入口锁存 ISR；u8EvType: 1=IDLE, 2=TC
+  */
+void Drv_EncoderUart_LatchHwErrorFlagsAtRxEvent(EncoderUartSel_t uart_sel, uint16_t u16Size, uint8_t u8EvType);
+
+/**
+  * @brief  错帧调试：打印 RxEvent/IRQ 锁存与当前 ISR 的 ORE/NE/FE/PE，并清除锁存与当前错误标志
+  */
+void Drv_EncoderUart_LogHwErrorFlags(EncoderUartSel_t uart_sel);
 
 /* USER CODE END Prototypes */
 
