@@ -82,7 +82,7 @@ void App_StateMachine_MainLoop(void)
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
         if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx) != SIMULINK_PROTOCOL_OK)
         {
-            //printf("组帧失败！\n");
+            printf("组帧失败！\n");
             continue;
         }
     }

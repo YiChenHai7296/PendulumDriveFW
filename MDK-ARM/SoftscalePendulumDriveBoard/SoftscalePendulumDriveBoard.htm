@@ -3,7 +3,7 @@
 <title>Static Call Graph - [SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Mon May 18 21:37:59 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Fri May 22 11:54:34 2026
 <BR><P>
 <H3>Maximum Stack Usage =        344 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -614,7 +614,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_Start_DMA
 </UL>
 
-<P><STRONG><a name="[99]"></a>App_StateMachine_MainLoop</STRONG> (Thumb, 90 bytes, Stack size 64 bytes, state_machine.o(i.App_StateMachine_MainLoop))
+<P><STRONG><a name="[99]"></a>App_StateMachine_MainLoop</STRONG> (Thumb, 96 bytes, Stack size 64 bytes, state_machine.o(i.App_StateMachine_MainLoop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 344<LI>Call Chain = App_StateMachine_MainLoop &rArr; Svc_MotorService_GetFeedbackData &rArr; Svc_EncoderProtocol_ReadSwingArm &rArr; Svc_EncoderProtocol_ParseFrame &rArr; Drv_EncoderUart_LogHwErrorFlags &rArr; EncoderUart_PrintIsrFlags &rArr; __2printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Svc_SimulinkProtocol_UnpackControl
