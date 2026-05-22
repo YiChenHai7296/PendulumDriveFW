@@ -50,6 +50,22 @@ void Bsp_DelayMs(uint32_t u32Ms);
 uint32_t Bsp_GetTickMs(void);
 
 /**
+ * @brief 初始化 DWT 周期计数器（用于微秒级耗时测量）
+ * @note  在 `SystemCoreClock` 已更新后调用；可重复调用
+ */
+void Bsp_Profile_Init(void);
+
+/**
+ * @brief 读取 DWT 周期计数值（32 位，约 25s@170MHz 后回绕）
+ */
+uint32_t Bsp_Profile_GetCycles(void);
+
+/**
+ * @brief 将周期数换算为微秒（基于 `SystemCoreClock`）
+ */
+uint32_t Bsp_Profile_CyclesToUs(uint32_t u32Cycles);
+
+/**
  * @brief 硬件计算 CRC16-MODBUS（多项式 0xA001 反射形式、初值 0xFFFF）
  * @param pu8Data   待校验数据首地址
  * @param u16Length 数据长度（字节）

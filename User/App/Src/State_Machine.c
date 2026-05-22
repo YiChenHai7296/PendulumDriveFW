@@ -12,13 +12,12 @@
 #include "State_Machine.h"
 #include "simulink_protocol.h"
 #include "motor_service.h"
+#include "bsp.h"
+#include <stdio.h>
 
 /* USER CODE BEGIN Includes */
 /* 本层仅依赖服务层；类型定义在服务/公共头文件中 */
 /* USER CODE END Includes */
-
-/* ======================== 2. 私有宏定义 ======================== */
-/* 无 */
 
 /* ======================== 3. 私有类型定义 ======================== */
 /* 无 */
@@ -27,10 +26,13 @@
 /* 无 */
 
 /* ======================== 5. 对外变量定义 ======================== */
-/* 无 */
+volatile uint32_t g_u32AppMainLoopLastUs        = 0U;
+volatile uint32_t g_u32AppMainLoopMaxUs        = 0U;
+volatile uint32_t g_u32AppMainLoopMinUs        = 0xFFFFFFFFU;
+volatile uint32_t g_u32AppMainLoopSampleCount  = 0U;
 
 /* ======================== 6. 私有函数声明 ======================== */
-/* 无 */
+static void App_StateMachine_RecordLoopElapsedUs(uint32_t u32StartCycles);
 
 /* ======================== 7. 接口函数实现 ======================== */
 /**
@@ -47,17 +49,23 @@ void App_StateMachine_MainLoop(void)
 
     Svc_MotorService_CalibrateCurrentZero(); /* 电机电流采样零点标定 */
 
+    Bsp_Profile_Init();
+
     for (;;)
     {
+        uint32_t u32LoopStartCycles;
+
+        /* 计时起点：取控制帧（接收/出队）之前 */
+        u32LoopStartCycles = Bsp_Profile_GetCycles();
+
         /* 1) 服务层解控制帧（内部经驱动从 USART2 取原始字节、CRC 校验等，见 simulink_protocol） */
         if (Svc_SimulinkProtocol_UnpackControl(&struCtrl) != SIMULINK_PROTOCOL_OK)
         {
-            /* 队列空、长度/CRC/类型错误等：等待下一帧 */
+            /* 队列空、长度/CRC/类型错误等：丢弃本次计时 */
             continue;
         }
 
         /* 2) 按控制帧转速万分比设置电机（内部经驱动层映射为 HRTIM PWM） */
-      
         if (Svc_MotorService_SetMotorSpeedPermyriad(struCtrl.s16Pwm) != MOTOR_SVC_OK)
         {
             continue;
@@ -82,10 +90,37 @@ void App_StateMachine_MainLoop(void)
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
         if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx) != SIMULINK_PROTOCOL_OK)
         {
-            //printf("组帧失败！\n");
+            printf("组帧失败！\n");
             continue;
         }
+
+        /* 完整走完：统计耗时并打印 */
+        App_StateMachine_RecordLoopElapsedUs(u32LoopStartCycles);
+        printf("主循环耗时 us: last=%u max=%u min=%u\r\n",
+               (unsigned int)g_u32AppMainLoopLastUs,
+               (unsigned int)g_u32AppMainLoopMaxUs,
+               (unsigned int)g_u32AppMainLoopMinUs);
     }
+}
+
+static void App_StateMachine_RecordLoopElapsedUs(uint32_t u32StartCycles)
+{
+    uint32_t u32DeltaCycles;
+    uint32_t u32ElapsedUs;
+
+    u32DeltaCycles = Bsp_Profile_GetCycles() - u32StartCycles;
+    u32ElapsedUs   = Bsp_Profile_CyclesToUs(u32DeltaCycles);
+
+    g_u32AppMainLoopLastUs = u32ElapsedUs;
+    if (u32ElapsedUs > g_u32AppMainLoopMaxUs)
+    {
+        g_u32AppMainLoopMaxUs = u32ElapsedUs;
+    }
+    if (u32ElapsedUs < g_u32AppMainLoopMinUs)
+    {
+        g_u32AppMainLoopMinUs = u32ElapsedUs;
+    }
+    g_u32AppMainLoopSampleCount++;
 }
 
 /* USER CODE BEGIN Implementation */

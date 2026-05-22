@@ -17,8 +17,8 @@ extern "C" {
 #endif
 
 /* ======================== 1. 头文件依赖 ======================== */
+#include <stdint.h>
 /* USER CODE BEGIN Includes */
-/* 应用层头文件无额外 include：入口函数无自定义类型形参 */
 /* USER CODE END Includes */
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
@@ -28,7 +28,13 @@ extern "C" {
 /* 无 */
 
 /* ======================== 4. 对外变量声明 ======================== */
-/* 无 */
+/** 最近一次「完整成功」主循环耗时（μs，含取控制帧～发反馈），可在调试器 Watch 中观察 */
+extern volatile uint32_t g_u32AppMainLoopLastUs;
+/** 完整成功主循环的历史最大/最小耗时（μs） */
+extern volatile uint32_t g_u32AppMainLoopMaxUs;
+extern volatile uint32_t g_u32AppMainLoopMinUs;
+/** 完整成功主循环的采样次数 */
+extern volatile uint32_t g_u32AppMainLoopSampleCount;
 
 /* ======================== 5. 接口函数声明 ======================== */
 /**

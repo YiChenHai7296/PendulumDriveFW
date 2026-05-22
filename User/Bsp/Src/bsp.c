@@ -8,6 +8,7 @@
 /* ======================== 1. 头文件引用 ======================== */
 #include "bsp.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include "stm32g4xx_hal.h"
 #include "crc.h"
@@ -47,6 +48,31 @@ void Bsp_DelayMs(uint32_t u32Ms)
 uint32_t Bsp_GetTickMs(void)
 {
     return HAL_GetTick();
+}
+
+void Bsp_Profile_Init(void)
+{
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0U;
+    DWT->CTRL  |= DWT_CTRL_CYCCNTENA_Msk;
+}
+
+uint32_t Bsp_Profile_GetCycles(void)
+{
+    return DWT->CYCCNT;
+}
+
+uint32_t Bsp_Profile_CyclesToUs(uint32_t u32Cycles)
+{
+    uint64_t u64Us;
+
+    if (SystemCoreClock == 0U)
+    {
+        return 0U;
+    }
+
+    u64Us = ((uint64_t)u32Cycles * 1000000ULL) / (uint64_t)SystemCoreClock;
+    return (uint32_t)u64Us;
 }
 
 

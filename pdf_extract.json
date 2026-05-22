@@ -1,0 +1,203 @@
+[
+  {
+    "file": "A novel fusion positioning navigation system for greenhouse strawberry.pdf",
+    "pages": 12,
+    "meta": {
+      "/CrossMarkDomains[2]": "elsevier.com",
+      "/CrossmarkMajorVersionDate": "2010-04-23",
+      "/CreationDate": "D:20250626224214+05'30'",
+      "/Subject": "Agriculture Communications, 3 (2025) 100087. doi:10.1016/j.agrcom.2025.100087",
+      "/Author": "Haoran Tan",
+      "/Creator": "Elsevier",
+      "/Producer": "PDFlib+PDI 10.0.2p2 (C++/Win64)",
+      "/EPSprocessor": "PStill version 1.84.42",
+      "/ElsevierWebPDFSpecifications": "7.0.1",
+      "/CrossmarkDomainExclusive": "true",
+      "/robots": "noindex",
+      "/ModDate": "D:20250626224617+05'30'",
+      "/doi": "10.1016/j.agrcom.2025.100087",
+      "/CrossMarkDomains[1]": "sciencedirect.com",
+      "/Title": "A novel fusion positioning navigation system for greenhouse strawberry spraying robot using LiDAR and ultrasonic tags"
+    },
+    "text_len": 26899,
+    "text": "A novel fusion positioning navigation system for greenhouse strawberry \nspraying robot using LiDAR and ultrasonic tags\nHaoran Tan\na , b\n, Xueguan Zhao\na , c\n, Hao Fu\na\n, Minli Yang\nb\n, Changyuan Zhai\na , c , *\na\nIntelligent Equipment Research Center, Beijing Academy of Agriculture and Forestry Sciences, Beijing 100097, China\nb\nCollege of Engineering, China Agricultural University, Beijing 100083, China\nc\nNational Engineering Research Center for Information Technology in Agriculture, Beijing 100097, China\nHIGHLIGHTS \n• A new positioning method in greenhouses enhances accuracy using LiDAR and ultrasonic tags.\n• Integrating global location information into SLAM effectively reduces the “ long corridor ” issue.\n• Recording motion information in vector form allows for optimal route planning and precise tracking, reducing navigation error.\nARTICLE INFO\nKeywords:\nMulti-sensor fusion\nLiDAR\nGreenhouse\nSimultaneous localization and mapping\nABSTRACT\nThe autonomous navigation methodology for greenhouse spraying robots improves operational efficiency and \nreduces human workload. However, navigation solutions based on Light Detection and Ranging (LiDAR) \nSimultaneous Localization and Mapping (SLAM) still face challenges such as mapping distortion caused by crop \nfeature similarity, gradual accumulation of positioning errors, and positioning jumps, which fail to meet the \npositioning accuracy demands in agricultural robotic operations. This paper proposed an autonomous navigation \nmethodology for greenhouse spraying robots that integrated three-dimensional (3D) LiDAR and ultrasonic tags \ninto SLAM technology. The proposed approach generated a 3D point cloud map of the greenhouse environment \nthrough loosely coupled data fusion of a 3D LiDAR and an Inertial Measurement Unit (IMU). Robot relocalization \nand navigation trajectory recording utilized the pre-built point cloud map and ultrasonic tags. To further enhance \npositioning accuracy and robustness, a tightly-coupled framework combining LiDAR and ultrasonic tags was \ndesigned, incorporating an improved Iterative Closest Point (ICP) method and Singular Value Decomposition \n(SVD) algorithm for precise registration positioning. The SLAM mapping trajectories and navigation performance \nwere validated in a standardized strawberry greenhouse. Results showed that at speeds of 0.2 m/s, 0.4 m/s, and \n0.6 m/s, the maximum average absolute pose error between the positioning trajectory and the ground truth was \n0.357 m, with a standard deviation of 0.148 m. Compared with the Cartographer and Tightly-coupled Lidar \nInertial Odometry via Smoothing and Mapping (LIO-SAM) methods, the improved method reduced the average \npositioning error by 32.0 % and 14.0 %, respectively. Navigation tests demonstrated that the robot's maximum \nlateral error was 0.045 m, with a maximum average lateral positioning error of 0.022 m. These results confirm \nthat the robot positioning and navigation accuracy satisfies the requirements for autonomous operations in \ngreenhouse spraying, providing a reliable solution for autonomous navigation in structured agricultural \nenvironments.\n1. Introduction\nGreenhouse agriculture plays a pivotal role in agricultural and rural \nmodernization by providing a stable and secure supply of essential \nagricultural products while minimizing arable land use [ 1 ]. As \nagricultural modernization progresses, the demand for efficient and \nprecise pest and disease management systems has become increasingly \ncritical, particularly for high-value crops like strawberries [ 2 , 3 ]. \nTraditional manual pest control methods are labor-intensive, inefficient, \nand often lead to pesticide waste and environmental pollution [ 4 ]. With \n* Corresponding author. Intelligent Equipment Research Center, Beijing Academy of Agriculture and Forestry Sciences, Beijing 100097, China.\nE-mail address: zhaicy@nercita.org.cn (C. Zhai). \nContents lists available at ScienceDirect\nAgriculture Communications\njournal homep age: ww"
+  },
+  {
+    "file": "A review of visual navigation for agricultural robots in open fields and.pdf",
+    "pages": 21,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521101536+08'00'",
+      "/ModDate": "D:20260521101536+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "A review of visual navigation for agric...pen fields and controlled environments"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "A visual-inertial localization algorithm for greenhouse robots based on.pdf",
+    "pages": 13,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521104314+08'00'",
+      "/ModDate": "D:20260521104314+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "A visual-inertial localization algorith...se robots based on point-line features"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "AELVI-SLAM LiDAR visua linertial SLAM for autonomous exploration in multiple agricultural scenarios.pdf",
+    "pages": 18,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521111907+08'00'",
+      "/ModDate": "D:20260521111907+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "AELVI-SLAM_ LiDAR-visual-inertial SLAM ...ion in multiple agricultural scenarios"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "AdaptiveLiDARodometryandmappingforautonomousagriculturalmobile.pdf",
+    "pages": 13,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521104141+08'00'",
+      "/ModDate": "D:20260521104141+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "Adaptive LiDAR odometry and mapping for...ltural mobile robots in unmanned farms"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "An innovative UWB-based RTLS robot for autonomous barn cleaning insmart farming.pdf",
+    "pages": 15,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521111644+08'00'",
+      "/ModDate": "D:20260521111644+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "An innovative UWB-based RTLS robot for autonomous barn cleaning in smart farming"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "Applications of machine vision in agricultural robot navigation A review.pdf",
+    "pages": 13,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521111939+08'00'",
+      "/ModDate": "D:20260521111939+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "Applications of machine vision in agricultural robot navigation_ A review"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "Autonomous navigation system for greenhouse tomato picking robots based on laser SLAM.pdf",
+    "pages": 12,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521112003+08'00'",
+      "/ModDate": "D:20260521112003+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "Autonomous navigation system for greenh...ato picking robots based on laser SLAM"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "Development and field evaluation of a UWB-IMU navigated autonomous spraying robot for papaya greenhouses.pdf",
+    "pages": 15,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521135657+08'00'",
+      "/ModDate": "D:20260521135657+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "Development and field evaluation of a U... spraying robot for papaya greenhouses"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "Development of a low-cost ground robot for real-time ArUco markerlocalization using lightweight deep learning models on an edge device.pdf",
+    "pages": 14,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521111559+08'00'",
+      "/ModDate": "D:20260521111559+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "Development of a low-cost ground robot ...deep learning models on an edge device"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "High-Accuracy_Position-Aware_Robot_for_Agricultural_Automation_Using_Low-Cost_IMU-Coupled_Triple-Laser-Guided_TLG_System.pdf",
+    "pages": 13,
+    "meta": {
+      "/Creator": "LaTeX with hyperref package",
+      "/ModDate": "D:20210422131532-04'00'",
+      "/Trapped": "/False",
+      "/PTEX.Fullbanner": "This is MiKTeX-pdfTeX 2.9.4535 (1.40.13)",
+      "/Keywords": "",
+      "/Producer": "pdfTeX-1.40.13",
+      "/CreationDate": "D:20210409101248+05'30'",
+      "/Title": "",
+      "/Subject": "",
+      "/Author": ""
+    },
+    "text_len": 19054,
+    "text": "Received March 24, 2021, accepted April 2, 2021, date of publication April 7, 2021, date of current version April 14, 2021.\nDigital Object Identifier 10.1 109/ACCESS.202 1.3071554\nHigh-Accuracy Position-Aware Robot for\nAgricultural Automation Using Low-Cost\nIMU-Coupled Triple-Laser-Guided (TLG) System\nSUPOD KAEWKORN\n1, MONGKOL EKPANYAPONG1, AND UKRIT THAMMA\n 2\n1School of Engineering and Technology, Asian Institute of Technology, Khlong Nueng 12120, Thailand\n2College of Industrial Technology, King Mongkut’s University of Technology North Bangkok, Bangkok 10800, Thailand\nCorresponding author: Ukrit Thamma (ukritthamma@gmail.com)\nABSTRACT A novel, low-cost approach to high-accuracy robot localization for agricultural applica-\ntions using an image-processing triple-laser-guided (TLG) system coupled with an inertial measurement\nunit (IMU) is presented in this paper. The TLG system consists of a laser-pointing unit (LPU) at the\nbase station and a laser-target unit (LTU) at the mobile robot. The robot’s XYZ position and heading are\ndetermined from the positions and the angles relative to the ﬁeld of both LPU and LTU. The robot’s roll and\npitch are determined by the IMU sensor fusion with complementary ﬁlter. The IMU-coupled TLG system is\ndemonstrated on an outdoor, 20× 21 m ﬂat ﬁeld at various light intensities. The overall lateral and vertical\naccuracies of the IMU-coupled TLG system are 1.68 cm and 0.59 cm, respectively. The overall heading,\nroll, and pitch accuracies of the IMU-coupled TLG system are 0.90 ◦, 0.78◦, and 0.76◦, respectively. The\nlateral and heading accuracies of the IMU-coupled TLG system are found to be comparable to commercially\navailable GNSS-INS systems from NovAtel and Trimble, while the total cost of the IMU-coupled TLG\nsystem is only a fraction of the total cost of the commercially available localization systems.\nINDEX TERMS Laser tracking system, localization, inertial measurement unit (IMU), sensor fusion,\nposition control.\nI. INTRODUCTION\nAutomatic machinery has been widely researched and\napplied in the agricultural industry to increase productivity\nand reduce costs. Speciﬁcally, automatic guided robots are\nof interest for many agricultural tasks, i.e., seeding, weed\ncontrolling, soil tilling, fertilizing, watering, and harvest-\ning. To effectively perform these complex open-ﬁeld tasks,\naccurate and precise localization of these agricultural robots,\nincluding XYZ position, heading, and attitude (roll and pitch\ntilts), are essential. Several principles of localization sen-\nsors for agricultural robots are real-time kinematic global\nnavigation satellite systems (RTK GNSS)[1]–[5], landmarks\ndetection [6], light laser detection and ranging (LiDAR)\n[7]–[8], radar [9], sensor fusion with camera [10]–[13], ultra-\nsonic [14], multi-sensor fusion [15], [16], beacons based [17],\nlocalization and mapping (SLAM) [18], laser range ﬁnder\n(LRF) [19], and inertial measurement unit (IMU) [20].\nParticularly, RTK GNSS coupled with inertial navigation\nThe associate editor coordinating the review of this manuscript and\napproving it for publication was Y ang Tang\n.\nsystems (INS) is extensively employed by farmers due to\nits relatively higher accuracy and precision compared to\nother sensing techniques. In the RTK GNSS-INS system,\nthe robot’s position is determined based on the trilateration\nof the Universal Transverse Mercator obtained through a con-\nstellation of satellites, while the robot’s angles of orientation\nare obtained by real-time measurements of angular velocity,\nlinear acceleration, and the earth’s magnetic ﬁeld via the\nINS.\nNonetheless, there are a few drawbacks to the agricultural\npracticality of the RTK GNSS-INS system. First, the RTK\nGNSS-INS system’s accuracy and precision depend on the\ntransmissivity of satellites’ signals. The decrease in the satel-\nlite transmissivity due to signal blockage and multipath effect\nfrom neighboring buildings or trees and cloudy weather can\nlead to the deterioration of the RTK GNS"
+  },
+  {
+    "file": "Navigating_Narrow_Spaces_A_Comprehensive_Framework_for_Agricultural_Robots.pdf",
+    "pages": 8,
+    "meta": {
+      "/Creator": "LaTeX with hyperref package",
+      "/ModDate": "D:20250803122638-04'00'",
+      "/IEEE Article ID": "11091404",
+      "/CreationDate": "D:20250802103149+05'30'",
+      "/IEEE Issue ID": "11082640",
+      "/Producer": "Acrobat Distiller 11.0 (Windows); modified using iText® Core 7.2.4 (AGPL version) ©2000-2022 iText Group NV",
+      "/Subject": "IEEE Robotics and Automation Letters;2025;10;9;10.1109/LRA.2025.3592100",
+      "/IEEE Publication ID": "7083369",
+      "/Title": "Navigating Narrow Spaces: A Comprehensive Framework for Agricultural Robots"
+    },
+    "text_len": 26341,
+    "text": "9296 IEEE ROBOTICS AND AUTOMATION LETTERS, VOL. 10, NO. 9, SEPTEMBER 2025\nNavigating Narrow Spaces: A Comprehensive\nFramework for Agricultural Robots\nGeesara Kulathunga , Abdurrahman Yilmaz , Zhuoling Huang , Ibrahim Hroob , Jaspreet Singh,\nLeonardo Guevara , Grzegorz Cielniak , and Marc Hanheide , Member , IEEE\nAbstract—Navigating within narrow spaces is a fundamental\nchallenge in robotics, requiring precise localisation, localisation\nerror recovery, dynamic path planning, and adaptive control\nfor effective manoeuvring. This letter presents a modular and\nperception-driven navigation framework designed for constrained\nenvironments, focusing primarily on agricultural applications. The\nproposed method integrates a multi-step point cloud process-\ning pipeline for robust local perception, including pole detection,\nboundary line estimation, and trajectory reﬁnement to ensure\nsafe and precise traversal by reﬁning initial trajectories based on\ndetected environmental constraints and dynamically adapting to\nkinematic limitations. Experimental validation in a real straw-\nberry polytunnel demonstrates superior trajectory accuracy and\ncontrol stability compared to state-of-the-art navigators, achiev-\ning an average lateral deviation of 0.08 ± 0.01 m. The adaptive\ntrajectory tracking and regulated pure pursuit control of the\nframework contribute to consistent navigation, even under in-\ncreased velocity constraints, outperforming the resilient timed elas-\ntic band (RTEB) and model predictive path integral (MPPI) meth-\nods. This modular and generalisable framework offers signiﬁcant\npotential for advancing autonomous navigation in narrow-space\napplications.\nIndex Terms —Robotics and automation in agriculture and\nforestry, planning under uncertainty, motion control.\nI. I NTRODUCTION\nN\nA VIGA TING within narrow spaces is a critical and fun-\ndamental challenge in various robotics applications, re-\nquiring precise localisation, robust path planning, and dynamic\ncontrol to operate effectively in constrained environments [1].\nThese scenarios often involve limited spatial manoeuvrability,\nwhere robots must navigate through constrained pathways, crop\nrows in agricultural ﬁelds [2], densely packed environments,\nor tight industrial storage aisles [3]. Navigation becomes even\nReceived 1 March 2025; accepted 27 June 2025. Date of publication 23 July\n2025; date of current version 4 August 2025. This letter was recommended for\npublication by Associate Editor G. Michieletto and Editor C. Della Santina\nupon evaluation of the reviewers’ comments. This work was supported by\nInnovate U.K.-funded Project Agri-OpenCore under Grant 10041179. (Geesara\nKulathunga and Abdurrahman Yilmaz contributed equally to this work.) (Cor-\nresponding author: Marc Hanheide.)\nThe authors are with the Lincoln Centre for Autonomous Systems\n(LCAS), University of Lincoln, LN6 7TS Lincoln, U.K. (e-mail: gkulathun-\nga@lincoln.ac.uk; ayilmaz@lincoln.ac.uk; zhuang@lincoln.ac.uk; ihroob@\nlincoln.ac.uk; jasingh@lincoln.ac.uk; lguevara@lincoln.ac.uk; gcielniak\n@lincoln.ac.uk; mhanheide@lincoln.ac.uk).\nThis article has supplementary downloadable material available at\nhttps://doi.org/10.1109/LRA.2025.3592100, provided by the authors.\nDigital Object Identiﬁer 10.1109/LRA.2025.3592100\nFig. 1. Narrow space navigation strategy for an autonomous robot in agri-\ncultural environments: (a) A top-down view illustrating key elements of the\nnavigation process. (b) The real-world scenario depicts the robot navigating\nbetween plant rows. (c) A schematic of the complete processing and navigation\nframework.\nmore challenging due to the localisation issues that may arise\nfrom weak GNSS signals [4], the dynamic or cluttered nature\nof the environment [5], or the reliance on low-accuracy global\nlocalisation methods [6].\nThis letter presents a multi-step navigation framework de-\nsigned for narrow-space traversal, with a primary demonstration\nin agricultural settings. The proposed approach addresses limita-\ntions in"
+  },
+  {
+    "file": "Real-time semantic SLAM-based 3D reconstruction robot for greenhouse vegetables.pdf",
+    "pages": 19,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521135732+08'00'",
+      "/ModDate": "D:20260521135732+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "Real-time semantic SLAM-based 3D reconstruction robot for greenhouse vegetables"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  },
+  {
+    "file": "Vision-based navigation and guidance for agricultural autonomous vehicles and robots A review.pdf",
+    "pages": 20,
+    "meta": {
+      "/Author": "",
+      "/CreationDate": "D:20260521112238+08'00'",
+      "/ModDate": "D:20260521112238+08'00'",
+      "/Producer": "Microsoft: Print To PDF",
+      "/Title": "Vision-based navigation and guidance fo...tonomous vehicles and robots_ A review"
+    },
+    "text_len": 0,
+    "text": "\n\n\n\n\n"
+  }
+]
