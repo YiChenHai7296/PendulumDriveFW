@@ -1,10 +1,10 @@
 softscalependulumdriveboard\simulink_protocol.o: ..\User\Service\Src\simulink_protocol.c
 softscalependulumdriveboard\simulink_protocol.o: ../User/Service/Inc/simulink_protocol.h
 softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-softscalependulumdriveboard\simulink_protocol.o: ../User/Bsp/Inc/bsp.h
 softscalependulumdriveboard\simulink_protocol.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+softscalependulumdriveboard\simulink_protocol.o: ../User/Bsp/Inc/bsp.h
 softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/main.h
 softscalependulumdriveboard\simulink_protocol.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h

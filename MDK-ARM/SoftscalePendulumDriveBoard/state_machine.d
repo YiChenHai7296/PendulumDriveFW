@@ -2,6 +2,6 @@ softscalependulumdriveboard\state_machine.o: ..\User\App\Src\State_Machine.c
 softscalependulumdriveboard\state_machine.o: ../User/App/Inc/State_Machine.h
 softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/simulink_protocol.h
 softscalependulumdriveboard\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/motor_service.h
 softscalependulumdriveboard\state_machine.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+softscalependulumdriveboard\state_machine.o: ../User/Service/Inc/motor_service.h
