@@ -218,7 +218,7 @@ void MX_ADC3_Init(void)
   hadc3.Init.DiscontinuousConvMode = DISABLE;
   hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIG_HRTIM_TRG6;
   hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
-  hadc3.Init.DMAContinuousRequests = DISABLE;
+  hadc3.Init.DMAContinuousRequests = ENABLE;
   hadc3.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc3.Init.OversamplingMode = ENABLE;
   hadc3.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_32;

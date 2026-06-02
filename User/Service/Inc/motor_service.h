@@ -54,10 +54,10 @@ typedef struct
     int16_t s16MotorCurrent;       /**< 电机电流，范围 -2000~2000 */
     int32_t s32MotorPosition;      /**< 电机位置，21 位编码器 */
     int32_t s32MotorSpeed;         /**< 电机转速（°/s） */
-    int32_t s32AxisPosition;       /**< 输出轴位置，17 位编码器 */
+    int32_t s32AxisPosition;       /**< 输出轴位置：倒立摆 17 位 / 软尺摆 20 位 */
     int32_t s32AxisSpeed;          /**< 轴转速（°/s） */
-    int32_t s32PendulumPosition;   /**< 摆位置，17 位编码器 */
-    int32_t s32PendulumSpeed;      /**< 摆转速（°/s） */
+    int32_t s32PendulumPosition;   /**< 倒立摆: 摆位置(17 位编码器); 软尺摆: 摆动电压(mV) */
+    int32_t s32PendulumSpeed;      /**< 倒立摆: 摆转速(°/s); 软尺摆: 预留(当前上报 ADC3 原始码) */
 } MotorFeedbackData_t;
 
 /* ======================== 4. 对外变量声明 ======================== */
@@ -76,6 +76,12 @@ void Svc_MotorService_CalibrateCurrentZero(void);
  * @return 操作结果；任一编码器解析失败时返回对应错误码，`struOut` 可能部分无效
  */
 MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struOut);
+
+/**
+ * @brief 设置当前控制对象（影响摆杆量反馈来源）
+ * @param enObject 控制对象类型
+ */
+void Svc_MotorService_SetControlObject(ControlObject_t enObject);
 
 /**
  * @brief 按转速万分比（permyriad）设置电机输出：±`SPEED_PERMYRIAD_MAX` 对应满量程方向，内部映射为 PWM

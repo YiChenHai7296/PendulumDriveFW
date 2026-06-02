@@ -17,6 +17,14 @@
 /* 本层仅依赖服务层；类型定义在服务/公共头文件中 */
 /* USER CODE END Includes */
 
+#if (APP_CONTROL_OBJECT_SELECT == APP_CONTROL_OBJECT_INVERTED_PENDULUM)
+#define APP_CONTROL_OBJECT_VALUE CONTROL_OBJECT_INVERTED_PENDULUM
+#elif (APP_CONTROL_OBJECT_SELECT == APP_CONTROL_OBJECT_SOFT_RULER_PENDULUM)
+#define APP_CONTROL_OBJECT_VALUE CONTROL_OBJECT_SOFT_RULER_PENDULUM
+#else
+#error "APP_CONTROL_OBJECT_SELECT 配置非法"
+#endif
+
 /* ======================== 2. 私有宏定义 ======================== */
 /* 无 */
 
@@ -45,6 +53,7 @@ void App_StateMachine_MainLoop(void)
     MotorFeedbackData_t            struFb;     /* 电机服务汇总的反馈（位置、转速、电流等） */
 
 
+    Svc_MotorService_SetControlObject(APP_CONTROL_OBJECT_VALUE);
     Svc_MotorService_CalibrateCurrentZero(); /* 电机电流采样零点标定 */
 
     for (;;)
@@ -80,7 +89,7 @@ void App_StateMachine_MainLoop(void)
         struFbTx.s32PendulumSpeed    = struFb.s32PendulumSpeed;
 
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
-        if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx) != SIMULINK_PROTOCOL_OK)
+        if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx, APP_CONTROL_OBJECT_VALUE) != SIMULINK_PROTOCOL_OK)
         {
             printf("组帧失败！\n");
             continue;

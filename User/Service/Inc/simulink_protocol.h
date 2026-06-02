@@ -9,6 +9,7 @@
 
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
+#include "common.h"
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
 /** 控制帧总长度（字节），便于调用方分配缓冲区 */
@@ -50,7 +51,7 @@ typedef struct
     int16_t s16MotorCurrent;       /**< 电机电流，范围 -2000~2000 */
     int32_t s32MotorPosition;      /**< 电机位置，21 位编码器 */
     int32_t s32MotorSpeed;         /**< 电机转速 */
-    int32_t s32AxisPosition;       /**< 输出轴位置，17 位编码器 */
+    int32_t s32AxisPosition;       /**< 输出轴位置：倒立摆 17 位 / 软尺摆 20 位 */
     int32_t s32AxisSpeed;          /**< 轴转速 */
     int32_t s32PendulumPosition;   /**< 摆位置，17 位编码器 */
     int32_t s32PendulumSpeed;      /**< 摆转速 */
@@ -74,6 +75,7 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
  * @param[in] struIn 反馈数据
  * @return 校验、组帧或发送失败时的协议错误码
  */
-SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn);
+SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn,
+                                                              ControlObject_t enControlObject);
 
 #endif /* SIMULINK_PROTOCOL_H */

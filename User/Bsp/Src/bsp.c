@@ -73,6 +73,25 @@ uint16_t Bsp_Crc16Modbus_Byte(const uint8_t *pu8Data, uint16_t u16Length)
     return (uint16_t)(u32Crc & 0xFFFFU);
 }
 
+void Bsp_DwtInit(void)
+{
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0U;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
+
+uint32_t Bsp_DwtGetUs(void)
+{
+    uint32_t u32CyclesPerUs = SystemCoreClock / 1000000U;
+
+    if (u32CyclesPerUs == 0U)
+    {
+        return 0U;
+    }
+
+    return DWT->CYCCNT / u32CyclesPerUs;
+}
+
 
 /* -------- 7.3 C 标准库 printf 重定向 -------- */
 /**

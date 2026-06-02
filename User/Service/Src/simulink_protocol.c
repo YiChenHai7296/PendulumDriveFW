@@ -37,13 +37,18 @@
 #define SIMULINK_MOTOR_SPEED_MIN   (-40000)
 #define SIMULINK_MOTOR_SPEED_MAX   40000
 #define SIMULINK_AXIS_POSITION_MIN 0
-#define SIMULINK_AXIS_POSITION_MAX 131071    /* 17 位：2^17 - 1，与输出轴编码器一致 */
+#define SIMULINK_AXIS_POSITION_MAX_17BIT 131071    /* 倒立摆：2^17 - 1 */
+#define SIMULINK_AXIS_POSITION_MAX_20BIT 1048575   /* 软尺摆：2^20 - 1 */
 #define SIMULINK_AXIS_SPEED_MIN    (-4000)
 #define SIMULINK_AXIS_SPEED_MAX    4000
 #define SIMULINK_PENDULUM_POSITION_MIN 0
-#define SIMULINK_PENDULUM_POSITION_MAX 131071   /* 17 位：2^17 - 1，与摆臂/输出轴位置量程一致 */
+#define SIMULINK_PENDULUM_POSITION_MAX 131071   /* 17 位：2^17 - 1，与摆臂位置量程一致 */
 #define SIMULINK_PENDULUM_SPEED_MIN (-4000)
 #define SIMULINK_PENDULUM_SPEED_MAX 4000
+#define SIMULINK_SOFT_RULER_SWING_MV_MIN (-20000)
+#define SIMULINK_SOFT_RULER_SWING_MV_MAX 20000
+#define SIMULINK_SOFT_RULER_ADC_RAW_MIN 0
+#define SIMULINK_SOFT_RULER_ADC_RAW_MAX 4095
 
 /* ======================== 3. 私有类型定义 ======================== */
 /* 无 */
@@ -98,7 +103,8 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
  * @param[in] struIn 待上报的反馈数据（各字段须满足宏 `SIMULINK_*_MIN` / `MAX`）
  * @retval SIMULINK_PROTOCOL_OK；否则为范围、组帧或发送错误码
  */
-SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn)
+SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn,
+                                                              ControlObject_t enControlObject)
 {
     SimulinkProtocolResult_t res;   /* 组帧结果 */
 
@@ -119,21 +125,48 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProt
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (struIn->s32AxisPosition < SIMULINK_AXIS_POSITION_MIN || struIn->s32AxisPosition > SIMULINK_AXIS_POSITION_MAX)
+    if (enControlObject == CONTROL_OBJECT_INVERTED_PENDULUM)
     {
-        return SIMULINK_PROTOCOL_ERR_RANGE;
+        if (struIn->s32AxisPosition < SIMULINK_AXIS_POSITION_MIN ||
+            struIn->s32AxisPosition > SIMULINK_AXIS_POSITION_MAX_17BIT)
+        {
+            return SIMULINK_PROTOCOL_ERR_RANGE;
+        }
+    }
+    else
+    {
+        if (struIn->s32AxisPosition < SIMULINK_AXIS_POSITION_MIN ||
+            struIn->s32AxisPosition > SIMULINK_AXIS_POSITION_MAX_20BIT)
+        {
+            return SIMULINK_PROTOCOL_ERR_RANGE;
+        }
     }
     if (struIn->s32AxisSpeed < SIMULINK_AXIS_SPEED_MIN || struIn->s32AxisSpeed > SIMULINK_AXIS_SPEED_MAX)
     {
         return SIMULINK_PROTOCOL_ERR_RANGE;
     }
-    if (struIn->s32PendulumPosition < SIMULINK_PENDULUM_POSITION_MIN || struIn->s32PendulumPosition > SIMULINK_PENDULUM_POSITION_MAX)
+    if (enControlObject == CONTROL_OBJECT_INVERTED_PENDULUM)
     {
-        return SIMULINK_PROTOCOL_ERR_RANGE;
+        if (struIn->s32PendulumPosition < SIMULINK_PENDULUM_POSITION_MIN || struIn->s32PendulumPosition > SIMULINK_PENDULUM_POSITION_MAX)
+        {
+            return SIMULINK_PROTOCOL_ERR_RANGE;
+        }
+        if (struIn->s32PendulumSpeed < SIMULINK_PENDULUM_SPEED_MIN || struIn->s32PendulumSpeed > SIMULINK_PENDULUM_SPEED_MAX)
+        {
+            return SIMULINK_PROTOCOL_ERR_RANGE;
+        }
     }
-    if (struIn->s32PendulumSpeed < SIMULINK_PENDULUM_SPEED_MIN || struIn->s32PendulumSpeed > SIMULINK_PENDULUM_SPEED_MAX)
+    else
     {
-        return SIMULINK_PROTOCOL_ERR_RANGE;
+        /* 软尺摆：最后两个 int32 字段重解释为 摆动电压(mV) 与 ADC3 原始码 */
+        if (struIn->s32PendulumPosition < SIMULINK_SOFT_RULER_SWING_MV_MIN || struIn->s32PendulumPosition > SIMULINK_SOFT_RULER_SWING_MV_MAX)
+        {
+            return SIMULINK_PROTOCOL_ERR_RANGE;
+        }
+        if (struIn->s32PendulumSpeed < SIMULINK_SOFT_RULER_ADC_RAW_MIN || struIn->s32PendulumSpeed > SIMULINK_SOFT_RULER_ADC_RAW_MAX)
+        {
+            return SIMULINK_PROTOCOL_ERR_RANGE;
+        }
     }
 
     res = Svc_SimulinkProtocol_AssembleFeedbackFrame(struIn, s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);

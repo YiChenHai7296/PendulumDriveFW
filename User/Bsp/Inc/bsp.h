@@ -58,6 +58,16 @@ uint32_t Bsp_GetTickMs(void);
  */
 uint16_t Bsp_Crc16Modbus_Byte(const uint8_t *pu8Data, uint16_t u16Length);
 
+/**
+ * @brief 启用 DWT 周期计数器（供编码器帧间隔微秒计时，须在 `SystemCoreClock` 已更新后调用）
+ */
+void Bsp_DwtInit(void);
+
+/**
+ * @brief 自上电起 DWT 周期计数换算的微秒时间戳（约 71 分钟回绕 @170MHz）
+ */
+uint32_t Bsp_DwtGetUs(void);
+
 #ifdef __cplusplus
 }
 #endif

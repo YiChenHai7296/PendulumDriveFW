@@ -27,6 +27,15 @@ Project File Date:  05/28/2026
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin'
 Build target 'SoftscalePendulumDriveBoard'
+assembling startup_stm32g474xx.s...
+compiling State_Machine.c...
+../User/App/Inc/State_Machine.h(52): warning:  #1-D: last line of file ends without a newline
+  #endif /* __STATE_MACHINE__ */
+..\User\App\Src\State_Machine.c(78): warning:  #223-D: function "printf" declared implicitly
+              printf("反馈读取失败\n");
+..\User\App\Src\State_Machine.c(94): warning:  #223-D: function "printf" declared implicitly
+              printf("组帧失败！\n");
+..\User\App\Src\State_Machine.c: 3 warnings, 0 errors
 compiling main.c...
 ../User/Common/Inc/common.h(22): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 158 of "../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h")
   #define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
@@ -35,10 +44,42 @@ compiling main.c...
 ../Core/Src/main.c(233): warning:  #223-D: function "printf" declared implicitly
       printf("err\n");
 ../Core/Src/main.c: 3 warnings, 0 errors
+compiling motor_service.c...
+../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h(158): warning:  #47-D: incompatible redefinition of macro "IS_FUNCTIONAL_STATE"  (declared at line 22 of "../User/Common/Inc/common.h")
+  #define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
+..\User\Service\Src\motor_service.c(208): warning:  #223-D: function "printf" declared implicitly
+          printf("电机编码器读取失败\n");
+..\User\Service\Src\motor_service.c(215): warning:  #223-D: function "printf" declared implicitly
+          printf("输出轴编码器读取失败\n");
+..\User\Service\Src\motor_service.c(256): warning:  #223-D: function "printf" declared implicitly
+              printf("摆杆编码器读取失败\n");
+..\User\Service\Src\motor_service.c(400): warning:  #223-D: function "printf" declared implicitly
+          printf("帧头错误: CM=0x%02X 期望=0x%02X 六字节整�?: %02X %02X %02X %02X %02X %02X",
+..\User\Service\Src\motor_service.c(400): warning:  #870-D: invalid multibyte character sequence
+          printf("帧头错误: CM=0x%02X 期望=0x%02X 六字节整�?: %02X %02X %02X %02X %02X %02X",
+..\User\Service\Src\motor_service.c(417): warning:  #223-D: function "printf" declared implicitly
+          printf("CRC校验失败: 计算=0x%02X 接收=0x%02X 六字节整�?: %02X %02X %02X %02X %02X %02X",
+..\User\Service\Src\motor_service.c(417): warning:  #870-D: invalid multibyte character sequence
+          printf("CRC校验失败: 计算=0x%02X 接收=0x%02X 六字节整�?: %02X %02X %02X %02X %02X %02X",
+..\User\Service\Src\motor_service.c(454): warning:  #223-D: function "printf" declared implicitly
+          printf("指针为空！\n");
+..\User\Service\Src\motor_service.c(461): warning:  #223-D: function "printf" declared implicitly
+          printf("数据获取失败！\n");
+..\User\Service\Src\motor_service.c(474): warning:  #223-D: function "printf" declared implicitly
+          printf("电机编码器最新帧解析失败。\n");
+..\User\Service\Src\motor_service.c(479): warning:  #223-D: function "printf" declared implicitly
+          printf("电机编码器上一帧解析失败。\n");
+..\User\Service\Src\motor_service.c(712): warning:  #223-D: function "printf" declared implicitly
+          printf("[摆杆速度] |spd|>%.0f deg/s: spd=%.2f 上一帧位�?=%lu 当前帧位�?=%lu\r\n",
+..\User\Service\Src\motor_service.c(712): warning:  #870-D: invalid multibyte character sequence
+          printf("[摆杆速度] |spd|>%.0f deg/s: spd=%.2f 上一帧位�?=%lu 当前帧位�?=%lu\r\n",
+..\User\Service\Src\motor_service.c(712): warning:  #870-D: invalid multibyte character sequence
+          printf("[摆杆速度] |spd|>%.0f deg/s: spd=%.2f 上一帧位�?=%lu 当前帧位�?=%lu\r\n",
+..\User\Service\Src\motor_service.c: 15 warnings, 0 errors
 linking...
-Program Size: Code=39760 RO-data=928 RW-data=156 ZI-data=4252  
+Program Size: Code=40044 RO-data=928 RW-data=156 ZI-data=4292  
 FromELF: creating hex file...
-"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 3 Warning(s).
+"SoftscalePendulumDriveBoard\SoftscalePendulumDriveBoard.axf" - 0 Error(s), 21 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -61,7 +102,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:6.1.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

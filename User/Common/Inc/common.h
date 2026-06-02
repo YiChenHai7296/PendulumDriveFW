@@ -48,6 +48,15 @@ typedef enum
 } Status_t;
 
 /**
+ * @brief 控制对象选择：倒立摆 / 软尺摆
+ */
+typedef enum
+{
+    CONTROL_OBJECT_INVERTED_PENDULUM = 0U, /**< 倒立摆：摆杆量来自编码器 */
+    CONTROL_OBJECT_SOFT_RULER_PENDULUM      /**< 软尺摆：摆杆量来自 ADC3 摆动电压 */
+} ControlObject_t;
+
+/**
  * @brief 帧级环形队列（SPSC）：单帧缓冲；单生产者单消费者；无 malloc
  * @note  典型用途：串口 DMA + IDLE 中断整帧入队
  */

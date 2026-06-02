@@ -91,24 +91,27 @@ Status_t Drv_Simulink_Feedback_Send(const uint8_t *pu8Buf, uint16_t u16Len);
 
 /**
   * @brief  获取电机编码器当前数据（UART3），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pu8Out  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @param  pu8Out         指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @param  pu32FrameDtUs  可选；输出快照内两帧实测间隔（µs），与转速计算应一致
   * @retval STATUS_OK 已写入快照；STATUS_ERROR 参数无效（pOut 为 NULL）
   */
-Status_t Drv_MotorEncoder_GetData(uint8_t *pu8Out);
+Status_t Drv_MotorEncoder_GetData(uint8_t *pu8Out, uint32_t *pu32FrameDtUs);
 
 /**
   * @brief  获取输出轴编码器当前数据（UART5），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pu8Out  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @param  pu8Out         指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @param  pu32FrameDtUs  可选；输出快照内两帧实测间隔（µs），与转速计算应一致
   * @retval STATUS_OK 已写入快照；STATUS_ERROR 参数无效（pOut 为 NULL）
   */
-Status_t Drv_OutputShaftEncoder_GetData(uint8_t *pu8Out);
+Status_t Drv_OutputShaftEncoder_GetData(uint8_t *pu8Out, uint32_t *pu32FrameDtUs);
 
 /**
   * @brief  获取摆杆编码器当前数据（UART4），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pu8Out  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @param  pu8Out         指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
+  * @param  pu32FrameDtUs  可选；输出快照内两帧实测间隔（µs）
   * @retval STATUS_OK 已写入快照；STATUS_ERROR 参数无效（pOut 为 NULL）
   */
-Status_t Drv_SwingArmEncoder_GetData(uint8_t *pu8Out);
+Status_t Drv_SwingArmEncoder_GetData(uint8_t *pu8Out, uint32_t *pu32FrameDtUs);
 
 
 
