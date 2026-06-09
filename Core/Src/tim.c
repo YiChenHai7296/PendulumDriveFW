@@ -228,7 +228,11 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 
 /* USER CODE BEGIN 1 */
 
-/* 更新事件（UEV）：TIM1 每 1ms 触发 UART3 电机编码器；TIM2 周期喂 IWDG */
+/**
+ * @brief 定时器更新事件（UEV）回调
+ * @details TIM1 每 1ms 触发一次 UART3 电机编码器请求；TIM2 周期内刷新 IWDG 喂狗。
+ * @param htim 触发回调的定时器句柄（按 Instance 区分 TIM1 / TIM2）
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM1)
@@ -242,7 +246,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
 }
 
-/* 输出比较：CH1 0.10ms→UART4 摆杆；CH2 0.20ms→UART5 输出轴 */
+/**
+ * @brief 定时器输出比较（OC）延时事件回调
+ * @details 仅处理 TIM1：CH1（≈0.10ms）触发 UART4 摆杆编码器；CH2（≈0.20ms）触发 UART5 输出轴编码器。
+ *          三路编码器请求错相位发出，避免同一时刻并发收发。
+ * @param htim 触发回调的定时器句柄（仅 TIM1 生效，按 Channel 区分通道）
+ */
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance != TIM1)

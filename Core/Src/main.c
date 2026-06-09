@@ -18,14 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "hrtim.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "bsp.h"
-#include "simulink_protocol.h"
-#include "State_Machine.h"
-#include "motor_service.h"
+#include <stdio.h>            /* Error_Handler 内 printf */
+#include "bsp.h"              /* Bsp_Init / Bsp_DelayMs（并透传 config.h 的 TEST_DRV/TEST_ADC） */
+#include "adc.h"             /* TEST_DRV+TEST_ADC 自测时调用 Drv_ADC_TEST */
+#include "State_Machine.h"    /* App_StateMachine_MainLoop */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

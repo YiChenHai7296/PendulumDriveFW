@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include <stdio.h>
+#include "bsp.h"      /* BSP_LOG_PRINTF */
 
 #define ADC_DMA_RX_BUFF_LEN 1
 /* ADC采集原始数据 */
@@ -519,6 +520,10 @@ Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
     return STATUS_OK;
 }
 
+/**
+ * @brief  抓取电机电流 ADC1/ADC2 当前值，打包为单个 32 位快照（低 16 位=ADC1，高 16 位=ADC2）
+ * @note   由 HRTIM TimerA CMP1 中断调用，与采样相位对齐；单次 32 位写入保证读侧拆包不跨周期混叠
+ */
 void Drv_ADC_Motor_RawData_Snapshot(void)
 {
     uint32_t u32RawPack = ((uint32_t)g_au16ADC2VolValue[0] << 16) |
@@ -543,6 +548,10 @@ Status_t Drv_ADC_SoftRuler_RawData_Read(uint16_t *pOut)
     return STATUS_OK;
 }
 
+/**
+ * @brief  ADC 自测：读取电机 ADC1/ADC2 与软尺摆 ADC3 原始值，换算电压/理论电流并经调试串口打印
+ * @note   仅用于开发期联调（受 main.c 的 TEST_ADC 开关控制）；电机两路读自中断快照，软尺摆读自 DMA 缓冲
+ */
 void Drv_ADC_TEST(void)
 {
     uint16_t au16MotorRaw[2];
@@ -561,13 +570,13 @@ void Drv_ADC_TEST(void)
     /* 电机快照仅由中断里 `Drv_ADC_Motor_RawData_Snapshot` 更新；此处只读上次快照 */
     if (Drv_ADC_Motor_RawData_Read(au16MotorRaw) != STATUS_OK)
     {
-        printf("[ADC_TEST] Drv_ADC_Motor_RawData_Read fail\r\n");
+        BSP_LOG_PRINTF("[ADC_TEST] Drv_ADC_Motor_RawData_Read fail\r\n");
         return;
     }
 
     if (Drv_ADC_SoftRuler_RawData_Read(&u16SoftRaw) != STATUS_OK)
     {
-        printf("[ADC_TEST] Drv_ADC_SoftRuler_RawData_Read fail\r\n");
+        BSP_LOG_PRINTF("[ADC_TEST] Drv_ADC_SoftRuler_RawData_Read fail\r\n");
         return;
     }
 
@@ -581,11 +590,11 @@ void Drv_ADC_TEST(void)
     /* 摆杆侧理论输入电压(V)：(Vadc-1.6)/0.16 */
     fVinSoftTheory = (fVsoft - fOffsetV) / fSoftVinDiv;
 
-    printf("\n[ADC_TEST] motor(ADC1) raw=%u ; V=%.4f ; I_theory=%.4fA\r\n",
+    BSP_LOG_PRINTF("\n[ADC_TEST] motor(ADC1) raw=%u ; V=%.4f ; I_theory=%.4fA\r\n",
            (unsigned int)au16MotorRaw[0], (double)fVmotor1, (double)fImotor1Theory);
-    printf("[ADC_TEST] motor(ADC2) raw=%u ; V=%.4f ; I_theory=%.4fA\r\n",
+    BSP_LOG_PRINTF("[ADC_TEST] motor(ADC2) raw=%u ; V=%.4f ; I_theory=%.4fA\r\n",
            (unsigned int)au16MotorRaw[1], (double)fVmotor2, (double)fImotor2Theory);
-    printf("[ADC_TEST] SoftRuler(ADC3) raw=%u ; V=%.4f ; Vin_theory=%.4fV\r\n",
+    BSP_LOG_PRINTF("[ADC_TEST] SoftRuler(ADC3) raw=%u ; V=%.4f ; Vin_theory=%.4fV\r\n",
            (unsigned int)u16SoftRaw, (double)fVsoft, (double)fVinSoftTheory);
 }
 

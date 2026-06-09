@@ -20,11 +20,15 @@
 /* 无 */
 
 /* ======================== 6. 私有函数声明 ======================== */
-static void RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len);
+static void Cmn_RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len);
 
 /* ======================== 7. 接口函数实现 ======================== */
 /* -------- 7.1 帧级环形队列 -------- */
-void Util_RFQ_Init(rfq_queue_t *struQueue)
+/**
+ * @brief 初始化帧级环形队列（读写索引清零）
+ * @param struQueue 队列对象；为 NULL 时直接返回
+ */
+void Cmn_RFQ_Init(rfq_queue_t *struQueue)
 {
     if (struQueue == NULL)
     {
@@ -34,13 +38,20 @@ void Util_RFQ_Init(rfq_queue_t *struQueue)
     struQueue->u8ReadIdx  = 0;
 }
 
-int Util_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len)
+/**
+ * @brief 入队一帧（单生产者）：拷贝数据并推进写索引
+ * @param struQueue 队列对象
+ * @param pu8Data   待入队数据首地址
+ * @param u16Len    数据长度；超过 RFQ_FRAME_MAX_LEN 时被截断
+ * @return STATUS_OK 成功；STATUS_ERROR 参数非法或队列已满
+ */
+Status_t Cmn_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len)
 {
     uint8_t u8NextW;
 
     if (struQueue == NULL || pu8Data == NULL)
     {
-        return -1;
+        return STATUS_ERROR;
     }
 
     u8NextW = (uint8_t)(struQueue->u8WriteIdx + 1U);
@@ -50,7 +61,7 @@ int Util_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Le
     }
     if (u8NextW == struQueue->u8ReadIdx)
     {
-        return -1;
+        return STATUS_ERROR;
     }
 
     if (u16Len > RFQ_FRAME_MAX_LEN)
@@ -60,7 +71,7 @@ int Util_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Le
 
     {
         rfq_frame_t *struFrame = &struQueue->frames[struQueue->u8WriteIdx];
-        RFQ_Memcpy(struFrame->au8Bytes, pu8Data, u16Len);
+        Cmn_RFQ_Memcpy(struFrame->au8Bytes, pu8Data, u16Len);
         struFrame->u16Len = u16Len;
     }
 
@@ -70,18 +81,24 @@ int Util_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Le
         struQueue->u8WriteIdx = 0;
     }
 
-    return 0;
+    return STATUS_OK;
 }
 
-int Util_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut)
+/**
+ * @brief 出队一帧（单消费者）：拷贝到输出并推进读索引
+ * @param struQueue 队列对象
+ * @param struOut   输出的整帧
+ * @return STATUS_OK 成功；STATUS_ERROR 参数非法或队列为空
+ */
+Status_t Cmn_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut)
 {
     if (struQueue == NULL || struOut == NULL)
     {
-        return -1;
+        return STATUS_ERROR;
     }
     if (struQueue->u8ReadIdx == struQueue->u8WriteIdx)
     {
-        return -1;
+        return STATUS_ERROR;
     }
 
     *struOut = struQueue->frames[struQueue->u8ReadIdx];
@@ -92,10 +109,15 @@ int Util_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut)
         struQueue->u8ReadIdx = 0;
     }
 
-    return 0;
+    return STATUS_OK;
 }
 
-uint8_t Util_RFQ_Count(const rfq_queue_t *struQueue)
+/**
+ * @brief 获取队列当前帧数量
+ * @param struQueue 队列对象
+ * @return 已入队未消费的帧数；struQueue 为 NULL 时返回 0
+ */
+uint8_t Cmn_RFQ_Count(const rfq_queue_t *struQueue)
 {
     uint8_t u8W;
     uint8_t u8R;
@@ -113,7 +135,12 @@ uint8_t Util_RFQ_Count(const rfq_queue_t *struQueue)
     return (uint8_t)(RFQ_QUEUE_SIZE - (u8R - u8W));
 }
 
-uint8_t Util_RFQ_Is_Empty(const rfq_queue_t *struQueue)
+/**
+ * @brief 判断队列是否为空
+ * @param struQueue 队列对象
+ * @return 1 空（含 struQueue 为 NULL）；0 非空
+ */
+uint8_t Cmn_RFQ_Is_Empty(const rfq_queue_t *struQueue)
 {
     if (struQueue == NULL)
     {
@@ -122,7 +149,12 @@ uint8_t Util_RFQ_Is_Empty(const rfq_queue_t *struQueue)
     return (struQueue->u8WriteIdx == struQueue->u8ReadIdx) ? 1U : 0U;
 }
 
-uint8_t Util_RFQ_Is_Full(const rfq_queue_t *struQueue)
+/**
+ * @brief 判断队列是否已满
+ * @param struQueue 队列对象
+ * @return 1 满；0 未满（含 struQueue 为 NULL）
+ */
+uint8_t Cmn_RFQ_Is_Full(const rfq_queue_t *struQueue)
 {
     uint8_t u8NextW;
 
@@ -139,13 +171,23 @@ uint8_t Util_RFQ_Is_Full(const rfq_queue_t *struQueue)
 }
 
 /* -------- 7.2 小端序整型打包 / 解包 -------- */
-void Util_PackInt16LE(uint8_t *pu8Buf, int16_t s16Value)
+/**
+ * @brief 将 int16 以小端序写入缓冲区（连续 2 字节）
+ * @param pu8Buf   目标缓冲区（至少 2 字节）
+ * @param s16Value 待写入值
+ */
+void Cmn_PackInt16LE(uint8_t *pu8Buf, int16_t s16Value)
 {
     pu8Buf[0] = (uint8_t)((uint16_t)s16Value & 0xFFU);
     pu8Buf[1] = (uint8_t)(((uint16_t)s16Value >> 8) & 0xFFU);
 }
 
-void Util_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value)
+/**
+ * @brief 将 int32 以小端序写入缓冲区（连续 4 字节）
+ * @param pu8Buf   目标缓冲区（至少 4 字节）
+ * @param s32Value 待写入值
+ */
+void Cmn_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value)
 {
     pu8Buf[0] = (uint8_t)((uint32_t)s32Value & 0xFFU);
     pu8Buf[1] = (uint8_t)(((uint32_t)s32Value >> 8) & 0xFFU);
@@ -153,19 +195,36 @@ void Util_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value)
     pu8Buf[3] = (uint8_t)(((uint32_t)s32Value >> 24) & 0xFFU);
 }
 
-int16_t Util_UnpackInt16LE(const uint8_t *pu8Buf)
+/**
+ * @brief 从缓冲区按小端序读取 int16
+ * @param pu8Buf 源缓冲区（至少 2 字节）
+ * @return 解析得到的 int16 值
+ */
+int16_t Cmn_UnpackInt16LE(const uint8_t *pu8Buf)
 {
     return (int16_t)((uint16_t)pu8Buf[0] | ((uint16_t)pu8Buf[1] << 8));
 }
 
-int32_t Util_UnpackInt32LE(const uint8_t *pu8Buf)
+/**
+ * @brief 从缓冲区按小端序读取 int32
+ * @param pu8Buf 源缓冲区（至少 4 字节）
+ * @return 解析得到的 int32 值
+ */
+int32_t Cmn_UnpackInt32LE(const uint8_t *pu8Buf)
 {
     return (int32_t)((uint32_t)pu8Buf[0] | ((uint32_t)pu8Buf[1] << 8) |
                      ((uint32_t)pu8Buf[2] << 16) | ((uint32_t)pu8Buf[3] << 24));
 }
 
 /* -------- 7.3 软件 CRC（CRC8 + CRC16-MODBUS 参考实现） -------- */
-uint8_t Util_CalcCRC8(const uint8_t *pu8Data, uint16_t u16Length)
+/**
+ * @brief 计算 CRC8（多项式 0x01 即 x^8+1，初值 0x00，MSB 优先）
+ * @param pu8Data   待校验数据首地址
+ * @param u16Length 数据长度（字节）
+ * @return CRC8 校验值；参数非法或长度为 0 时返回 0
+ * @note  与编码器 CM/SA/AS 帧尾校验一致
+ */
+uint8_t Cmn_CalcCRC8(const uint8_t *pu8Data, uint16_t u16Length)
 {
     uint8_t u8Crc = 0x00U;
     uint16_t u16I;
@@ -194,7 +253,14 @@ uint8_t Util_CalcCRC8(const uint8_t *pu8Data, uint16_t u16Length)
     return u8Crc;
 }
 
-uint16_t Util_CalcCRC16Modbus(const uint8_t *pu8Data, uint16_t u16Length)
+/**
+ * @brief 计算 MODBUS CRC16（多项式 0xA001，初值 0xFFFF）软件参考实现
+ * @param pu8Data   待校验数据首地址
+ * @param u16Length 数据长度（字节）
+ * @return CRC16 校验值；参数非法或长度为 0 时返回 0
+ * @note  与 BSP 硬件 Bsp_Crc16Modbus_Byte 等价，可作对照或离线验证
+ */
+uint16_t Cmn_CalcCRC16Modbus(const uint8_t *pu8Data, uint16_t u16Length)
 {
     uint16_t u16Crc = 0xFFFFU;
     uint16_t u16I;
@@ -225,7 +291,13 @@ uint16_t Util_CalcCRC16Modbus(const uint8_t *pu8Data, uint16_t u16Length)
 }
 
 /* ======================== 8. 私有函数实现 ======================== */
-static void RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len)
+/**
+ * @brief 字节拷贝（本文件内），避免引入 string.h 依赖
+ * @param pu8Dst 目标地址
+ * @param pu8Src 源地址
+ * @param u16Len 拷贝字节数
+ */
+static void Cmn_RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len)
 {
     while (u16Len--)
     {

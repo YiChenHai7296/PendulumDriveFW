@@ -12,9 +12,10 @@
 #include "State_Machine.h"
 #include "simulink_protocol.h"
 #include "motor_service.h"
+#include "bsp.h"
 
 /* USER CODE BEGIN Includes */
-/* 本层仅依赖服务层；类型定义在服务/公共头文件中 */
+/* 业务上仅依赖服务层；包含 bsp.h 仅为调试日志宏 BSP_LOG_PRINTF（不调用 Core 中 Drv_*） */
 /* USER CODE END Includes */
 
 #if (APP_CONTROL_OBJECT_SELECT == APP_CONTROL_OBJECT_INVERTED_PENDULUM)
@@ -80,7 +81,7 @@ void App_StateMachine_MainLoop(void)
         /* 3) 读取编码器与电流等反馈（经驱动层 usart/adc） */
         if (Svc_MotorService_GetFeedbackData(&struFb) != MOTOR_SVC_OK)
         {
-            printf("反馈读取失败\n");
+            BSP_LOG_PRINTF("反馈读取失败\n");
             continue;
         }
 
@@ -90,7 +91,7 @@ void App_StateMachine_MainLoop(void)
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
         if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx, APP_CONTROL_OBJECT_VALUE) != SIMULINK_PROTOCOL_OK)
         {
-            printf("组帧失败！\n");
+            BSP_LOG_PRINTF("组帧失败！\n");
             continue;
         }
     }

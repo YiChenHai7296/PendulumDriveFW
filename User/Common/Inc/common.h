@@ -3,7 +3,7 @@
  * @brief   公共模块（Common）：跨层类型与纯软件工具
  * @details 模块路径：`User/Common`。零 HAL/外设依赖，仅 `<stdint.h>` / `<stddef.h>`。
  *          供驱动、服务、应用任意层包含：通用枚举与状态、帧队列、小端打包/解包、CRC8 与 CRC16 软件参考实现。
- *          工程内 Simulink 帧 CRC16 已走 BSP 硬件 `Bsp_Crc16Modbus_Byte`；`Util_CalcCRC16Modbus` 保留作对照或离线验证。
+ *          工程内 Simulink 帧 CRC16 已走 BSP 硬件 `Bsp_Crc16Modbus_Byte`；`Cmn_CalcCRC16Modbus` 保留作对照或离线验证。
  */
 
 #ifndef COMMON_H
@@ -78,35 +78,37 @@ typedef struct
 
 /* ======================== 5. 接口函数声明 ======================== */
 /* --- 帧级环形队列 --- */
-void    Util_RFQ_Init(rfq_queue_t *struQueue);
-int     Util_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len);
-int     Util_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut);
-uint8_t Util_RFQ_Count(const rfq_queue_t *struQueue);
-uint8_t Util_RFQ_Is_Empty(const rfq_queue_t *struQueue);
-uint8_t Util_RFQ_Is_Full(const rfq_queue_t *struQueue);
+void     Cmn_RFQ_Init(rfq_queue_t *struQueue);
+/** 入队一帧：成功返回 STATUS_OK；参数非法或队列满返回 STATUS_ERROR */
+Status_t Cmn_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len);
+/** 出队一帧：成功返回 STATUS_OK；参数非法或队列空返回 STATUS_ERROR */
+Status_t Cmn_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut);
+uint8_t  Cmn_RFQ_Count(const rfq_queue_t *struQueue);
+uint8_t  Cmn_RFQ_Is_Empty(const rfq_queue_t *struQueue);
+uint8_t  Cmn_RFQ_Is_Full(const rfq_queue_t *struQueue);
 
 /* --- 小端序整型打包 / 解包 --- */
 /** 将 int16 以小端序写入缓冲区（连续 2 字节） */
-void    Util_PackInt16LE(uint8_t *pu8Buf, int16_t s16Value);
+void    Cmn_PackInt16LE(uint8_t *pu8Buf, int16_t s16Value);
 /** 将 int32 以小端序写入缓冲区（连续 4 字节） */
-void    Util_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value);
+void    Cmn_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value);
 /** 从缓冲区按小端序读取 int16 */
-int16_t Util_UnpackInt16LE(const uint8_t *pu8Buf);
+int16_t Cmn_UnpackInt16LE(const uint8_t *pu8Buf);
 /** 从缓冲区按小端序读取 int32 */
-int32_t Util_UnpackInt32LE(const uint8_t *pu8Buf);
+int32_t Cmn_UnpackInt32LE(const uint8_t *pu8Buf);
 
 /* --- CRC 软件算法 --- */
 /**
- * @brief 计算 CRC8（多项式 x^8+x^2+x+1，初值 0x00）
+ * @brief 计算 CRC8（多项式 0x01 即 x^8+1，初值 0x00，MSB 优先，无输入/输出反相）
  * @note  与编码器 CM/SA/AS 帧尾校验一致
  */
-uint8_t  Util_CalcCRC8(const uint8_t *pu8Data, uint16_t u16Length);
+uint8_t  Cmn_CalcCRC8(const uint8_t *pu8Data, uint16_t u16Length);
 
 /**
  * @brief 计算 MODBUS CRC16（多项式 0xA001，初值 0xFFFF）
  * @note  帧尾通常按低字节在前存放；与 BSP 硬件 `Bsp_Crc16Modbus_Byte` 算法等价，可作对照或备用
  */
-uint16_t Util_CalcCRC16Modbus(const uint8_t *pu8Data, uint16_t u16Length);
+uint16_t Cmn_CalcCRC16Modbus(const uint8_t *pu8Data, uint16_t u16Length);
 
 #ifdef __cplusplus
 }

@@ -23,6 +23,7 @@
 /* USER CODE BEGIN 0 */
 #include "adc.h"
 #include "usart.h"
+#include "bsp.h"      /* BSP_LOG_PRINTF */
 
 extern uint8_t g_au8DebugRxBuff[100];
 
@@ -331,6 +332,11 @@ void Drv_PWM_DirControl(uint8_t dir)
 }
 
 
+/**
+ * @brief 设置 PWM 目标占空比并置更新标志，待 TimerB 比较中断装载到比较寄存器
+ * @param u16ExpectedValue 目标占空比（0~10000，单位 0.01%）
+ * @return STATUS_OK；超过 10000 返回 STATUS_ERROR
+ */
 Status_t Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue)
 {
   if (u16ExpectedValue > 10000U)
@@ -377,6 +383,10 @@ static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse)
 }
 
 
+/**
+ * @brief PWM 占空比手动测试：经调试串口读入 5 位数字（00000~10000），设为目标占空比
+ * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用流程中调用
+ */
 void PWM_TEST(void)
 {
 
@@ -384,7 +394,7 @@ void PWM_TEST(void)
   HAL_UART_Receive(DEBUG_UART, g_au8DebugRxBuff, 10, 100);
 
   /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
-  printf("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
+  BSP_LOG_PRINTF("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
   while (HAL_OK != HAL_UART_Receive(DEBUG_UART, g_au8DebugRxBuff, 5, 1000))
     ;
 
@@ -398,6 +408,13 @@ void PWM_TEST(void)
 
 
 
+/**
+ * @brief HRTIM 比较器 1（CMP1）事件回调
+ * @details TimerA：触发电机电流原始数据快照 Drv_ADC_Motor_RawData_Snapshot；
+ *          TimerB：若有占空比更新标志，则把目标占空比（×1.7 折算后）装载到比较寄存器。
+ * @param hhrtim     HRTIM 句柄
+ * @param u32TimerIdx 触发事件的定时器索引（区分 TimerA / TimerB）
+ */
 void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim, uint32_t u32TimerIdx)
 {
   if(HRTIM_TIMERINDEX_TIMER_A == u32TimerIdx)

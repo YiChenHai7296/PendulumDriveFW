@@ -1,7 +1,7 @@
 /**
  * @file motor_service.c
  * @brief 服务层：电机与编码器语义实现
- * @details 编码器帧解析使用 `common.h` 中 `Util_CalcCRC8`；电流与 PWM 经 `adc.h` / `hrtim.h`；
+ * @details 编码器帧解析使用 `common.h` 中 `Cmn_CalcCRC8`；电流与 PWM 经 `adc.h` / `hrtim.h`；
  *          标定与等待使用 `bsp.h`（`Bsp_DelayMs`）。不向上层暴露 HAL 句柄。
  */
 
@@ -12,8 +12,8 @@
 #include "adc.h"
 #include "hrtim.h"
 
-/* 指令死区与 `PWM_DUTY_CYCLE_MIN`（hrtim.h）同数值；此处用无后缀十进制，参与比较有符号整型提升，
- * 杜绝 `s16 > 8U` 一类把负数变成巨大无符号数的陷阱。若改 HRTIM 下限须同步改此处并通过 #if。 */
+/* 转速指令死区直接复用 `PWM_DUTY_CYCLE_MIN`（hrtim.h），不再单独定义死区宏；
+ * 比较时务必将其强转 (int16_t)，避免与有符号指令比较时发生无符号提升而误判负指令（见 SetMotorSpeedPermyriad）。 */
 
 
 
@@ -86,8 +86,8 @@ typedef enum
 
 /* ======================== 4. 私有变量 ======================== */
 /* 电机电流零点偏置（A）：电机未启动时采样得到，后续采样均需扣除此偏置 */
-static float sMotorCurrentZeroOffsetA = 0.0f;
-static ControlObject_t s_enControlObject = CONTROL_OBJECT_INVERTED_PENDULUM;
+static float g_MotorCurrentZeroOffsetA = 0.0f;
+static ControlObject_t g_enControlObject = CONTROL_OBJECT_INVERTED_PENDULUM;
 
 /* ======================== 5. 对外变量定义 ======================== */
 /* 无 */
@@ -133,7 +133,7 @@ static EncoderBits_t Svc_MotorService_GetOutputShaftEncoderBits(void);
 /* ======================== 7. 接口函数实现 ======================== */
 void Svc_MotorService_SetControlObject(ControlObject_t enObject)
 {
-    s_enControlObject = enObject;
+    g_enControlObject = enObject;
 }
 
 /**
@@ -166,17 +166,17 @@ void Svc_MotorService_CalibrateCurrentZero(void)
         sum_A += Svc_MotorService_GetMotorCurrentRaw();
         Bsp_DelayMs(MOTOR_CURRENT_ZERO_CALIB_INTERVAL_MS);
     }
-    sMotorCurrentZeroOffsetA = sum_A / (float)MOTOR_CURRENT_ZERO_CALIB_SAMPLES;
+    g_MotorCurrentZeroOffsetA = sum_A / (float)MOTOR_CURRENT_ZERO_CALIB_SAMPLES;
 
     /* 保护：若零点偏置明显异常，则放弃本次标零，防止反馈整体漂移到满量程附近 */
-    if ((sMotorCurrentZeroOffsetA > MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A) ||
-        (sMotorCurrentZeroOffsetA < -MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A))
+    if ((g_MotorCurrentZeroOffsetA > MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A) ||
+        (g_MotorCurrentZeroOffsetA < -MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A))
     {
-        sMotorCurrentZeroOffsetA = 0.0f;
+        g_MotorCurrentZeroOffsetA = 0.0f;
     }
 #else
     /* 关闭零点标定：偏置固定为0，反馈直接使用原始电流 */
-    sMotorCurrentZeroOffsetA = 0.0f;
+    g_MotorCurrentZeroOffsetA = 0.0f;
 #endif
 }
 
@@ -205,14 +205,14 @@ MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struO
     encRes = Svc_EncoderProtocol_ReadMotor(&struMotorDual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
-        printf("电机编码器读取失败\n");
+        BSP_LOG_PRINTF("电机编码器读取失败\n");
         return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_MOTOR);
     }
 
     encRes = Svc_EncoderProtocol_ReadOutputShaft(&struShaftDual);
     if (encRes != ENCODER_PROTOCOL_OK)
     {
-        printf("输出轴编码器读取失败\n");
+        BSP_LOG_PRINTF("输出轴编码器读取失败\n");
         return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SHAFT);
     }
 
@@ -220,7 +220,7 @@ MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struO
     currentA = Svc_MotorService_GetMotorCurrent();
 
     s32Val = (int32_t)(currentA * MOTOR_CURRENT_TO_FEEDBACK_A);
-    //printf("currentA = %f,val = %d\n",currentA,val);
+    //BSP_LOG_PRINTF("currentA = %f,val = %d\n",currentA,val);
 
     if (s32Val > MOTOR_FEEDBACK_CURRENT_MAX)
     {
@@ -248,12 +248,12 @@ MotorServiceResult_t Svc_MotorService_GetFeedbackData(MotorFeedbackData_t *struO
                                                                 -FEEDBACK_SPD_AXIS_PEND_MAX_ABS,
                                                                 FEEDBACK_SPD_AXIS_PEND_MAX_ABS);
 
-    if (s_enControlObject == CONTROL_OBJECT_INVERTED_PENDULUM)
+    if (g_enControlObject == CONTROL_OBJECT_INVERTED_PENDULUM)
     {
         encRes = Svc_EncoderProtocol_ReadSwingArm(&struSwingDual);
         if (encRes != ENCODER_PROTOCOL_OK)
         {
-            printf("摆杆编码器读取失败\n");
+            BSP_LOG_PRINTF("摆杆编码器读取失败\n");
             return Svc_MotorService_MapEncoderResult(encRes, MOTOR_SVC_ERR_ENCODER_SWING);
         }
         struOut->s32PendulumPosition = (int32_t)(struSwingDual.struLatest.u32AbsolutePosition & ENCODER_ABS_POSITION_MAX_17BIT);
@@ -288,8 +288,8 @@ MotorServiceResult_t Svc_MotorService_SetMotorSpeedPermyriad(int16_t s16SpeedPer
         return MOTOR_SVC_ERR_PARAM;
     }
 
-    /* 正转 / 反转 / 零指令：与 `MOTOR_SVC_SPEED_CMD_DEADBAND`（=PWM_DUTY_CYCLE_MIN 数值）比较有符号整型，
-     * 勿写 `s16 > PWM_DUTY_CYCLE_MIN`：`PWM_DUTY_CYCLE_MIN` 为 8U 时负指令会误判为真。 */
+    /* 正转 / 反转 / 零指令：死区阈值用 `(int16_t)PWM_DUTY_CYCLE_MIN`，必须按有符号整型比较；
+     * 勿写 `s16 > PWM_DUTY_CYCLE_MIN`：`PWM_DUTY_CYCLE_MIN` 为 8U（无符号）时负指令会被提升成大正数而误判为真。 */
     if (s16SpeedPermyriad > (int16_t)PWM_DUTY_CYCLE_MIN)
     {
         /* 正指令：电机正转 */
@@ -397,7 +397,7 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(EncoderUartSel_t u
     /* 校验帧头 */
     if (u8Cm != ENCODER_CM_VALUE)
     {
-        printf("帧头错误: CM=0x%02X 期望=0x%02X 六字节整帧: %02X %02X %02X %02X %02X %02X",
+        BSP_LOG_PRINTF("帧头错误: CM=0x%02X 期望=0x%02X 六字节整帧: %02X %02X %02X %02X %02X %02X",
                (unsigned int)u8Cm,
                (unsigned int)ENCODER_CM_VALUE,
                (unsigned int)pu8Frame[0],
@@ -411,10 +411,10 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(EncoderUartSel_t u
     }
 
     /* 校验CRC（前5字节） */
-    u8CrcCalc = Util_CalcCRC8(pu8Frame, 5U);
+    u8CrcCalc = Cmn_CalcCRC8(pu8Frame, 5U);
     if (u8CrcCalc != u8CrcRecv)
     {
-        printf("CRC校验失败: 计算=0x%02X 接收=0x%02X 六字节整帧: %02X %02X %02X %02X %02X %02X",
+        BSP_LOG_PRINTF("CRC校验失败: 计算=0x%02X 接收=0x%02X 六字节整帧: %02X %02X %02X %02X %02X %02X",
                (unsigned int)u8CrcCalc,
                (unsigned int)u8CrcRecv,
                (unsigned int)pu8Frame[0],
@@ -451,14 +451,14 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderDual_t *stru
 
     if (struOut == NULL)
     {
-        printf("指针为空！\n");
+        BSP_LOG_PRINTF("指针为空！\n");
         return ENCODER_PROTOCOL_ERR_NULL;
     }
 
     /* 从USART3获取12字节快照（前6=最新帧，后6=上一帧） */
     if (Drv_MotorEncoder_GetData(au8RawBuf, &struOut->u32FrameDtUs) != STATUS_OK)
     {
-        printf("数据获取失败！\n");
+        BSP_LOG_PRINTF("数据获取失败！\n");
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
     resLatest = Svc_EncoderProtocol_ParseFrame(ENCODER_UART_MOTOR,
@@ -471,12 +471,12 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderDual_t *stru
                                                &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
     {
-        printf("电机编码器最新帧解析失败。\n");
+        BSP_LOG_PRINTF("电机编码器最新帧解析失败。\n");
         return resLatest;
     }
     if (resPrev != ENCODER_PROTOCOL_OK)
     {
-        printf("电机编码器上一帧解析失败。\n");
+        BSP_LOG_PRINTF("电机编码器上一帧解析失败。\n");
         return resPrev;
     }
     return ENCODER_PROTOCOL_OK;
@@ -484,7 +484,7 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadMotor(EncoderDual_t *stru
 
 /**
  * @brief 读取输出轴编码器双帧快照并解析
- * @details 倒立摆：17 位掩码；软尺摆：20 位掩码（与 `s_enControlObject` 一致）
+ * @details 倒立摆：17 位掩码；软尺摆：20 位掩码（与 `g_enControlObject` 一致）
  */
 static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t *struOut)
 {
@@ -709,7 +709,7 @@ static float Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual)
 
     if (fSpd > PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS || fSpd < -PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS)
     {
-        printf("[摆杆速度] |spd|>%.0f deg/s: spd=%.2f 上一帧位置=%lu 当前帧位置=%lu\r\n",
+        BSP_LOG_PRINTF("[摆杆速度] |spd|>%.0f deg/s: spd=%.2f 上一帧位置=%lu 当前帧位置=%lu\r\n",
                (double)PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS,
                (double)fSpd,
                (unsigned long)struDual->struPrevious.u32AbsolutePosition,
@@ -744,7 +744,7 @@ static float Svc_MotorService_GetMotorCurrent(void)
 {
 #if MOTOR_CURRENT_ZERO_CALIB_ENABLE
     /* 采样结果减去零点偏置，得到校零后的电流 */
-    return Svc_MotorService_GetMotorCurrentRaw() - sMotorCurrentZeroOffsetA;
+    return Svc_MotorService_GetMotorCurrentRaw() - g_MotorCurrentZeroOffsetA;
 #else
     /* 关闭零点标定时，直接返回原始电流 */
     return Svc_MotorService_GetMotorCurrentRaw();
@@ -765,29 +765,29 @@ static float Svc_MotorService_GetMotorCurrentRaw(void)
 
 /**
  * @brief PWM 占空比映射（按上位机目标占空比曲线补偿）
- * @param dutyPermilleAbs 绝对值占空比（0~10000，单位 0.01%）
+ * @param u16DutyPermilleAbs 绝对值占空比（0~10000，单位 0.01%）
  * @return 映射后的绝对值占空比（0~10000，单位 0.01%）
  */
 static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t u16DutyPermilleAbs)
 {
     /* 标定表（单位：0.01%）
-       actual_tbl：实际上位机目标占空比（期望实际输出）
-       given_tbl ：反推得到的单片机给定占空比（用于 PWM 发生）
+       s_actual_tbl：实际上位机目标占空比（期望实际输出）
+       s_given_tbl ：反推得到的单片机给定占空比（用于 PWM 发生）
        拟合依据：最新标定表（含 1.3%->0% 锚点）
        保留逻辑：实际目标 >95% 时按 95% 处理（给定值可大于95%） */
-    static const uint16_t actual_tbl[] = {
+    static const uint16_t s_actual_tbl[] = {
         0U, 38U, 68U, 112U, 161U, 208U, 254U, 308U, 402U,
         499U, 899U, 1397U, 1895U, 2394U, 2893U, 3400U, 3900U,
         4894U, 5895U, 6895U, 7895U, 8895U, 9395U, 9500U
     };
-    static const uint16_t given_tbl[] = {
+    static const uint16_t s_given_tbl[] = {
         130U, 140U, 150U, 200U, 250U, 300U, 350U, 400U, 500U,
         600U, 1000U, 1500U, 2000U, 2500U, 3000U, 3500U, 4000U,
         5000U, 6000U, 7000U, 8000U, 9000U, 9500U, 9590U
     };
 
     uint16_t u16I;
-    const uint16_t tbl_size = (uint16_t)(sizeof(actual_tbl) / sizeof(actual_tbl[0]));
+    const uint16_t tbl_size = (uint16_t)(sizeof(s_actual_tbl) / sizeof(s_actual_tbl[0]));
 
     /* 特殊需求：上位机给定为 0 时绝对为0 */
     if (u16DutyPermilleAbs == 0U)
@@ -801,23 +801,23 @@ static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t u16DutyPermilleAbs)
         u16DutyPermilleAbs = 9500U;
     }
 
-    if (u16DutyPermilleAbs <= actual_tbl[0])
+    if (u16DutyPermilleAbs <= s_actual_tbl[0])
     {
-        return given_tbl[0];
+        return s_given_tbl[0];
     }
-    if (u16DutyPermilleAbs >= actual_tbl[tbl_size - 1U])
+    if (u16DutyPermilleAbs >= s_actual_tbl[tbl_size - 1U])
     {
-        return given_tbl[tbl_size - 1U];
+        return s_given_tbl[tbl_size - 1U];
     }
 
     for (u16I = 0U; u16I < (tbl_size - 1U); u16I++)
     {
-        uint16_t u16X0 = actual_tbl[u16I];
-        uint16_t u16X1 = actual_tbl[u16I + 1U];
+        uint16_t u16X0 = s_actual_tbl[u16I];
+        uint16_t u16X1 = s_actual_tbl[u16I + 1U];
         if (u16DutyPermilleAbs <= u16X1)
         {
-            uint16_t u16Y0 = given_tbl[u16I];
-            uint16_t u16Y1 = given_tbl[u16I + 1U];
+            uint16_t u16Y0 = s_given_tbl[u16I];
+            uint16_t u16Y1 = s_given_tbl[u16I + 1U];
             uint32_t u32Dx = (uint32_t)u16X1 - (uint32_t)u16X0;
             uint32_t u32Dy = (uint32_t)u16Y1 - (uint32_t)u16Y0;
             uint32_t u32Num = ((uint32_t)u16DutyPermilleAbs - (uint32_t)u16X0) * u32Dy;
@@ -826,12 +826,12 @@ static uint16_t Svc_MotorService_MapPwmDutyPermille(uint16_t u16DutyPermilleAbs)
         }
     }
 
-    return given_tbl[tbl_size - 1U];
+    return s_given_tbl[tbl_size - 1U];
 }
 
 static uint32_t Svc_MotorService_GetOutputShaftPositionMask(void)
 {
-    if (s_enControlObject == CONTROL_OBJECT_SOFT_RULER_PENDULUM)
+    if (g_enControlObject == CONTROL_OBJECT_SOFT_RULER_PENDULUM)
     {
         return ENCODER_ABS_POSITION_MAX_20BIT;
     }
@@ -840,7 +840,7 @@ static uint32_t Svc_MotorService_GetOutputShaftPositionMask(void)
 
 static EncoderBits_t Svc_MotorService_GetOutputShaftEncoderBits(void)
 {
-    if (s_enControlObject == CONTROL_OBJECT_SOFT_RULER_PENDULUM)
+    if (g_enControlObject == CONTROL_OBJECT_SOFT_RULER_PENDULUM)
     {
         return ENCODER_BITS_20;
     }

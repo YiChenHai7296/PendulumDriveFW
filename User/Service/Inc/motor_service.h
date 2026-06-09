@@ -9,6 +9,10 @@
 #ifndef MOTOR_SERVICE_H
 #define MOTOR_SERVICE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
 #include "common.h"
@@ -79,5 +83,9 @@ void Svc_MotorService_SetControlObject(ControlObject_t enObject);
  * @return 操作结果
  */
 MotorServiceResult_t Svc_MotorService_SetMotorSpeedPermyriad(int16_t s16SpeedPermyriad);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MOTOR_SERVICE_H */

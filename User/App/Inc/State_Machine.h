@@ -9,8 +9,8 @@
  */
 /* USER CODE END Header */
 
-#ifndef __STATE_MACHINE__
-#define __STATE_MACHINE__
+#ifndef STATE_MACHINE_H
+#define STATE_MACHINE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,4 +41,4 @@ void App_StateMachine_MainLoop(void);
 }
 #endif
 
-#endif /* __STATE_MACHINE__ */
+#endif /* STATE_MACHINE_H */

@@ -53,7 +53,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+/* 系统时钟配置（定义在 main.c）；声明在此以便 bsp.c 等在 Bsp_Init 中调用时可见原型 */
+void SystemClock_Config(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

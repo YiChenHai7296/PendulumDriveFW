@@ -44,3 +44,6 @@ softscalependulumdriveboard\hrtim.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\hrtim.o: ../Core/Inc/adc.h
 softscalependulumdriveboard\hrtim.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\hrtim.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+softscalependulumdriveboard\hrtim.o: ../User/Bsp/Inc/bsp.h
+softscalependulumdriveboard\hrtim.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+softscalependulumdriveboard\hrtim.o: ../User/Config/Inc/config.h

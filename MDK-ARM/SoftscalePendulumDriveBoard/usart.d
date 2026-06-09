@@ -43,4 +43,5 @@ softscalependulumdriveboard\usart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4
 softscalependulumdriveboard\usart.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 softscalependulumdriveboard\usart.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\usart.o: ../User/Bsp/Inc/bsp.h
+softscalependulumdriveboard\usart.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 softscalependulumdriveboard\usart.o: ../User/Config/Inc/config.h

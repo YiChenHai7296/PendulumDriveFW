@@ -8,8 +8,8 @@
  *          CRC16：`Bsp_Crc16Modbus_Byte` 使用片内 CRC，须与 CubeMX `MX_CRC_Init` 配置一致
  *          （多项式 0x8005、初值 0xFFFF、字节/输出反相等，即标准 MODBUS CRC16）。
  *
- *          printf：实现在 `bsp.c` 的 `fputc`，无需在此声明；`#include <stdio.h>` 后可直接 `printf`。
- *          调试总开关：`DEBUG_PRINTF`（见下方「2. 宏定义」）。
+ *          printf：实现在 `bsp.c` 的 `fputc`（本头已引入 `<stdio.h>`，包含后可直接 `printf`）。
+ *          调试日志：统一用 `BSP_LOG_PRINTF`（见下方「2. 宏定义」），受 `config.h` 的 `DEBUG_PRINTF` 约束。
  */
 
 #ifndef BSP_H
@@ -21,10 +21,23 @@ extern "C" {
 
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
+#include <stdio.h>    /* BSP_LOG_PRINTF 展开为 printf */
 #include "config.h"   /* 调试总开关 DEBUG_PRINTF 等用户开关统一在 Config 模块定义 */
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
 /* 用户开关（含 DEBUG_PRINTF）已集中至 `User/Config/Inc/config.h` */
+
+/**
+ * @brief 调试日志宏：`DEBUG_PRINTF`=1 时展开为 printf；=0 时整条调用编译删除
+ * @note  与直接调用 printf 的差别——关闭后连参数求值与格式化都不再生成，调用点零开销，
+ *        适合放在主循环 / 中断等热路径。包含 `bsp.h` 即可使用。
+ *        约定：致命兜底打印（如 `Error_Handler`）仍用 printf，不走本宏。
+ */
+#if DEBUG_PRINTF
+#define BSP_LOG_PRINTF(...)   printf(__VA_ARGS__)
+#else
+#define BSP_LOG_PRINTF(...)   ((void)0)
+#endif
 
 /* ======================== 3. 类型定义 ======================== */
 /* 无 */

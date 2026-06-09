@@ -7,6 +7,10 @@
 #ifndef SIMULINK_PROTOCOL_H
 #define SIMULINK_PROTOCOL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
 #include "common.h"
@@ -77,5 +81,9 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
  */
 SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn,
                                                               ControlObject_t enControlObject);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SIMULINK_PROTOCOL_H */

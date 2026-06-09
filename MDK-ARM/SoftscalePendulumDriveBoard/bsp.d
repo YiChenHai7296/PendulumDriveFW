@@ -1,8 +1,8 @@
 softscalependulumdriveboard\bsp.o: ..\User\Bsp\Src\bsp.c
 softscalependulumdriveboard\bsp.o: ../User/Bsp/Inc/bsp.h
 softscalependulumdriveboard\bsp.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-softscalependulumdriveboard\bsp.o: ../User/Config/Inc/config.h
 softscalependulumdriveboard\bsp.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+softscalependulumdriveboard\bsp.o: ../User/Config/Inc/config.h
 softscalependulumdriveboard\bsp.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 softscalependulumdriveboard\bsp.o: ../Core/Inc/stm32g4xx_hal_conf.h
 softscalependulumdriveboard\bsp.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc.h
