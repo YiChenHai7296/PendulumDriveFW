@@ -12,21 +12,10 @@
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
 #include "common.h"
+#include "config.h"   /* MOTOR_CURRENT_ZERO_CALIB_ENABLE / MOTOR_PWM_USE_FIT_MAPPING 等用户开关在 Config 模块定义 */
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
-/**
- * @brief 电流零点偏置校准开关
- * @note  1: 启用校准，反馈电流扣除零点偏置
- *        0: 关闭校准，直接上报原始电流
- */
-#define MOTOR_CURRENT_ZERO_CALIB_ENABLE   1U
-
-/**
- * @brief PWM 指令映射模式开关
- * @note  1: 拟合反推（上位机给"目标实际占空比"，内部反推"应给定值"）
- *        0: 直通（上位机给定值即最终输出值）
- */
-#define MOTOR_PWM_USE_FIT_MAPPING         1U
+/* 用户开关（电流零点校准、PWM 映射模式）已集中至 `User/Config/Inc/config.h` */
 
 /** 转速指令万分比绝对值上限（与 Simulink 控制帧一致） */
 #define SPEED_PERMYRIAD_MAX  (10000)

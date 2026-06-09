@@ -38,7 +38,12 @@
 /* 无 */
 
 /* ======================== 6. 私有函数声明 ======================== */
-/* 无 */
+/**
+ * @brief 反馈数据映射：服务层 MotorFeedbackData_t → 协议层 SimulinkProtocolFeedbackData_t
+ * @note  App 层作为两层适配器：本函数集中处理跨层字段映射，保持服务/协议互不依赖
+ */
+static void App_MapFeedback(const MotorFeedbackData_t *pstruSrc,
+                            SimulinkProtocolFeedbackData_t *pstruDst);
 
 /* ======================== 7. 接口函数实现 ======================== */
 /**
@@ -79,14 +84,8 @@ void App_StateMachine_MainLoop(void)
             continue;
         }
 
-        /* 4) 组装反馈载荷（字段与协议结构体一致） */
-        struFbTx.s16MotorCurrent     = struFb.s16MotorCurrent;
-        struFbTx.s32MotorPosition    = struFb.s32MotorPosition;
-        struFbTx.s32MotorSpeed       = struFb.s32MotorSpeed;
-        struFbTx.s32AxisPosition     = struFb.s32AxisPosition;
-        struFbTx.s32AxisSpeed        = struFb.s32AxisSpeed;
-        struFbTx.s32PendulumPosition = struFb.s32PendulumPosition;
-        struFbTx.s32PendulumSpeed    = struFb.s32PendulumSpeed;
+        /* 4) 服务反馈 → 协议反馈载荷映射 */
+        App_MapFeedback(&struFb, &struFbTx);
 
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
         if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx, APP_CONTROL_OBJECT_VALUE) != SIMULINK_PROTOCOL_OK)
@@ -102,4 +101,14 @@ void App_StateMachine_MainLoop(void)
 /* USER CODE END Implementation */
 
 /* ======================== 8. 私有函数实现 ======================== */
-/* 无 */
+static void App_MapFeedback(const MotorFeedbackData_t *pstruSrc,
+                            SimulinkProtocolFeedbackData_t *pstruDst)
+{
+    pstruDst->s16MotorCurrent     = pstruSrc->s16MotorCurrent;
+    pstruDst->s32MotorPosition    = pstruSrc->s32MotorPosition;
+    pstruDst->s32MotorSpeed       = pstruSrc->s32MotorSpeed;
+    pstruDst->s32AxisPosition     = pstruSrc->s32AxisPosition;
+    pstruDst->s32AxisSpeed        = pstruSrc->s32AxisSpeed;
+    pstruDst->s32PendulumPosition = pstruSrc->s32PendulumPosition;
+    pstruDst->s32PendulumSpeed    = pstruSrc->s32PendulumSpeed;
+}

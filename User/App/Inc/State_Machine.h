@@ -18,19 +18,11 @@ extern "C" {
 
 /* ======================== 1. 头文件依赖 ======================== */
 /* USER CODE BEGIN Includes */
-/* 应用层头文件无额外 include：入口函数无自定义类型形参 */
+#include "config.h"   /* 控制对象选择 APP_CONTROL_OBJECT_SELECT 等用户开关在 Config 模块定义 */
 /* USER CODE END Includes */
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
-/**
- * @brief 应用层控制对象开关
- * @note  修改此宏可切换反馈对象：
- *        APP_CONTROL_OBJECT_INVERTED_PENDULUM   -> 倒立摆（摆杆编码器）
- *        APP_CONTROL_OBJECT_SOFT_RULER_PENDULUM -> 软尺摆（ADC3 摆动电压）
- */
-#define APP_CONTROL_OBJECT_INVERTED_PENDULUM   0U
-#define APP_CONTROL_OBJECT_SOFT_RULER_PENDULUM 1U
-#define APP_CONTROL_OBJECT_SELECT              APP_CONTROL_OBJECT_INVERTED_PENDULUM
+/* 用户开关（控制对象选择）已集中至 `User/Config/Inc/config.h` */
 
 /* ======================== 3. 类型定义 ======================== */
 /* 无 */

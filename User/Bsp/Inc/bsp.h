@@ -21,14 +21,10 @@ extern "C" {
 
 /* ======================== 1. 头文件依赖 ======================== */
 #include <stdint.h>
+#include "config.h"   /* 调试总开关 DEBUG_PRINTF 等用户开关统一在 Config 模块定义 */
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
-/**
- * @brief printf 调试输出总开关
- * @note  0: 关闭（fputc 内的串口发送被预处理器删除，printf 静默）
- *        1: 打开（printf 经 UART 输出）
- */
-#define DEBUG_PRINTF          1
+/* 用户开关（含 DEBUG_PRINTF）已集中至 `User/Config/Inc/config.h` */
 
 /* ======================== 3. 类型定义 ======================== */
 /* 无 */

@@ -3,6 +3,7 @@ softscalependulumdriveboard\motor_service.o: ../User/Service/Inc/motor_service.h
 softscalependulumdriveboard\motor_service.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 softscalependulumdriveboard\motor_service.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\motor_service.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+softscalependulumdriveboard\motor_service.o: ../User/Config/Inc/config.h
 softscalependulumdriveboard\motor_service.o: ../User/Bsp/Inc/bsp.h
 softscalependulumdriveboard\motor_service.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\motor_service.o: ../Core/Inc/main.h

@@ -1,6 +1,7 @@
 softscalependulumdriveboard\bsp.o: ..\User\Bsp\Src\bsp.c
 softscalependulumdriveboard\bsp.o: ../User/Bsp/Inc/bsp.h
 softscalependulumdriveboard\bsp.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+softscalependulumdriveboard\bsp.o: ../User/Config/Inc/config.h
 softscalependulumdriveboard\bsp.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 softscalependulumdriveboard\bsp.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 softscalependulumdriveboard\bsp.o: ../Core/Inc/stm32g4xx_hal_conf.h
@@ -40,8 +41,14 @@ softscalependulumdriveboard\bsp.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx
 softscalependulumdriveboard\bsp.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h
 softscalependulumdriveboard\bsp.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h
 softscalependulumdriveboard\bsp.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
-softscalependulumdriveboard\bsp.o: ../Core/Inc/crc.h
+softscalependulumdriveboard\bsp.o: ../Core/Inc/adc.h
 softscalependulumdriveboard\bsp.o: ../Core/Inc/main.h
+softscalependulumdriveboard\bsp.o: ../User/Common/Inc/common.h
+softscalependulumdriveboard\bsp.o: ../Core/Inc/crc.h
+softscalependulumdriveboard\bsp.o: ../Core/Inc/dma.h
+softscalependulumdriveboard\bsp.o: ../Core/Inc/hrtim.h
+softscalependulumdriveboard\bsp.o: ../Core/Inc/iwdg.h
+softscalependulumdriveboard\bsp.o: ../Core/Inc/tim.h
 softscalependulumdriveboard\bsp.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\bsp.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-softscalependulumdriveboard\bsp.o: ../User/Common/Inc/common.h
+softscalependulumdriveboard\bsp.o: ../Core/Inc/gpio.h

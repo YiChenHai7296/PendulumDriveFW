@@ -10,9 +10,15 @@
 
 #include <stdio.h>
 #include "stm32g4xx_hal.h"
-#include "crc.h"
-#include "usart.h"            /* `DEBUG_UART_HANDLE`（如 huart1） */
 
+#include "adc.h"
+#include "crc.h"
+#include "dma.h"
+#include "hrtim.h"
+#include "iwdg.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
 
 /* ======================== 2. 私有宏定义 ======================== */
 /* ----- printf 调试串口参数（总开关 DEBUG_PRINTF 见 bsp.h） ----- */
@@ -39,6 +45,47 @@
 /* ======================== 7. 接口函数实现 ======================== */
 
 /* -------- 7.1 系统服务 -------- */
+
+void Bsp_Init(void)
+{
+  HAL_Init();
+
+  SystemClock_Config();
+
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_CRC_Init();
+  MX_UART4_Init();
+  MX_UART5_Init();
+  MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
+  MX_USART3_UART_Init();
+  MX_ADC1_Init();
+  MX_ADC2_Init();
+  MX_ADC3_Init();
+  MX_HRTIM1_Init();
+  MX_TIM1_Init();
+  MX_IWDG_Init();
+  MX_TIM2_Init();
+
+
+  /* HRTIM启动 */
+  HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TA1);
+  HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TB1);
+  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_A);
+  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_B);
+  HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_MASTER);
+
+
+  return;
+
+}
+
+
+
+
+
+
 void Bsp_DelayMs(uint32_t u32Ms)
 {
     HAL_Delay(u32Ms);

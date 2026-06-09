@@ -18,14 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
-#include "crc.h"
-#include "dma.h"
 #include "hrtim.h"
-#include "iwdg.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -43,19 +36,12 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 /*
- * 驱动自测开关（仅写在本段内，CubeMX 重生成会保留 USER CODE BEGIN/END PD）。
+ * 驱动自测开关 TEST_DRV / TEST_ADC 已集中至 `User/Config/Inc/config.h`（调试开关分区），
+ * 经上方「Private includes」的 bsp.h 透传 config.h 可见，此处仅保留组合合法性校验。
  * - TEST_DRV=0：正常应用，调用 App_StateMachine_MainLoop()（永不返回）。
  * - TEST_DRV=1：进入下方自测死循环；IWDG 仍依赖 TIM2 更新中断内 HAL_IWDG_Refresh。
- * - TEST_ADC 仅在 TEST_DRV=1 时生效：1 周期调用 Drv_ADC_TEST()；0 仅 Bsp_DelayMs(200)。
- * 注意：本段在「Private includes」之后，故不可用 TEST_DRV 去条件包含头文件。
+ * - TEST_ADC 仅在 TEST_DRV=1 时生效：1 周期调用 Drv_ADC_TEST()；0 仅 Bsp_DelayMs(...)。
  */
-#ifndef TEST_DRV
-#define TEST_DRV 0
-#endif
-#ifndef TEST_ADC
-#define TEST_ADC 0
-#endif
-
 #if (TEST_ADC != 0) && (TEST_DRV == 0)
 #error "TEST_ADC=1 时必须同时 TEST_DRV=1，否则主循环不会调用 Drv_ADC_TEST"
 #endif
@@ -117,31 +103,9 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_CRC_Init();
-  MX_UART4_Init();
-  MX_UART5_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
-  MX_USART3_UART_Init();
-  MX_ADC1_Init();
-  MX_ADC2_Init();
-  MX_ADC3_Init();
-  MX_HRTIM1_Init();
-  MX_TIM1_Init();
-  MX_IWDG_Init();
-  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
-
-  /* HRTIM启动 */
-  HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TA1);
-  HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TB1);
-  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_A);
-  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_B);
-  HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_MASTER);
-
+  Bsp_Init();
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
