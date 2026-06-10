@@ -53,11 +53,11 @@
 /* ======================== 3. 私有类型定义 ======================== */
 /* 无 */
 
-/* ======================== 4. 私有变量 ======================== */
-static uint8_t g_au8FeedbackTxBuf[SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE];  /* 反馈帧发送缓冲区 */
-
-/* ======================== 5. 对外变量定义 ======================== */
+/* ======================== 4. 对外变量定义 ======================== */
 /* 无 */
+
+/* ======================== 5. 私有变量 ======================== */
+static uint8_t g_au8FeedbackTxBuf[SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE];  /* 反馈帧发送缓冲区 */
 
 /* ======================== 6. 私有函数声明 ======================== */
 static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pu8Frame,

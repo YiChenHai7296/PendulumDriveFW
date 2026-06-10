@@ -84,13 +84,13 @@ typedef enum
     ENCODER_BITS_17 = 17   /* 17 位：摆臂；倒立摆模式下输出轴 */
 } EncoderBits_t;
 
-/* ======================== 4. 私有变量 ======================== */
+/* ======================== 4. 对外变量定义 ======================== */
+/* 无 */
+
+/* ======================== 5. 私有变量 ======================== */
 /* 电机电流零点偏置（A）：电机未启动时采样得到，后续采样均需扣除此偏置 */
 static float g_MotorCurrentZeroOffsetA = 0.0f;
 static ControlObject_t g_enControlObject = CONTROL_OBJECT_INVERTED_PENDULUM;
-
-/* ======================== 5. 对外变量定义 ======================== */
-/* 无 */
 
 /* ======================== 6. 私有函数声明 ======================== */
 static EncoderProtocolResult_t Svc_EncoderProtocol_ParseFrame(EncoderUartSel_t uartSel,
@@ -102,9 +102,9 @@ static EncoderProtocolResult_t Svc_EncoderProtocol_ReadOutputShaft(EncoderDual_t
 static EncoderProtocolResult_t Svc_EncoderProtocol_ReadSwingArm(EncoderDual_t *struOut);
 
 static float Svc_EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, EncoderBits_t bits, uint32_t u32DtUs);
-static float   Svc_EncoderSpeed_CalcMotor(const EncoderDual_t *struDual);
-static float   Svc_EncoderSpeed_CalcOutputShaft(const EncoderDual_t *struDual);
-static float   Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual);
+static float Svc_EncoderSpeed_CalcMotor(const EncoderDual_t *struDual);
+static float Svc_EncoderSpeed_CalcOutputShaft(const EncoderDual_t *struDual);
+static float Svc_EncoderSpeed_CalcSwingArm(const EncoderDual_t *struDual);
 
 static float Svc_MotorService_GetMotorVoltage(void);
 static float Svc_MotorService_GetMotorCurrentRaw(void);
