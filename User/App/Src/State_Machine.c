@@ -102,9 +102,13 @@ void App_StateMachine_MainLoop(void)
 /* USER CODE END Implementation */
 
 /* ======================== 8. 私有函数实现 ======================== */
-static void App_MapFeedback(const MotorFeedbackData_t *pstruSrc,
-                            SimulinkProtocolFeedbackData_t *pstruDst)
+static void App_MapFeedback(const MotorFeedbackData_t *pstruSrc,SimulinkProtocolFeedbackData_t *pstruDst)
 {
+    if(NULL == pstruDst)
+    {
+      return;
+    }
+    
     pstruDst->s16MotorCurrent     = pstruSrc->s16MotorCurrent;
     pstruDst->s32MotorPosition    = pstruSrc->s32MotorPosition;
     pstruDst->s32MotorSpeed       = pstruSrc->s32MotorSpeed;
@@ -112,4 +116,6 @@ static void App_MapFeedback(const MotorFeedbackData_t *pstruSrc,
     pstruDst->s32AxisSpeed        = pstruSrc->s32AxisSpeed;
     pstruDst->s32PendulumPosition = pstruSrc->s32PendulumPosition;
     pstruDst->s32PendulumSpeed    = pstruSrc->s32PendulumSpeed;
+    
+    return;
 }
