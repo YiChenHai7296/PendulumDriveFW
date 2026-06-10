@@ -21,9 +21,15 @@
 extern "C" {
 #endif
 
+
 /* ============================================================== */
-/* =================== 1. 编译开关（Compile） =================== */
+/* =================== 1. 编译选项（Compile） =================== */
 /* ============================================================== */
+/**
+ * @brief 软件程序版本号
+ */
+#define VERSION_NUM_STR "2.0"
+
 /**
  * @brief 应用层控制对象选择（编译期）
  * @note  通过条件编译（见 `State_Machine.c` 的 `#if`）选择反馈对象与对应代码分支：
@@ -33,10 +39,18 @@ extern "C" {
  */
 #define APP_CONTROL_OBJECT_INVERTED_PENDULUM   0U
 #define APP_CONTROL_OBJECT_SOFT_RULER_PENDULUM 1U
-#define APP_CONTROL_OBJECT_SELECT              APP_CONTROL_OBJECT_INVERTED_PENDULUM
+#define APP_CONTROL_OBJECT_SELECT              APP_CONTROL_OBJECT_SOFT_RULER_PENDULUM
+
+#if (APP_CONTROL_OBJECT_SELECT == APP_CONTROL_OBJECT_INVERTED_PENDULUM)
+#define APP_CONTROL_OBJECT_NAME_STR            "Inverted Pendulum"
+#elif (APP_CONTROL_OBJECT_SELECT == APP_CONTROL_OBJECT_SOFT_RULER_PENDULUM)
+#define APP_CONTROL_OBJECT_NAME_STR            "Soft Ruler Pendulum"
+#else
+#error "APP_CONTROL_OBJECT_SELECT 配置非法"
+#endif
 
 /* ============================================================== */
-/* =================== 2. 功能开关（Feature） =================== */
+/* =================== 2. 功能选项（Feature） =================== */
 /* ============================================================== */
 /**
  * @brief 电流零点偏置校准开关
@@ -53,15 +67,28 @@ extern "C" {
 #define MOTOR_PWM_USE_FIT_MAPPING         1U
 
 /* ============================================================== */
-/* ==================== 3. 调试开关（Debug） ==================== */
+/* ==================== 3. 调试选项（Debug） ==================== */
 /* ============================================================== */
 /**
  * @brief printf 调试输出总开关
  * @note  0: 关闭（fputc 内的串口发送被预处理器删除，printf 静默）
  *        1: 打开（printf 经 UART 输出）
  */
-#define DEBUG_PRINTF          1
+#define DEBUG_PRINTF          0
 /* 调试日志宏 BSP_LOG_PRINTF 基于本开关，定义在 BSP 模块 `User/Bsp/Inc/bsp.h` */
+
+/**
+ * @brief 调试 printf 重定向所使用的 UART 句柄
+ * @note  取值为 `usart.c` 中已定义的 `UART_HandleTypeDef` 实例名；由 `bsp.c` 的 fputc 使用。
+ *        当前板级：USART1（PC4=TX, PC5=RX, 115200）→ `huart1`；改调试口时只改此处。
+ */
+#define DEBUG_UART_HANDLE     huart1
+
+/**
+ * @brief 调试串口阻塞发送超时（ms）
+ * @note  `bsp.c` 的 fputc / 强制打印路径经 `HAL_UART_Transmit` 使用本值。
+ */
+#define DEBUG_UART_TIMEOUT    1000U
 
 /**
  * @brief 驱动自测总开关（见 `main.c`）

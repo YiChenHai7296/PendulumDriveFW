@@ -38,6 +38,12 @@ extern "C" {
 #else
 #define BSP_LOG_PRINTF(...)   ((void)0)
 #endif
+/**
+ * @brief 调试日志强制打印宏
+ * @note  用于最初版本号和编译日期打印
+ */
+#define BSP_LOG_PRINTF_FORCE(...)   printf(__VA_ARGS__)
+
 
 /* ======================== 3. 类型定义 ======================== */
 /* 无 */

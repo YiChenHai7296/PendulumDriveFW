@@ -109,6 +109,8 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  BSP_LOG_PRINTF_FORCE("\n\nSoftscalePendulumDriveBoard V%s  ;  控制对象: %s  ;  编译日期: %s %s.\n", VERSION_NUM_STR, APP_CONTROL_OBJECT_NAME_STR, __DATE__, __TIME__);
+
 
 #if TEST_DRV
   /* 驱动自测：不调用应用状态机；IWDG 仍依赖 TIM2 更新中断内 HAL_IWDG_Refresh */

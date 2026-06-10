@@ -21,10 +21,7 @@
 #include "gpio.h"
 
 /* ======================== 2. 私有宏定义 ======================== */
-/* ----- printf 调试串口参数（总开关 DEBUG_PRINTF 定义于 config.h） ----- */
-#define DEBUG_UART_HANDLE     huart1     /* 调试串口句柄（来自 usart.h）  */
-#define DEBUG_UART_TIMEOUT    1000U      /* 调试串口阻塞发送超时（ms）    */
-
+/* 无（printf 调试串口：DEBUG_PRINTF / DEBUG_UART_HANDLE / DEBUG_UART_TIMEOUT 均在 config.h） */
 
 /* ======================== 3. 私有类型定义 ======================== */
 /* 无 */
@@ -184,13 +181,12 @@ uint32_t Bsp_DwtGetUs(void)
 int fputc(int ch, FILE *f)
 {
     (void)f;
-#if DEBUG_PRINTF
     uint8_t u8Byte = (uint8_t)ch;
     (void)HAL_UART_Transmit(&DEBUG_UART_HANDLE,
                             &u8Byte,
                             1U,
                             DEBUG_UART_TIMEOUT);
-#endif
+
     return ch;
 }
 
