@@ -57,7 +57,7 @@
 /* 无 */
 
 /* ======================== 5. 私有变量 ======================== */
-static uint8_t g_au8FeedbackTxBuf[SIMULINK_PROTOCOL_FEEDBACK_FRAME_SIZE];  /* 反馈帧发送缓冲区 */
+/* 无 */
 
 /* ======================== 6. 私有函数声明 ======================== */
 static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pu8Frame,
@@ -106,7 +106,8 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
 SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn,
                                                               ControlObject_t enControlObject)
 {
-    SimulinkProtocolResult_t res;   /* 组帧结果 */
+    static uint8_t s_au8FeedbackTxBuf[SIMULINK_FEEDBACK_FRAME_LEN];  /* 反馈帧发送缓冲区（static：DMA 异步发送期间须保持有效） */
+    SimulinkProtocolResult_t res;                           /* 组帧结果 */
 
     if (struIn == NULL)
     {
@@ -169,14 +170,14 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProt
         }
     }
 
-    res = Svc_SimulinkProtocol_AssembleFeedbackFrame(struIn, g_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
+    res = Svc_SimulinkProtocol_AssembleFeedbackFrame(struIn, s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
     if (res != SIMULINK_PROTOCOL_OK)
     {
         BSP_LOG_PRINTF("组帧失败\n");
         return res;
     }
 
-    if (Drv_Simulink_Feedback_Send(g_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN) != STATUS_OK)
+    if (Drv_Simulink_Feedback_Send(s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN) != STATUS_OK)
     {
         return SIMULINK_PROTOCOL_ERR_SEND;
     }
