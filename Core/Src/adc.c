@@ -21,18 +21,29 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
+
+/* ======================== 1. 头文件引用（本文件额外） ======================== */
 #include <stdio.h>
 #include "bsp.h"      /* BSP_LOG_PRINTF */
 
+/* ======================== 2. 私有宏定义 ======================== */
 #define ADC_DMA_RX_BUFF_LEN 1
-/* ADC采集原始数据 */
-__IO uint16_t g_au16ADC1VolValue[ADC_DMA_RX_BUFF_LEN]; /* 电机电压 ADC1 */
-__IO uint16_t g_au16ADC2VolValue[ADC_DMA_RX_BUFF_LEN];
-__IO uint16_t g_au16ADC3VolValue[ADC_DMA_RX_BUFF_LEN]; /* ADC3_IN1，HRTIM+DMA 循环缓冲 */
-static volatile uint32_t g_u32MotorADCRawSnapshotPack = 0U;
 
-/* ADC 测试输入电压值 */
-float g_fTestValue = 1.6f;
+/* ======================== 3. 私有类型定义 ======================== */
+/* 无 */
+
+/* ======================== 4. 对外变量定义 ======================== */
+/* 无 */
+
+/* ======================== 5. 私有变量 ======================== */
+static __IO uint16_t s_au16ADC1VolValue[ADC_DMA_RX_BUFF_LEN]; /* 电机电压 ADC1 */
+static __IO uint16_t s_au16ADC2VolValue[ADC_DMA_RX_BUFF_LEN];
+static __IO uint16_t s_au16ADC3VolValue[ADC_DMA_RX_BUFF_LEN]; /* ADC3_IN1，HRTIM+DMA 循环缓冲 */
+static volatile uint32_t s_u32MotorADCRawSnapshotPack = 0U;
+static float s_fTestValue = 1.6f;                             /* ADC 测试输入电压值 */
+
+/* ======================== 6. 私有函数声明 ======================== */
+/* 无 */
 
 /* USER CODE END 0 */
 
@@ -113,7 +124,7 @@ void MX_ADC1_Init(void)
     Error_Handler();
   }
 
-  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)g_au16ADC1VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)s_au16ADC1VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
   {
     Error_Handler();
   }
@@ -180,7 +191,7 @@ void MX_ADC2_Init(void)
     Error_Handler();
   }
 
-  if (HAL_ADC_Start_DMA(&hadc2, (uint32_t *)g_au16ADC2VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  if (HAL_ADC_Start_DMA(&hadc2, (uint32_t *)s_au16ADC2VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
   {
     Error_Handler();
   }
@@ -257,7 +268,7 @@ void MX_ADC3_Init(void)
     Error_Handler();
   }
 
-  if (HAL_ADC_Start_DMA(&hadc3, (uint32_t *)g_au16ADC3VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
+  if (HAL_ADC_Start_DMA(&hadc3, (uint32_t *)s_au16ADC3VolValue, ADC_DMA_RX_BUFF_LEN) != HAL_OK)
   {
     Error_Handler();
   }
@@ -498,6 +509,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
+/* ======================== 7. 接口函数实现 ======================== */
+
 /**
   * @brief  读取 ADC1、ADC2 快照中的原始采样值（各 12 位有效）
   * @note   数据来自 Drv_ADC_Motor_RawData_Snapshot 写入的快照；本函数将 32 位快照一次拆成两路，
@@ -514,7 +527,7 @@ Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
         return STATUS_ERROR;
     }
 
-    u32RawPack = g_u32MotorADCRawSnapshotPack;
+    u32RawPack = s_u32MotorADCRawSnapshotPack;
     pOut[0] = (uint16_t)(u32RawPack & 0xFFFFU);
     pOut[1] = (uint16_t)((u32RawPack >> 16) & 0xFFFFU);
     return STATUS_OK;
@@ -526,9 +539,9 @@ Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
  */
 void Drv_ADC_Motor_RawData_Snapshot(void)
 {
-    uint32_t u32RawPack = ((uint32_t)g_au16ADC2VolValue[0] << 16) |
-                          (uint32_t)g_au16ADC1VolValue[0];
-    g_u32MotorADCRawSnapshotPack = u32RawPack;
+    uint32_t u32RawPack = ((uint32_t)s_au16ADC2VolValue[0] << 16) |
+                          (uint32_t)s_au16ADC1VolValue[0];
+    s_u32MotorADCRawSnapshotPack = u32RawPack;
 }
 
 /**
@@ -544,7 +557,7 @@ Status_t Drv_ADC_SoftRuler_RawData_Read(uint16_t *pOut)
         return STATUS_ERROR;
     }
 
-    *pOut = g_au16ADC3VolValue[0];
+    *pOut = s_au16ADC3VolValue[0];
     return STATUS_OK;
 }
 
@@ -598,5 +611,10 @@ void Drv_ADC_TEST(void)
            (unsigned int)u16SoftRaw, (double)fVsoft, (double)fVinSoftTheory);
 }
 
+/* ======================== 8. 私有函数实现 ======================== */
+/* 无 */
+
+/* ======================== 9. HAL 回调函数实现 ======================== */
+/* 无 */
 
 /* USER CODE END 1 */

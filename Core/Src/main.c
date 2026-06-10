@@ -18,13 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "hrtim.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>            /* Error_Handler 内 printf */
-#include "bsp.h"              /* Bsp_Init / Bsp_DelayMs（并透传 config.h 的 TEST_DRV/TEST_ADC） */
-#include "adc.h"             /* TEST_DRV+TEST_ADC 自测时调用 Drv_ADC_TEST */
-#include "State_Machine.h"    /* App_StateMachine_MainLoop */
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,16 +32,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-/*
- * 驱动自测开关 TEST_DRV / TEST_ADC 已集中至 `User/Config/Inc/config.h`（调试开关分区），
- * 经上方「Private includes」的 bsp.h 透传 config.h 可见，此处仅保留组合合法性校验。
- * - TEST_DRV=0：正常应用，调用 App_StateMachine_MainLoop()（永不返回）。
- * - TEST_DRV=1：进入下方自测死循环；IWDG 仍依赖 TIM2 更新中断内 HAL_IWDG_Refresh。
- * - TEST_ADC 仅在 TEST_DRV=1 时生效：1 周期调用 Drv_ADC_TEST()；0 仅 Bsp_DelayMs(...)。
- */
-#if (TEST_ADC != 0) && (TEST_DRV == 0)
-#error "TEST_ADC=1 时必须同时 TEST_DRV=1，否则主循环不会调用 Drv_ADC_TEST"
-#endif
 
 /* USER CODE END PD */
 
@@ -56,21 +44,46 @@
 
 /* USER CODE BEGIN PV */
 
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
-
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+/* ======================== 1. 头文件引用（本文件额外） ======================== */
+#include <stdio.h>            /* Error_Handler 内 printf */
+#include "bsp.h"              /* Bsp_Init / Bsp_DelayMs（并透传 config.h 的 TEST_DRV/TEST_ADC） */
+#include "adc.h"              /* TEST_DRV+TEST_ADC 自测时调用 Drv_ADC_TEST */
+#include "State_Machine.h"    /* App_StateMachine_MainLoop */
 
+/* ======================== 2. 私有宏定义 ======================== */
+/*
+ * 驱动自测开关 TEST_DRV / TEST_ADC 已集中至 `User/Config/Inc/config.h`（调试开关分区），
+ * 经上方 bsp.h 透传 config.h 可见，此处仅保留组合合法性校验。
+ * - TEST_DRV=0：正常应用，调用 App_StateMachine_MainLoop()（永不返回）。
+ * - TEST_DRV=1：进入下方自测死循环；IWDG 仍依赖 TIM2 更新中断内 HAL_IWDG_Refresh。
+ * - TEST_ADC 仅在 TEST_DRV=1 时生效：1 周期调用 Drv_ADC_TEST()；0 仅 Bsp_DelayMs(...)。
+ */
+#if (TEST_ADC != 0) && (TEST_DRV == 0)
+#error "TEST_ADC=1 时必须同时 TEST_DRV=1，否则主循环不会调用 Drv_ADC_TEST"
+#endif
+
+/* ======================== 3. 私有类型定义 ======================== */
+/* 无 */
+
+/* ======================== 4. 对外变量定义 ======================== */
+/* 无 */
+
+/* ======================== 5. 私有变量 ======================== */
+/* 无 */
+
+/* ======================== 6. 私有函数声明 ======================== */
+/* 无 */
 
 /* USER CODE END 0 */
 
@@ -103,6 +116,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
+  /* 外设 MX 初始化与 HRTIM 启动（HAL_Init / SystemClock_Config 已由上方 Cube 模板完成） */
   Bsp_Init();
   
   /* USER CODE END 2 */
@@ -181,6 +195,15 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/* ======================== 7. 接口函数实现 ======================== */
+/* 无 */
+
+/* ======================== 8. 私有函数实现 ======================== */
+/* 无 */
+
+/* ======================== 9. HAL 回调函数实现 ======================== */
+/* 无 */
 
 /* USER CODE END 4 */
 

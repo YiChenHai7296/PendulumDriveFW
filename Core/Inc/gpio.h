@@ -29,14 +29,23 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+/* ======================== 1. 头文件依赖 ======================== */
+/* 无 */
 
+/* ======================== 2. 宏定义（对外可见） ======================== */
+/* 无（GPIO 引脚宏见 `main.h` Cube 生成区） */
+
+/* ======================== 3. 类型定义 ======================== */
+/* 无 */
+
+/* ======================== 4. 对外变量声明 ======================== */
+/* 无 */
+
+/* ======================== 5. 接口函数声明 ======================== */
+/* 无 */
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
-#define MotorEnableControl_Pin GPIO_PIN_5
-#define MotorEnableControl_GPIO_Port GPIOB
-#define MotorDirectionControl_Pin GPIO_PIN_6
-#define MotorDirectionControl_GPIO_Port GPIOB
 
 /* USER CODE END Private defines */
 

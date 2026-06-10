@@ -20,7 +20,7 @@
 /* 无 */
 
 /* ======================== 6. 私有函数声明 ======================== */
-static void Cmn_RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len);
+static void RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len);
 
 /* ======================== 7. 接口函数实现 ======================== */
 /* -------- 7.1 帧级环形队列 -------- */
@@ -28,7 +28,7 @@ static void Cmn_RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16L
  * @brief 初始化帧级环形队列（读写索引清零）
  * @param struQueue 队列对象；为 NULL 时直接返回
  */
-void Cmn_RFQ_Init(rfq_queue_t *struQueue)
+void Cmn_RFQ_Init(RfqQueue_t *struQueue)
 {
     if (struQueue == NULL)
     {
@@ -45,7 +45,7 @@ void Cmn_RFQ_Init(rfq_queue_t *struQueue)
  * @param u16Len    数据长度；超过 RFQ_FRAME_MAX_LEN 时被截断
  * @return STATUS_OK 成功；STATUS_ERROR 参数非法或队列已满
  */
-Status_t Cmn_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len)
+Status_t Cmn_RFQ_Push(RfqQueue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len)
 {
     uint8_t u8NextW;
 
@@ -70,8 +70,8 @@ Status_t Cmn_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u
     }
 
     {
-        rfq_frame_t *struFrame = &struQueue->frames[struQueue->u8WriteIdx];
-        Cmn_RFQ_Memcpy(struFrame->au8Bytes, pu8Data, u16Len);
+        RfqFrame_t *struFrame = &struQueue->frames[struQueue->u8WriteIdx];
+        RFQ_Memcpy(struFrame->au8Bytes, pu8Data, u16Len);
         struFrame->u16Len = u16Len;
     }
 
@@ -90,7 +90,7 @@ Status_t Cmn_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u
  * @param struOut   输出的整帧
  * @return STATUS_OK 成功；STATUS_ERROR 参数非法或队列为空
  */
-Status_t Cmn_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut)
+Status_t Cmn_RFQ_Pop(RfqQueue_t *struQueue, RfqFrame_t *struOut)
 {
     if (struQueue == NULL || struOut == NULL)
     {
@@ -117,7 +117,7 @@ Status_t Cmn_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut)
  * @param struQueue 队列对象
  * @return 已入队未消费的帧数；struQueue 为 NULL 时返回 0
  */
-uint8_t Cmn_RFQ_Count(const rfq_queue_t *struQueue)
+uint8_t Cmn_RFQ_Count(const RfqQueue_t *struQueue)
 {
     uint8_t u8W;
     uint8_t u8R;
@@ -140,7 +140,7 @@ uint8_t Cmn_RFQ_Count(const rfq_queue_t *struQueue)
  * @param struQueue 队列对象
  * @return 1 空（含 struQueue 为 NULL）；0 非空
  */
-uint8_t Cmn_RFQ_Is_Empty(const rfq_queue_t *struQueue)
+uint8_t Cmn_RFQ_Is_Empty(const RfqQueue_t *struQueue)
 {
     if (struQueue == NULL)
     {
@@ -154,7 +154,7 @@ uint8_t Cmn_RFQ_Is_Empty(const rfq_queue_t *struQueue)
  * @param struQueue 队列对象
  * @return 1 满；0 未满（含 struQueue 为 NULL）
  */
-uint8_t Cmn_RFQ_Is_Full(const rfq_queue_t *struQueue)
+uint8_t Cmn_RFQ_Is_Full(const RfqQueue_t *struQueue)
 {
     uint8_t u8NextW;
 
@@ -297,7 +297,7 @@ uint16_t Cmn_CalcCRC16Modbus(const uint8_t *pu8Data, uint16_t u16Length)
  * @param pu8Src 源地址
  * @param u16Len 拷贝字节数
  */
-static void Cmn_RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len)
+static void RFQ_Memcpy(uint8_t *pu8Dst, const uint8_t *pu8Src, uint16_t u16Len)
 {
     while (u16Len--)
     {

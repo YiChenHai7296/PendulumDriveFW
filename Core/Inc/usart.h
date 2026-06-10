@@ -29,22 +29,15 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+/* ======================== 1. 头文件依赖 ======================== */
 #include <string.h>
 #include "common.h"
 #include "stm32g4xx_hal_uart_ex.h"
-/* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart4;
+/* ======================== 2. 宏定义（对外可见） ======================== */
+#define ENCODER_SNAPSHOT_BYTES  12U   /**< 前6字节=最新帧，后6字节=上一帧 */
 
-extern UART_HandleTypeDef huart5;
-
-extern UART_HandleTypeDef huart1;
-
-extern UART_HandleTypeDef huart2;
-
-extern UART_HandleTypeDef huart3;
-
-/* USER CODE BEGIN Private defines */
+/* ======================== 3. 类型定义 ======================== */
 /**
   * @brief  编码器串口选择（用于电平转换芯片使能引脚控制）
   * @note   电机=UART3/PB4，摆杆=UART4/PB9，输出轴=UART5/PC13
@@ -56,19 +49,11 @@ typedef enum
   ENCODER_UART_SHAFT   = 5   /**< 输出轴编码器串口 (PC13) */
 } EncoderUartSel_t;
 
+/* ======================== 4. 对外变量声明 ======================== */
+/** 调试串口阻塞接收缓冲（口由 `config.h` 的 `DEBUG_UART_HANDLE` 指定）；定义见 `usart.c` */
+extern uint8_t g_au8DebugRxBuff[100];
 
-#define ENCODER_SNAPSHOT_BYTES  12U   /**< 前6字节=最新帧，后6字节=上一帧 */
-
-#define DEBUG_UART &huart3
-/* USER CODE END Private defines */
-
-void MX_UART4_Init(void);
-void MX_UART5_Init(void);
-void MX_USART1_UART_Init(void);
-void MX_USART2_UART_Init(void);
-void MX_USART3_UART_Init(void);
-
-/* USER CODE BEGIN Prototypes */
+/* ======================== 5. 接口函数声明 ======================== */
 /* 以下为 USART 驱动层扩展（`Core/Src/usart.c`，命名 `Drv_*`），典型调用方为 `User/Service`；`Status_t` 等见 `common.h`。 */
 
 /**
@@ -117,7 +102,10 @@ Status_t Drv_SwingArmEncoder_GetData(uint8_t *pu8Out, uint32_t *pu32FrameDtUs);
 
 
 
-/** 驱动层内部配合：向指定编码器 UART 发送 0x02 触发（TIM1 分相：更新/比较1/比较2） */
+/**
+ * @brief 向指定编码器 UART 发送单字节 0x02 触发（TIM1 分相：更新/比较1/比较2 各触发一路）
+ * @param uart_sel ENCODER_UART_MOTOR / ENCODER_UART_SWING / ENCODER_UART_SHAFT
+ */
 void Drv_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
 
 /**
@@ -129,18 +117,39 @@ void Drv_EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, FunctionalStat
 
 /**
   * @brief  在 USART3/4/5 中断入口（调用 HAL_UART_IRQHandler 之前）锁存 ISR 错误位
+  * @param  uart_sel 编码器串口选择
   */
 void Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(EncoderUartSel_t uart_sel);
 
 /**
-  * @brief  在编码器 RxEvent 回调入口锁存 ISR；u8EvType: 1=IDLE, 2=TC
-  */
-void Drv_EncoderUart_LatchHwErrorFlagsAtRxEvent(EncoderUartSel_t uart_sel, uint16_t u16Size, uint8_t u8EvType);
-
-/**
   * @brief  错帧调试：打印 RxEvent/IRQ 锁存与当前 ISR 的 ORE/NE/FE/PE，并清除锁存与当前错误标志
+  * @param  uart_sel 编码器串口选择
   */
 void Drv_EncoderUart_LogHwErrorFlags(EncoderUartSel_t uart_sel);
+
+/* USER CODE END Includes */
+
+extern UART_HandleTypeDef huart4;
+
+extern UART_HandleTypeDef huart5;
+
+extern UART_HandleTypeDef huart1;
+
+extern UART_HandleTypeDef huart2;
+
+extern UART_HandleTypeDef huart3;
+
+/* USER CODE BEGIN Private defines */
+
+/* USER CODE END Private defines */
+
+void MX_UART4_Init(void);
+void MX_UART5_Init(void);
+void MX_USART1_UART_Init(void);
+void MX_USART2_UART_Init(void);
+void MX_USART3_UART_Init(void);
+
+/* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */
 

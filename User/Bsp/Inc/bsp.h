@@ -53,6 +53,13 @@ extern "C" {
 
 /* ======================== 5. 接口函数声明 ======================== */
 /**
+ * @brief BSP 板级初始化：各外设 MX 初始化，并按同步顺序启动 HRTIM
+ * @note  调用前须已由 `main` 完成 `HAL_Init()` 与 `SystemClock_Config()`；
+ *        须在进入主循环前调用一次
+ */
+void Bsp_Init(void);
+
+/**
  * @brief 阻塞延时（毫秒级）
  * @param u32Ms 延时毫秒数
  */
@@ -80,6 +87,7 @@ void Bsp_DwtInit(void);
 
 /**
  * @brief 自上电起 DWT 周期计数换算的微秒时间戳（约 71 分钟回绕 @170MHz）
+ * @return 微秒时间戳；须先调用 `Bsp_DwtInit`
  */
 uint32_t Bsp_DwtGetUs(void);
 

@@ -29,27 +29,22 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+/* ======================== 1. 头文件依赖 ======================== */
 #include "common.h"
-/* USER CODE END Includes */
 
-extern ADC_HandleTypeDef hadc1;
-
-extern ADC_HandleTypeDef hadc2;
-
-extern ADC_HandleTypeDef hadc3;
-
-/* USER CODE BEGIN Private defines */
+/* ======================== 2. 宏定义（对外可见） ======================== */
 /** ADC 参考电压 (V)，与板级 VDDA 一致；原始码值换算电压时与服务层共用此宏 */
 #define ADC_REFERENCE_VOLTAGE_V  (3.3f)
 /** 原始码换算电压时的满量程（本工程 12 位右对齐 + 换算约定，与 `ADC_REFERENCE_VOLTAGE_V` 配套作除数使用） */
 #define ADC_RAW_FULL_RESOLUTION  (4096.0f)
-/* USER CODE END Private defines */
 
-void MX_ADC1_Init(void);
-void MX_ADC2_Init(void);
-void MX_ADC3_Init(void);
+/* ======================== 3. 类型定义 ======================== */
+/* 无 */
 
-/* USER CODE BEGIN Prototypes */
+/* ======================== 4. 对外变量声明 ======================== */
+/* 无 */
+
+/* ======================== 5. 接口函数声明 ======================== */
 /* 电机电流等 ADC 驱动层接口（`Core/Src/adc.c`，Drv_ADC_*），由 `User/Service` 等调用。 */
 
 /**
@@ -59,10 +54,44 @@ void MX_ADC3_Init(void);
  */
 void Drv_ADC_TEST(void);
 
+/**
+ * @brief 抓取电机电流 ADC1/ADC2 当前值，打包为单个 32 位快照（低 16 位=ADC1，高 16 位=ADC2）
+ * @note  由 HRTIM TimerA CMP1 中断调用，与采样相位对齐；单次 32 位写入保证读侧拆包不跨周期混叠
+ */
 void Drv_ADC_Motor_RawData_Snapshot(void);
+
+/**
+ * @brief 读取 ADC1、ADC2 快照中的原始采样值（各 12 位有效）
+ * @note  数据来自 `Drv_ADC_Motor_RawData_Snapshot`；32 位快照一次拆成两路，避免读侧跨周期混叠
+ * @param pOut 至少 2 个 uint16_t：pOut[0]=ADC1，pOut[1]=ADC2
+ * @return STATUS_OK 写入成功；STATUS_ERROR 指针无效（pOut 为 NULL）
+ */
 Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut);
 
+/**
+ * @brief 读取 SoftRuler 通道（ADC3_IN1）当前 DMA 缓冲中的原始值（12 位有效）
+ * @param[out] pOut 输出 1 个 uint16_t
+ * @return STATUS_OK / STATUS_ERROR（pOut 为空）
+ */
 Status_t Drv_ADC_SoftRuler_RawData_Read(uint16_t *pOut);
+
+/* USER CODE END Includes */
+
+extern ADC_HandleTypeDef hadc1;
+
+extern ADC_HandleTypeDef hadc2;
+
+extern ADC_HandleTypeDef hadc3;
+
+/* USER CODE BEGIN Private defines */
+
+/* USER CODE END Private defines */
+
+void MX_ADC1_Init(void);
+void MX_ADC2_Init(void);
+void MX_ADC3_Init(void);
+
+/* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */
 

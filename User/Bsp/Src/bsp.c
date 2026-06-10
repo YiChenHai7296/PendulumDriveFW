@@ -44,15 +44,12 @@
 /* -------- 7.1 系统服务 -------- */
 
 /**
- * @brief BSP 总初始化：HAL、系统时钟、各外设 MX 初始化，并按同步顺序启动 HRTIM
- * @note  须在进入主循环前调用一次；HRTIM 启动顺序的原因见下方注释
+ * @brief BSP 板级初始化：各外设 MX 初始化，并按同步顺序启动 HRTIM
+ * @note  调用前须已由 `main` 完成 `HAL_Init()` 与 `SystemClock_Config()`；
+ *        须在进入主循环前调用一次；HRTIM 启动顺序的原因见下方注释
  */
 void Bsp_Init(void)
 {
-  HAL_Init();
-
-  SystemClock_Config();
-
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_CRC_Init();

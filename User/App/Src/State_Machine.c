@@ -14,10 +14,7 @@
 #include "motor_service.h"
 #include "bsp.h"
 
-/* USER CODE BEGIN Includes */
-/* 业务上仅依赖服务层；包含 bsp.h 仅为调试日志宏 BSP_LOG_PRINTF（不调用 Core 中 Drv_*） */
-/* USER CODE END Includes */
-
+/* ======================== 2. 私有宏定义 ======================== */
 #if (APP_CONTROL_OBJECT_SELECT == APP_CONTROL_OBJECT_INVERTED_PENDULUM)
 #define APP_CONTROL_OBJECT_VALUE CONTROL_OBJECT_INVERTED_PENDULUM
 #elif (APP_CONTROL_OBJECT_SELECT == APP_CONTROL_OBJECT_SOFT_RULER_PENDULUM)
@@ -25,9 +22,6 @@
 #else
 #error "APP_CONTROL_OBJECT_SELECT 配置非法"
 #endif
-
-/* ======================== 2. 私有宏定义 ======================== */
-/* 无 */
 
 /* ======================== 3. 私有类型定义 ======================== */
 /* 无 */
@@ -43,7 +37,7 @@
  * @brief 反馈数据映射：服务层 MotorFeedbackData_t → 协议层 SimulinkProtocolFeedbackData_t
  * @note  App 层作为两层适配器：本函数集中处理跨层字段映射，保持服务/协议互不依赖
  */
-static void App_MapFeedback(const MotorFeedbackData_t *pstruSrc,
+static void MapFeedback(const MotorFeedbackData_t *pstruSrc,
                             SimulinkProtocolFeedbackData_t *pstruDst);
 
 /* ======================== 7. 接口函数实现 ======================== */
@@ -86,7 +80,7 @@ void App_StateMachine_MainLoop(void)
         }
 
         /* 4) 服务反馈 → 协议反馈载荷映射 */
-        App_MapFeedback(&struFb, &struFbTx);
+        MapFeedback(&struFb, &struFbTx);
 
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
         if (Svc_SimulinkProtocol_PublishFeedback(&struFbTx, APP_CONTROL_OBJECT_VALUE) != SIMULINK_PROTOCOL_OK)
@@ -102,7 +96,7 @@ void App_StateMachine_MainLoop(void)
 /* USER CODE END Implementation */
 
 /* ======================== 8. 私有函数实现 ======================== */
-static void App_MapFeedback(const MotorFeedbackData_t *pstruSrc,SimulinkProtocolFeedbackData_t *pstruDst)
+static void MapFeedback(const MotorFeedbackData_t *pstruSrc,SimulinkProtocolFeedbackData_t *pstruDst)
 {
     if(pstruDst == NULL)
     {

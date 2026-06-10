@@ -60,10 +60,10 @@
 /* 无 */
 
 /* ======================== 6. 私有函数声明 ======================== */
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pu8Frame,
+static SimulinkProtocolResult_t ParseControlFrame(const uint8_t *pu8Frame,
                                                                    uint16_t u16Length,
                                                                    SimulinkProtocolControlData_t *struOut);
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *struIn,
+static SimulinkProtocolResult_t AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *struIn,
                                                                        uint8_t *pu8Buf,
                                                                        uint16_t u16BufSize,
                                                                        uint16_t *pu16OutLen);
@@ -86,6 +86,7 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
         return SIMULINK_PROTOCOL_ERR_NULL;
     }
 
+    /* 获取控制帧原始数据 */
     if (Drv_Simulink_ControlFrame_GetData(au8RxBuf, sizeof(au8RxBuf), &u16Len) != STATUS_OK)
     {
         return SIMULINK_PROTOCOL_ERR_LENGTH;
@@ -94,7 +95,8 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
     {
         return SIMULINK_PROTOCOL_ERR_LENGTH;
     }
-    return Svc_SimulinkProtocol_ParseControlFrame(au8RxBuf, u16Len, struOut);
+    /* 帧解析 */
+    return ParseControlFrame(au8RxBuf, u16Len, struOut);
 }
 
 /**
@@ -106,7 +108,7 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
 SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn,
                                                               ControlObject_t enControlObject)
 {
-    static uint8_t s_au8FeedbackTxBuf[SIMULINK_FEEDBACK_FRAME_LEN];  /* 反馈帧发送缓冲区（static：DMA 异步发送期间须保持有效） */
+    static uint8_t ls_au8FeedbackTxBuf[SIMULINK_FEEDBACK_FRAME_LEN];  /* 反馈帧发送缓冲区（static：DMA 异步发送期间须保持有效） */
     SimulinkProtocolResult_t res;                           /* 组帧结果 */
 
     if (struIn == NULL)
@@ -170,14 +172,14 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProt
         }
     }
 
-    res = Svc_SimulinkProtocol_AssembleFeedbackFrame(struIn, s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
+    res = AssembleFeedbackFrame(struIn, ls_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN, NULL);
     if (res != SIMULINK_PROTOCOL_OK)
     {
         BSP_LOG_PRINTF("组帧失败\n");
         return res;
     }
 
-    if (Drv_Simulink_Feedback_Send(s_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN) != STATUS_OK)
+    if (Drv_Simulink_Feedback_Send(ls_au8FeedbackTxBuf, SIMULINK_FEEDBACK_FRAME_LEN) != STATUS_OK)
     {
         return SIMULINK_PROTOCOL_ERR_SEND;
     }
@@ -194,7 +196,7 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProt
  * @param struOut 输出：转速万分比（-10000~10000）、电流设定等
  * @return SIMULINK_PROTOCOL_OK；否则为空指针、长度、类型、CRC、范围错误
  */
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uint8_t *pu8Frame,
+static SimulinkProtocolResult_t ParseControlFrame(const uint8_t *pu8Frame,
                                                                    uint16_t u16Length,
                                                                    SimulinkProtocolControlData_t *struOut)
 {
@@ -268,7 +270,7 @@ static SimulinkProtocolResult_t Svc_SimulinkProtocol_ParseControlFrame(const uin
  * @param pu16OutLen 可选：写入的总字节数（含 CRC）；可为 NULL
  * @return SIMULINK_PROTOCOL_OK；否则为空指针或缓冲区不足
  */
-static SimulinkProtocolResult_t Svc_SimulinkProtocol_AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *struIn,
+static SimulinkProtocolResult_t AssembleFeedbackFrame(const SimulinkProtocolFeedbackData_t *struIn,
                                                                        uint8_t *pu8Buf,
                                                                        uint16_t u16BufSize,
                                                                        uint16_t *pu16OutLen)

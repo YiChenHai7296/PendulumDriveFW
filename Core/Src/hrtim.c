@@ -21,21 +21,27 @@
 #include "hrtim.h"
 
 /* USER CODE BEGIN 0 */
+
+/* ======================== 1. 头文件引用（本文件额外） ======================== */
 #include "adc.h"
 #include "usart.h"
 #include "bsp.h"      /* BSP_LOG_PRINTF */
 
-extern uint8_t g_au8DebugRxBuff[100];
+/* ======================== 2. 私有宏定义 ======================== */
+/* 无 */
 
-/* PWM 占空比目标值，范围 0~10000 */
-uint16_t u16TargePulse = 0;
-/* PWM 占空比更新标志 */
-uint8_t u8FlagPulse = 0;
+/* ======================== 3. 私有类型定义 ======================== */
+/* 无 */
 
-/* HRTIM 内部私有：Compare 回调里装载比较寄存器 */
+/* ======================== 4. 对外变量定义 ======================== */
+/* 无 */
+
+/* ======================== 5. 私有变量 ======================== */
+static uint16_t s_u16TargetPulse = 0U; /* PWM 占空比目标值，范围 0~10000 */
+static uint8_t  s_u8FlagPulse   = 0U; /* PWM 占空比更新标志 */
+
+/* ======================== 6. 私有函数声明 ======================== */
 static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse);
-
-
 
 /* USER CODE END 0 */
 
@@ -292,7 +298,7 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
 
 /* USER CODE BEGIN 1 */
 
-
+/* ======================== 7. 接口函数实现 ======================== */
 
 /**
  * @brief PWM 使能控制接口函数
@@ -308,7 +314,7 @@ void Drv_PWM_Enable(FunctionalState_t NewState)
   else
   {
     HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_RESET);
-    u8FlagPulse = 0;
+    s_u8FlagPulse = 0;
   }
 }
 
@@ -337,18 +343,38 @@ void Drv_PWM_DirControl(uint8_t dir)
  * @param u16ExpectedValue 目标占空比（0~10000，单位 0.01%）
  * @return STATUS_OK；超过 10000 返回 STATUS_ERROR
  */
-Status_t Drv_PWM_TargePulse_Set(uint16_t u16ExpectedValue)
+Status_t Drv_PWM_TargetPulse_Set(uint16_t u16ExpectedValue)
 {
   if (u16ExpectedValue > 10000U)
   {
     return STATUS_ERROR;
   }
-  u16TargePulse = u16ExpectedValue;
-  u8FlagPulse   = 1U;
+  s_u16TargetPulse = u16ExpectedValue;
+  s_u8FlagPulse   = 1U;
   return STATUS_OK;
 }
 
+/* ======================== 8. 私有函数实现 ======================== */
 
+/**
+ * @brief PWM 占空比手动测试：经调试串口读入 5 位数字（00000~10000），设为目标占空比
+ * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用流程中调用
+ */
+static void PWM_TEST(void)
+{
+  /* 预读一帧调试串口数据 */
+  HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 10, 100);
+
+  /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
+  BSP_LOG_PRINTF("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
+  while (HAL_OK != HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 5, DEBUG_UART_TIMEOUT))
+    ;
+
+  s_u16TargetPulse = (g_au8DebugRxBuff[0] - 0x30) * 10000 + (g_au8DebugRxBuff[1] - 0x30) * 1000 +
+                    (g_au8DebugRxBuff[2] - 0x30) * 100 + (g_au8DebugRxBuff[3] - 0x30) * 10 + g_au8DebugRxBuff[4] - 0x30;
+
+  s_u8FlagPulse = 1U;
+}
 
 /**
  * @brief 将占空比参数写入 HRTIM TimerA 比较寄存器（仅本文件调用）
@@ -382,31 +408,7 @@ static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse)
   return STATUS_OK;
 }
 
-
-/**
- * @brief PWM 占空比手动测试：经调试串口读入 5 位数字（00000~10000），设为目标占空比
- * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用流程中调用
- */
-void PWM_TEST(void)
-{
-
-  /* 预读一帧调试串口数据 */
-  HAL_UART_Receive(DEBUG_UART, g_au8DebugRxBuff, 10, 100);
-
-  /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
-  BSP_LOG_PRINTF("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
-  while (HAL_OK != HAL_UART_Receive(DEBUG_UART, g_au8DebugRxBuff, 5, 1000))
-    ;
-
-  u16TargePulse = (g_au8DebugRxBuff[0] - 0x30) * 10000 + (g_au8DebugRxBuff[1] - 0x30) * 1000 +
-                  (g_au8DebugRxBuff[2] - 0x30) * 100 + (g_au8DebugRxBuff[3] - 0x30) * 10 + g_au8DebugRxBuff[4] - 0x30;
-
-
-  u8FlagPulse = 1;
-}
-
-
-
+/* ======================== 9. HAL 回调函数实现 ======================== */
 
 /**
  * @brief HRTIM 比较器 1（CMP1）事件回调
@@ -425,10 +427,10 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim, uint32_t u32Ti
 
   if(HRTIM_TIMERINDEX_TIMER_B == u32TimerIdx)
   {
-    if (u8FlagPulse)
+    if (s_u8FlagPulse)
     {
-      u8FlagPulse = 0;
-      if (PWM_Write_Pulse((uint16_t)((float)u16TargePulse * 1.7f)) != STATUS_OK)
+      s_u8FlagPulse = 0U;
+      if (PWM_Write_Pulse((uint16_t)((float)s_u16TargetPulse * 1.7f)) != STATUS_OK)
       {
         return;
       }

@@ -64,37 +64,91 @@ typedef struct
 {
     uint16_t u16Len;
     uint8_t  au8Bytes[RFQ_FRAME_MAX_LEN];
-} rfq_frame_t;
+} RfqFrame_t;
 
 typedef struct
 {
-    rfq_frame_t frames[RFQ_QUEUE_SIZE];
+    RfqFrame_t frames[RFQ_QUEUE_SIZE];
     volatile uint8_t u8WriteIdx;
     volatile uint8_t u8ReadIdx;
-} rfq_queue_t;
+} RfqQueue_t;
 
 /* ======================== 4. 对外变量声明 ======================== */
 /* 无 */
 
 /* ======================== 5. 接口函数声明 ======================== */
 /* --- 帧级环形队列 --- */
-void     Cmn_RFQ_Init(rfq_queue_t *struQueue);
-/** 入队一帧：成功返回 STATUS_OK；参数非法或队列满返回 STATUS_ERROR */
-Status_t Cmn_RFQ_Push(rfq_queue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len);
-/** 出队一帧：成功返回 STATUS_OK；参数非法或队列空返回 STATUS_ERROR */
-Status_t Cmn_RFQ_Pop(rfq_queue_t *struQueue, rfq_frame_t *struOut);
-uint8_t  Cmn_RFQ_Count(const rfq_queue_t *struQueue);
-uint8_t  Cmn_RFQ_Is_Empty(const rfq_queue_t *struQueue);
-uint8_t  Cmn_RFQ_Is_Full(const rfq_queue_t *struQueue);
+/**
+ * @brief 初始化帧级环形队列（读写索引清零）
+ * @param struQueue 队列对象；为 NULL 时直接返回
+ */
+void Cmn_RFQ_Init(RfqQueue_t *struQueue);
+
+/**
+ * @brief 入队一帧（单生产者）：拷贝数据并推进写索引
+ * @param struQueue 队列对象
+ * @param pu8Data   待入队数据首地址
+ * @param u16Len    数据长度；超过 RFQ_FRAME_MAX_LEN 时被截断
+ * @return STATUS_OK 成功；STATUS_ERROR 参数非法或队列已满
+ */
+Status_t Cmn_RFQ_Push(RfqQueue_t *struQueue, const uint8_t *pu8Data, uint16_t u16Len);
+
+/**
+ * @brief 出队一帧（单消费者）：拷贝到输出并推进读索引
+ * @param struQueue 队列对象
+ * @param struOut   输出的整帧
+ * @return STATUS_OK 成功；STATUS_ERROR 参数非法或队列为空
+ */
+Status_t Cmn_RFQ_Pop(RfqQueue_t *struQueue, RfqFrame_t *struOut);
+
+/**
+ * @brief 获取队列当前帧数量
+ * @param struQueue 队列对象
+ * @return 已入队未消费的帧数；struQueue 为 NULL 时返回 0
+ */
+uint8_t Cmn_RFQ_Count(const RfqQueue_t *struQueue);
+
+/**
+ * @brief 判断队列是否为空
+ * @param struQueue 队列对象
+ * @return 1 空（含 struQueue 为 NULL）；0 非空
+ */
+uint8_t Cmn_RFQ_Is_Empty(const RfqQueue_t *struQueue);
+
+/**
+ * @brief 判断队列是否已满
+ * @param struQueue 队列对象
+ * @return 1 满；0 未满（含 struQueue 为 NULL）
+ */
+uint8_t Cmn_RFQ_Is_Full(const RfqQueue_t *struQueue);
 
 /* --- 小端序整型打包 / 解包 --- */
-/** 将 int16 以小端序写入缓冲区（连续 2 字节） */
-void    Cmn_PackInt16LE(uint8_t *pu8Buf, int16_t s16Value);
-/** 将 int32 以小端序写入缓冲区（连续 4 字节） */
-void    Cmn_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value);
-/** 从缓冲区按小端序读取 int16 */
+/**
+ * @brief 将 int16 以小端序写入缓冲区（连续 2 字节）
+ * @param pu8Buf   目标缓冲区（至少 2 字节）
+ * @param s16Value 待写入值
+ */
+void Cmn_PackInt16LE(uint8_t *pu8Buf, int16_t s16Value);
+
+/**
+ * @brief 将 int32 以小端序写入缓冲区（连续 4 字节）
+ * @param pu8Buf   目标缓冲区（至少 4 字节）
+ * @param s32Value 待写入值
+ */
+void Cmn_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value);
+
+/**
+ * @brief 从缓冲区按小端序读取 int16
+ * @param pu8Buf 源缓冲区（至少 2 字节）
+ * @return 解析得到的 int16 值
+ */
 int16_t Cmn_UnpackInt16LE(const uint8_t *pu8Buf);
-/** 从缓冲区按小端序读取 int32 */
+
+/**
+ * @brief 从缓冲区按小端序读取 int32
+ * @param pu8Buf 源缓冲区（至少 4 字节）
+ * @return 解析得到的 int32 值
+ */
 int32_t Cmn_UnpackInt32LE(const uint8_t *pu8Buf);
 
 /* --- CRC 软件算法 --- */

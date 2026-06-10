@@ -27,7 +27,34 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+/* ======================== 1. 头文件依赖 ======================== */
+/* 无 */
 
+/* ======================== 2. 宏定义（对外可见） ======================== */
+/* 无 */
+
+/* ======================== 3. 类型定义 ======================== */
+/* 无 */
+
+/* ======================== 4. 对外变量声明 ======================== */
+/* 无 */
+
+/* ======================== 5. 接口函数声明（用户补充 ISR） ======================== */
+/**
+ * @brief DMA2 Ch1 中断：USART3_RX（编码器电机）
+ * @note  须保留在 USER CODE 区；Cube 重新生成会删掉本文件其它处的同名 ISR
+ */
+void DMA2_Channel1_IRQHandler(void);
+
+/**
+ * @brief DMA2 Ch2 中断：UART4_RX（编码器摆杆）
+ */
+void DMA2_Channel2_IRQHandler(void);
+
+/**
+ * @brief DMA2 Ch3 中断：UART5_RX（编码器输出轴）
+ */
+void DMA2_Channel3_IRQHandler(void);
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -74,9 +101,7 @@ void HRTIM1_TIMA_IRQHandler(void);
 void HRTIM1_TIMB_IRQHandler(void);
 void DMA1_Channel8_IRQHandler(void);
 /* USER CODE BEGIN EFP */
-void DMA2_Channel1_IRQHandler(void);
-void DMA2_Channel2_IRQHandler(void);
-void DMA2_Channel3_IRQHandler(void);
+
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

@@ -39,9 +39,10 @@ softscalependulumdriveboard\main.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4x
 softscalependulumdriveboard\main.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h
 softscalependulumdriveboard\main.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h
 softscalependulumdriveboard\main.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
+softscalependulumdriveboard\main.o: ../Core/Inc/hrtim.h
+softscalependulumdriveboard\main.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\main.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 softscalependulumdriveboard\main.o: ../User/Bsp/Inc/bsp.h
 softscalependulumdriveboard\main.o: ../User/Config/Inc/config.h
 softscalependulumdriveboard\main.o: ../Core/Inc/adc.h
-softscalependulumdriveboard\main.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\main.o: ../User/App/Inc/State_Machine.h
