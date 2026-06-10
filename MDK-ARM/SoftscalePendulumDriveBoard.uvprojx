@@ -409,9 +409,9 @@
               <FilePath>..\User\Service\Src\simulink_protocol.c</FilePath>
             </File>
             <File>
-              <FileName>motor_service.c</FileName>
+              <FileName>pendulum_service.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Service\Src\motor_service.c</FilePath>
+              <FilePath>..\User\Service\Src\pendulum_service.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -166,9 +166,9 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\User\Service\Src\motor_service.c</Filename>
+          <Filename>..\User\Service\Src\pendulum_service.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../User/Service/Src/motor_service.c\247</Expression>
+          <Expression>\\SoftscalePendulumDriveBoard\../User/Service/Src/pendulum_service.c\247</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
@@ -182,9 +182,9 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\User\Service\Src\motor_service.c</Filename>
+          <Filename>..\User\Service\Src\pendulum_service.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\SoftscalePendulumDriveBoard\../User/Service/Src/motor_service.c\262</Expression>
+          <Expression>\\SoftscalePendulumDriveBoard\../User/Service/Src/pendulum_service.c\262</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
@@ -562,8 +562,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\User\Service\Src\motor_service.c</PathWithFileName>
-      <FilenameWithoutPath>motor_service.c</FilenameWithoutPath>
+      <PathWithFileName>..\User\Service\Src\pendulum_service.c</PathWithFileName>
+      <FilenameWithoutPath>pendulum_service.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

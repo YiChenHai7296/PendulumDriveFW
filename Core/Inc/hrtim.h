@@ -51,7 +51,9 @@ extern "C" {
 /* 无 */
 
 /* ======================== 5. 接口函数声明 ======================== */
-/* 电机 PWM 驱动层接口（`Core/Src/hrtim.c`，Drv_PWM_*），由 `User/Service` 电机服务等调用。 */
+
+/* -------- 5.1 上层接口 -------- */
+/* 电机 PWM 驱动层（`Core/Src/hrtim.c`）；由 `User/Service` 电机服务等调用。 */
 
 /**
  * @brief 设置 PWM 目标占空比并置更新标志，待 TimerB 比较中断装载到比较寄存器
@@ -65,7 +67,7 @@ Status_t Drv_PWM_TargetPulse_Set(uint16_t u16ExpectedValue);
  * @param dir 方向宏：MOTOR_DIR_FORWARD 正转，MOTOR_DIR_REVERSE 反转
  * @note  正转时将 MotorDirectionControl_Pin 置 0，反转时置 1
  */
-void Drv_PWM_DirControl(uint8_t dir);
+void Drv_PWM_Direction_Set(uint8_t dir);
 
 /**
  * @brief PWM 使能控制
@@ -73,6 +75,9 @@ void Drv_PWM_DirControl(uint8_t dir);
  * @note  使能时将 MotorEnableControl_Pin 置 1；失能时置 0，并清除待更新标志
  */
 void Drv_PWM_Enable(FunctionalState_t NewState);
+
+/* -------- 5.2 层内接口（Drv_Loc_*） -------- */
+/* 无 */
 
 /* USER CODE END Includes */
 

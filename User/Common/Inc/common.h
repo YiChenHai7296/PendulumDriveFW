@@ -3,7 +3,7 @@
  * @brief   公共模块（Common）：跨层类型与纯软件工具
  * @details 模块路径：`User/Common`。零 HAL/外设依赖，仅 `<stdint.h>` / `<stddef.h>`。
  *          供驱动、服务、应用任意层包含：通用枚举与状态、帧队列、小端打包/解包、CRC8 与 CRC16 软件参考实现。
- *          工程内 Simulink 帧 CRC16 已走 BSP 硬件 `Bsp_Crc16Modbus_Byte`；`Cmn_CalcCRC16Modbus` 保留作对照或离线验证。
+ *          工程内 Simulink 帧 CRC16 已走 BSP 硬件 `Bsp_Crc16Modbus_Calc`；`Cmn_CRC16Modbus_Calc` 保留作对照或离线验证。
  */
 
 #ifndef COMMON_H
@@ -113,14 +113,14 @@ uint8_t Cmn_RFQ_Count(const RfqQueue_t *struQueue);
  * @param struQueue 队列对象
  * @return 1 空（含 struQueue 为 NULL）；0 非空
  */
-uint8_t Cmn_RFQ_Is_Empty(const RfqQueue_t *struQueue);
+uint8_t Cmn_RFQ_Empty_Is(const RfqQueue_t *struQueue);
 
 /**
  * @brief 判断队列是否已满
  * @param struQueue 队列对象
  * @return 1 满；0 未满（含 struQueue 为 NULL）
  */
-uint8_t Cmn_RFQ_Is_Full(const RfqQueue_t *struQueue);
+uint8_t Cmn_RFQ_Full_Is(const RfqQueue_t *struQueue);
 
 /* --- 小端序整型打包 / 解包 --- */
 /**
@@ -128,41 +128,41 @@ uint8_t Cmn_RFQ_Is_Full(const RfqQueue_t *struQueue);
  * @param pu8Buf   目标缓冲区（至少 2 字节）
  * @param s16Value 待写入值
  */
-void Cmn_PackInt16LE(uint8_t *pu8Buf, int16_t s16Value);
+void Cmn_Int16LE_Pack(uint8_t *pu8Buf, int16_t s16Value);
 
 /**
  * @brief 将 int32 以小端序写入缓冲区（连续 4 字节）
  * @param pu8Buf   目标缓冲区（至少 4 字节）
  * @param s32Value 待写入值
  */
-void Cmn_PackInt32LE(uint8_t *pu8Buf, int32_t s32Value);
+void Cmn_Int32LE_Pack(uint8_t *pu8Buf, int32_t s32Value);
 
 /**
  * @brief 从缓冲区按小端序读取 int16
  * @param pu8Buf 源缓冲区（至少 2 字节）
  * @return 解析得到的 int16 值
  */
-int16_t Cmn_UnpackInt16LE(const uint8_t *pu8Buf);
+int16_t Cmn_Int16LE_Unpack(const uint8_t *pu8Buf);
 
 /**
  * @brief 从缓冲区按小端序读取 int32
  * @param pu8Buf 源缓冲区（至少 4 字节）
  * @return 解析得到的 int32 值
  */
-int32_t Cmn_UnpackInt32LE(const uint8_t *pu8Buf);
+int32_t Cmn_Int32LE_Unpack(const uint8_t *pu8Buf);
 
 /* --- CRC 软件算法 --- */
 /**
  * @brief 计算 CRC8（多项式 0x01 即 x^8+1，初值 0x00，MSB 优先，无输入/输出反相）
  * @note  与编码器 CM/SA/AS 帧尾校验一致
  */
-uint8_t  Cmn_CalcCRC8(const uint8_t *pu8Data, uint16_t u16Length);
+uint8_t  Cmn_CRC8_Calc(const uint8_t *pu8Data, uint16_t u16Length);
 
 /**
  * @brief 计算 MODBUS CRC16（多项式 0xA001，初值 0xFFFF）
- * @note  帧尾通常按低字节在前存放；与 BSP 硬件 `Bsp_Crc16Modbus_Byte` 算法等价，可作对照或备用
+ * @note  帧尾通常按低字节在前存放；与 BSP 硬件 `Bsp_Crc16Modbus_Calc` 算法等价，可作对照或备用
  */
-uint16_t Cmn_CalcCRC16Modbus(const uint8_t *pu8Data, uint16_t u16Length);
+uint16_t Cmn_CRC16Modbus_Calc(const uint8_t *pu8Data, uint16_t u16Length);
 
 #ifdef __cplusplus
 }

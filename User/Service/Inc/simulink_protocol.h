@@ -38,12 +38,12 @@ typedef enum
 /**
  * @brief 控制帧解析结果（上位机下发的控制量）
  * @note 载荷 4 字节在帧内顺序（紧跟 `LEN` 之后，小端）：**第 1 个 int16 → `s16Pwm`**，第 2 个 int16 → `s16Current`。
- *       应用层 `State_Machine` **仅将 `s16Pwm` 传给** `Svc_MotorService_SetMotorSpeedPermyriad`；`s16Current` 当前未参与调速。
+ *       应用层 `State_Machine` **仅将 `s16Pwm` 传给** `Svc_PendulumService_MotorSpeedPermyriad_Set`；`s16Current` 当前未参与调速。
  *       若 Simulink 把「-500」接到电流通道或字节顺序与约定不一致，则 **`s16Pwm` 可能仍为 0** → 固件按零转速 **停机去使能**。
  */
 typedef struct
 {
-    int16_t s16Pwm;      /**< 转速指令万分比 -10000~10000（与 `Svc_MotorService_SetMotorSpeedPermyriad` 一致；字段名沿用协议历史） */
+    int16_t s16Pwm;      /**< 转速指令万分比 -10000~10000（与 `Svc_PendulumService_MotorSpeedPermyriad_Set` 一致；字段名沿用协议历史） */
     int16_t s16Current; /**< 电流设定，范围 -2000~2000；协议字段已解析校验，当前固件未参与闭环（保留） */
 } SimulinkProtocolControlData_t;
 
@@ -65,13 +65,16 @@ typedef struct
 /* 无 */
 
 /* ======================== 5. 接口函数声明 ======================== */
+
+/* -------- 5.1 上层接口 -------- */
+
 /**
  * @brief 解包：从 USART2 控制通道取一帧并解析为控制量
- * @details 内部经驱动 `Drv_Simulink_ControlFrame_GetData` 取数，CRC 使用 BSP `Bsp_Crc16Modbus_Byte`。
+ * @details 内部经驱动 `Drv_Simulink_ControlFrame_Data_Get` 取数，CRC 使用 BSP `Bsp_Crc16Modbus_Calc`。
  * @param[out] struOut 解析得到的控制数据
  * @return 解析结果枚举
  */
-SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolControlData_t *struOut);
+SimulinkProtocolResult_t Svc_SimulinkProtocol_Control_Unpack(SimulinkProtocolControlData_t *struOut);
 
 /**
  * @brief 发布反馈：校验范围、组帧并经 USART2 发送一帧
@@ -79,8 +82,11 @@ SimulinkProtocolResult_t Svc_SimulinkProtocol_UnpackControl(SimulinkProtocolCont
  * @param[in] struIn 反馈数据
  * @return 校验、组帧或发送失败时的协议错误码
  */
-SimulinkProtocolResult_t Svc_SimulinkProtocol_PublishFeedback(const SimulinkProtocolFeedbackData_t *struIn,
+SimulinkProtocolResult_t Svc_SimulinkProtocol_Feedback_Publish(const SimulinkProtocolFeedbackData_t *struIn,
                                                               ControlObject_t enControlObject);
+
+/* -------- 5.2 层内接口（Svc_Loc_*） -------- */
+/* 无 */
 
 #ifdef __cplusplus
 }

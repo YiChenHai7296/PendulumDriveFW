@@ -45,24 +45,13 @@ extern "C" {
 /* 无 */
 
 /* ======================== 5. 接口函数声明 ======================== */
-/* 电机电流等 ADC 驱动层接口（`Core/Src/adc.c`，Drv_ADC_*），由 `User/Service` 等调用。 */
 
-/**
- * @brief  调试：读电机 ADC1/2 与摆杆 SoftRuler(ADC3) 原始码，换算采样电压并计算理论量后 `printf`
- * @note   电机侧理论电流：(Vadc-1.6)/41/0.02（A）；摆杆侧理论输入电压：(Vadc-1.6)/0.16（V）。
- *         电机两路数据来自中断里已执行的 `Drv_ADC_Motor_RawData_Snapshot`；本函数不再打快照。`printf` 需 `DEBUG_PRINTF`。
- */
-void Drv_ADC_TEST(void);
-
-/**
- * @brief 抓取电机电流 ADC1/ADC2 当前值，打包为单个 32 位快照（低 16 位=ADC1，高 16 位=ADC2）
- * @note  由 HRTIM TimerA CMP1 中断调用，与采样相位对齐；单次 32 位写入保证读侧拆包不跨周期混叠
- */
-void Drv_ADC_Motor_RawData_Snapshot(void);
+/* -------- 5.1 上层接口 -------- */
+/* ADC 驱动层（`Core/Src/adc.c`）；由 `User/Service` 等调用。 */
 
 /**
  * @brief 读取 ADC1、ADC2 快照中的原始采样值（各 12 位有效）
- * @note  数据来自 `Drv_ADC_Motor_RawData_Snapshot`；32 位快照一次拆成两路，避免读侧跨周期混叠
+ * @note  数据来自 `Drv_Loc_ADC_Motor_RawData_Snapshot`；32 位快照一次拆成两路，避免读侧跨周期混叠
  * @param pOut 至少 2 个 uint16_t：pOut[0]=ADC1，pOut[1]=ADC2
  * @return STATUS_OK 写入成功；STATUS_ERROR 指针无效（pOut 为 NULL）
  */
@@ -74,6 +63,21 @@ Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut);
  * @return STATUS_OK / STATUS_ERROR（pOut 为空）
  */
 Status_t Drv_ADC_SoftRuler_RawData_Read(uint16_t *pOut);
+
+/**
+ * @brief  调试：读电机 ADC1/2 与摆杆 SoftRuler(ADC3) 原始码，换算采样电压并计算理论量后 `printf`
+ * @note   电机侧理论电流：(Vadc-1.6)/41/0.02（A）；摆杆侧理论输入电压：(Vadc-1.6)/0.16（V）。
+ *         电机两路数据来自中断里已执行的 `Drv_Loc_ADC_Motor_RawData_Snapshot`；本函数不再打快照。`printf` 需 `DEBUG_PRINTF`。
+ */
+void Drv_ADC_TEST(void);
+
+/* -------- 5.2 层内接口（Drv_Loc_*） -------- */
+
+/**
+ * @brief 抓取电机电流 ADC1/ADC2 当前值，打包为单个 32 位快照（低 16 位=ADC1，高 16 位=ADC2）
+ * @note  层内接口：由 `hrtim.c` HRTIM 比较中断调用，与采样相位对齐
+ */
+void Drv_Loc_ADC_Motor_RawData_Snapshot(void);
 
 /* USER CODE END Includes */
 

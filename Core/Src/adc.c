@@ -118,7 +118,7 @@ void MX_ADC1_Init(void)
   }
   /* USER CODE BEGIN ADC1_Init 2 */
 
-  Bsp_DelayMs(2000);/* 等待模拟前端稳定再校准 */
+  Bsp_Ms_Delay(2000);/* 等待模拟前端稳定再校准 */
   if (HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED) != HAL_OK)
   {
     Error_Handler();
@@ -511,9 +511,11 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* ======================== 7. 接口函数实现 ======================== */
 
+/* -------- 7.1 上层接口（与 .h 5.1 对应） -------- */
+
 /**
   * @brief  读取 ADC1、ADC2 快照中的原始采样值（各 12 位有效）
-  * @note   数据来自 Drv_ADC_Motor_RawData_Snapshot 写入的快照；本函数将 32 位快照一次拆成两路，
+  * @note   数据来自 Drv_Loc_ADC_Motor_RawData_Snapshot 写入的快照；本函数将 32 位快照一次拆成两路，
   *         避免两次读 16 位期间被更新导致跨周期混叠。
   * @param  pOut  至少 2 个 uint16_t：pOut[0]=ADC1，pOut[1]=ADC2
   * @retval STATUS_OK 写入成功；STATUS_ERROR 指针无效（pOut 为 NULL）
@@ -531,17 +533,6 @@ Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
     pOut[0] = (uint16_t)(u32RawPack & 0xFFFFU);
     pOut[1] = (uint16_t)((u32RawPack >> 16) & 0xFFFFU);
     return STATUS_OK;
-}
-
-/**
- * @brief  抓取电机电流 ADC1/ADC2 当前值，打包为单个 32 位快照（低 16 位=ADC1，高 16 位=ADC2）
- * @note   由 HRTIM TimerA CMP1 中断调用，与采样相位对齐；单次 32 位写入保证读侧拆包不跨周期混叠
- */
-void Drv_ADC_Motor_RawData_Snapshot(void)
-{
-    uint32_t u32RawPack = ((uint32_t)s_au16ADC2VolValue[0] << 16) |
-                          (uint32_t)s_au16ADC1VolValue[0];
-    s_u32MotorADCRawSnapshotPack = u32RawPack;
 }
 
 /**
@@ -580,7 +571,7 @@ void Drv_ADC_TEST(void)
     const float fShuntOhm      = 0.02f;  /* 采样电阻 20 mΩ */
     const float fSoftVinDiv    = 0.16f;  /* 摆杆侧：(Vadc-1.6)/0.16 → 输入电压理论值 */
 
-    /* 电机快照仅由中断里 `Drv_ADC_Motor_RawData_Snapshot` 更新；此处只读上次快照 */
+    /* 电机快照仅由中断里 `Drv_Loc_ADC_Motor_RawData_Snapshot` 更新；此处只读上次快照 */
     if (Drv_ADC_Motor_RawData_Read(au16MotorRaw) != STATUS_OK)
     {
         BSP_LOG_PRINTF("[ADC_TEST] Drv_ADC_Motor_RawData_Read fail\r\n");
@@ -609,6 +600,19 @@ void Drv_ADC_TEST(void)
            (unsigned int)au16MotorRaw[1], (double)fVmotor2, (double)fImotor2Theory);
     BSP_LOG_PRINTF("[ADC_TEST] SoftRuler(ADC3) raw=%u ; V=%.4f ; Vin_theory=%.4fV\r\n",
            (unsigned int)u16SoftRaw, (double)fVsoft, (double)fVinSoftTheory);
+}
+
+/* -------- 7.2 层内接口（Drv_Loc_*，与 .h 5.2 对应） -------- */
+
+/**
+ * @brief  抓取电机电流 ADC1/ADC2 当前值，打包为单个 32 位快照（低 16 位=ADC1，高 16 位=ADC2）
+ * @note   由 HRTIM TimerA CMP1 中断调用，与采样相位对齐；单次 32 位写入保证读侧拆包不跨周期混叠
+ */
+void Drv_Loc_ADC_Motor_RawData_Snapshot(void)
+{
+    uint32_t u32RawPack = ((uint32_t)s_au16ADC2VolValue[0] << 16) |
+                          (uint32_t)s_au16ADC1VolValue[0];
+    s_u32MotorADCRawSnapshotPack = u32RawPack;
 }
 
 /* ======================== 8. 私有函数实现 ======================== */

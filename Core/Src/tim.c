@@ -263,7 +263,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM1)
   {
-    Drv_EncoderTrigger_SendOne(ENCODER_UART_MOTOR);
+    Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_MOTOR);
   }
   else if (htim->Instance == TIM2)
   {
@@ -286,11 +286,11 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
   }
   if ((htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1))
   {
-    Drv_EncoderTrigger_SendOne(ENCODER_UART_SWING);
+    Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SWING);
   }
   else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
   {
-    Drv_EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* CH2，≈0.20ms */
+    Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* CH2，≈0.20ms */
   }
 }
 

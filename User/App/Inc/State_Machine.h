@@ -5,7 +5,7 @@
  * @details 模块路径：`User/App`。
  *          职责：编排「Simulink 控制/反馈」与「电机反馈/转速」等服务调用；
  *          不包含 HAL/寄存器细节，头文件无第三方依赖（仅声明 `void` 入口）。
- *          依赖关系：业务层 → 服务层（`simulink_protocol`、`motor_service`）。
+ *          依赖关系：业务层 → 服务层（`simulink_protocol`、`pendulum_service`）。
  */
 /* USER CODE END Header */
 
@@ -31,11 +31,17 @@ extern "C" {
 /* 无 */
 
 /* ======================== 5. 接口函数声明 ======================== */
+
+/* -------- 5.1 上层接口 -------- */
+
 /**
  * @brief 主状态机：持续处理 Simulink 上位机控制与反馈
  * @details 入口由 `main` 或初始化流程调用；实现见 `State_Machine.c`。
  */
 void App_StateMachine_MainLoop(void);
+
+/* -------- 5.2 层内接口（App_Loc_*） -------- */
+/* 无 */
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
  * @file    bsp.c
  * @brief   BSP 实现：系统服务、硬件 CRC16-MODBUS、printf 重定向
  * @details 依赖 `Core` 中 HAL 初始化产物（`hcrc`、`huart1` 等，与 `DEBUG_UART_HANDLE` 一致）、
- *          `crc.h`、`usart.h`。`Bsp_Crc16Modbus_Byte` 内对 CRC 外设做短临界区，避免与别处并发。
+ *          `crc.h`、`usart.h`。`Bsp_Crc16Modbus_Calc` 内对 CRC 外设做短临界区，避免与别处并发。
  */
 
 /* ======================== 1. 头文件引用 ======================== */
@@ -91,7 +91,7 @@ void Bsp_Init(void)
  * @brief 阻塞延时（毫秒级），封装 HAL_Delay
  * @param u32Ms 延时毫秒数
  */
-void Bsp_DelayMs(uint32_t u32Ms)
+void Bsp_Ms_Delay(uint32_t u32Ms)
 {
     HAL_Delay(u32Ms);
 }
@@ -100,13 +100,13 @@ void Bsp_DelayMs(uint32_t u32Ms)
  * @brief 获取系统毫秒级 tick（自上电累计），封装 HAL_GetTick
  * @return 当前 tick（毫秒）
  */
-uint32_t Bsp_GetTickMs(void)
+uint32_t Bsp_TickMs_Get(void)
 {
     return HAL_GetTick();
 }
 
 
-/* -------- 7.2 CRC16-MODBUS（硬件；与 `common.c` 中 `Cmn_CalcCRC16Modbus` 算法一致，可作对照） -------- */
+/* -------- 7.2 CRC16-MODBUS（硬件；与 `common.c` 中 `Cmn_CRC16Modbus_Calc` 算法一致，可作对照） -------- */
 /**
  * @brief 硬件计算 CRC16-MODBUS（多项式 0xA001 反射、初值 0xFFFF）
  * @param pu8Data   待校验数据首地址
@@ -114,7 +114,7 @@ uint32_t Bsp_GetTickMs(void)
  * @return 参数非法或长度为 0 返回 0；否则为 CRC16（低字节在先与帧尾一致）
  * @note  须在 MX_CRC_Init() 之后调用；内部对片内 CRC 外设做关中断临界区，避免与其他上下文并发
  */
-uint16_t Bsp_Crc16Modbus_Byte(const uint8_t *pu8Data, uint16_t u16Length)
+uint16_t Bsp_Crc16Modbus_Calc(const uint8_t *pu8Data, uint16_t u16Length)
 {
     uint32_t u32Crc;
     uint32_t u32Primask;
@@ -134,33 +134,6 @@ uint16_t Bsp_Crc16Modbus_Byte(const uint8_t *pu8Data, uint16_t u16Length)
     }
 
     return (uint16_t)(u32Crc & 0xFFFFU);
-}
-
-/**
- * @brief 启用 DWT 周期计数器（CYCCNT），供微秒级时间戳使用
- * @note  须在 SystemCoreClock 已更新后调用（如编码器帧间隔计时）
- */
-void Bsp_DwtInit(void)
-{
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0U;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-}
-
-/**
- * @brief 读取 DWT 周期计数换算的微秒时间戳（约 71 分钟回绕 @170MHz）
- * @return 自上电起的微秒值；SystemCoreClock 异常（<1MHz）时返回 0
- */
-uint32_t Bsp_DwtGetUs(void)
-{
-    uint32_t u32CyclesPerUs = SystemCoreClock / 1000000U;
-
-    if (u32CyclesPerUs == 0U)
-    {
-        return 0U;
-    }
-
-    return DWT->CYCCNT / u32CyclesPerUs;
 }
 
 

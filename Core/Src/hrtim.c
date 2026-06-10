@@ -41,7 +41,7 @@ static uint16_t s_u16TargetPulse = 0U; /* PWM 占空比目标值，范围 0~1000
 static uint8_t  s_u8FlagPulse   = 0U; /* PWM 占空比更新标志 */
 
 /* ======================== 6. 私有函数声明 ======================== */
-static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse);
+static Status_t PWM_Pulse_Write(uint16_t u16T2Pulse);
 
 /* USER CODE END 0 */
 
@@ -217,7 +217,7 @@ void MX_HRTIM1_Init(void)
   }
   /* USER CODE BEGIN HRTIM1_Init 2 */
   /* Timer A CMP1 中断：由上方 MX 配置 InterruptRequests=HRTIM_TIM_IT_CMP1 使能；
-   * HAL_HRTIM_Compare1EventCallback(TIMER_A) 内 Drv_ADC_Motor_RawData_Snapshot 依赖此事件。 */
+   * HAL_HRTIM_Compare1EventCallback(TIMER_A) 内 Drv_Loc_ADC_Motor_RawData_Snapshot 依赖此事件。 */
   /* USER CODE END HRTIM1_Init 2 */
   HAL_HRTIM_MspPostInit(&hhrtim1);
 
@@ -300,6 +300,8 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
 
 /* ======================== 7. 接口函数实现 ======================== */
 
+/* -------- 7.1 上层接口（与 .h 5.1 对应） -------- */
+
 /**
  * @brief PWM 使能控制接口函数
  * @param NewState 使能状态：PRJ_ENABLE / PRJ_DISABLE
@@ -325,7 +327,7 @@ void Drv_PWM_Enable(FunctionalState_t NewState)
  * @param dir 方向宏：MOTOR_DIR_FORWARD 正转，MOTOR_DIR_REVERSE 反转
  * @note  正转时将 MotorDirectionControl_Pin 置 0，反转时置 1
  */
-void Drv_PWM_DirControl(uint8_t dir)
+void Drv_PWM_Direction_Set(uint8_t dir)
 {
   if (dir == MOTOR_DIR_FORWARD)
   {
@@ -354,6 +356,9 @@ Status_t Drv_PWM_TargetPulse_Set(uint16_t u16ExpectedValue)
   return STATUS_OK;
 }
 
+/* -------- 7.2 层内接口（Drv_Loc_*，与 .h 5.2 对应） -------- */
+/* 无 */
+
 /* ======================== 8. 私有函数实现 ======================== */
 
 /**
@@ -379,11 +384,11 @@ static void PWM_TEST(void)
 /**
  * @brief 将占空比参数写入 HRTIM TimerA 比较寄存器（仅本文件调用）
  */
-static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse)
+static Status_t PWM_Pulse_Write(uint16_t u16T2Pulse)
 {
   /* 低于 PWM_DUTY_CYCLE_MIN：逻辑关断。不可把 TimerA 三比较器全写 0：
    * ADC1/2 由 HRTIM TimerA 的 CMP3/CMP2 外触发，全 0 时外触发与 DMA 停步，
-   * Drv_ADC_Motor_RawData_Snapshot 仍读旧缓冲，电流反馈会卡在上一非零占空比时的值（如约 -170mA）。 */
+   * Drv_Loc_ADC_Motor_RawData_Snapshot 仍读旧缓冲，电流反馈会卡在上一非零占空比时的值（如约 -170mA）。 */
   if (u16T2Pulse < PWM_DUTY_CYCLE_MIN)
   {
     /* 占位：CMP 用 PWM_DUTY_CYCLE_MIN（≥4，见 hrtim.h），保证 CMP2≠0、ADC 外触发不断 */
@@ -412,7 +417,7 @@ static Status_t PWM_Write_Pulse(uint16_t u16T2Pulse)
 
 /**
  * @brief HRTIM 比较器 1（CMP1）事件回调
- * @details TimerA：触发电机电流原始数据快照 Drv_ADC_Motor_RawData_Snapshot；
+ * @details TimerA：触发电机电流原始数据快照 Drv_Loc_ADC_Motor_RawData_Snapshot；
  *          TimerB：若有占空比更新标志，则把目标占空比（×1.7 折算后）装载到比较寄存器。
  * @param hhrtim     HRTIM 句柄
  * @param u32TimerIdx 触发事件的定时器索引（区分 TimerA / TimerB）
@@ -421,7 +426,7 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim, uint32_t u32Ti
 {
   if(HRTIM_TIMERINDEX_TIMER_A == u32TimerIdx)
   {
-    Drv_ADC_Motor_RawData_Snapshot();
+    Drv_Loc_ADC_Motor_RawData_Snapshot();
     return;
   }
 
@@ -430,7 +435,7 @@ void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim, uint32_t u32Ti
     if (s_u8FlagPulse)
     {
       s_u8FlagPulse = 0U;
-      if (PWM_Write_Pulse((uint16_t)((float)s_u16TargetPulse * 1.7f)) != STATUS_OK)
+      if (PWM_Pulse_Write((uint16_t)((float)s_u16TargetPulse * 1.7f)) != STATUS_OK)
       {
         return;
       }

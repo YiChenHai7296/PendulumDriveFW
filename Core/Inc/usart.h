@@ -54,7 +54,9 @@ typedef enum
 extern uint8_t g_au8DebugRxBuff[100];
 
 /* ======================== 5. 接口函数声明 ======================== */
-/* 以下为 USART 驱动层扩展（`Core/Src/usart.c`，命名 `Drv_*`），典型调用方为 `User/Service`；`Status_t` 等见 `common.h`。 */
+
+/* -------- 5.1 上层接口 -------- */
+/* USART 驱动层（`Core/Src/usart.c`）；典型调用方 `User/Service`。 */
 
 /**
   * @brief  从 USART2 接收队列出队一帧到指定缓冲区（服务层 Simulink 协议等）
@@ -63,7 +65,7 @@ extern uint8_t g_au8DebugRxBuff[100];
   * @param  pu16OutLen   本次出队的实际长度，可为 NULL
   * @retval STATUS_OK 成功；STATUS_ERROR 队列空或参数无效
   */
-Status_t Drv_Simulink_ControlFrame_GetData(uint8_t *pu8Buf, uint16_t u16BufMaxLen, uint16_t *pu16OutLen);
+Status_t Drv_Simulink_ControlFrame_Data_Get(uint8_t *pu8Buf, uint16_t u16BufMaxLen, uint16_t *pu16OutLen);
 
 /**
   * @brief  通过 USART2 使用 DMA 发送一帧数据
@@ -76,56 +78,54 @@ Status_t Drv_Simulink_Feedback_Send(const uint8_t *pu8Buf, uint16_t u16Len);
 
 /**
   * @brief  获取电机编码器当前数据（UART3），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pu8Out         指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
-  * @param  pu32FrameDtUs  可选；输出快照内两帧实测间隔（µs），与转速计算应一致
+  * @param  pu8Out  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   * @retval STATUS_OK 已写入快照；STATUS_ERROR 参数无效（pOut 为 NULL）
   */
-Status_t Drv_MotorEncoder_GetData(uint8_t *pu8Out, uint32_t *pu32FrameDtUs);
+Status_t Drv_MotorEncoder_Data_Get(uint8_t *pu8Out);
 
 /**
   * @brief  获取输出轴编码器当前数据（UART5），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pu8Out         指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
-  * @param  pu32FrameDtUs  可选；输出快照内两帧实测间隔（µs），与转速计算应一致
+  * @param  pu8Out  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   * @retval STATUS_OK 已写入快照；STATUS_ERROR 参数无效（pOut 为 NULL）
   */
-Status_t Drv_OutputShaftEncoder_GetData(uint8_t *pu8Out, uint32_t *pu32FrameDtUs);
+Status_t Drv_OutputShaftEncoder_Data_Get(uint8_t *pu8Out);
 
 /**
   * @brief  获取摆杆编码器当前数据（UART4），12 字节；前6字节=最新帧，后6字节=上一帧
-  * @param  pu8Out         指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
-  * @param  pu32FrameDtUs  可选；输出快照内两帧实测间隔（µs）
+  * @param  pu8Out  指向至少 ENCODER_SNAPSHOT_BYTES(12) 字节的缓冲区
   * @retval STATUS_OK 已写入快照；STATUS_ERROR 参数无效（pOut 为 NULL）
   */
-Status_t Drv_SwingArmEncoder_GetData(uint8_t *pu8Out, uint32_t *pu32FrameDtUs);
-
-
-
-
-
-/**
- * @brief 向指定编码器 UART 发送单字节 0x02 触发（TIM1 分相：更新/比较1/比较2 各触发一路）
- * @param uart_sel ENCODER_UART_MOTOR / ENCODER_UART_SWING / ENCODER_UART_SHAFT
- */
-void Drv_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
-
-/**
-  * @brief  控制编码器串口对应电平转换芯片的使能引脚
-  * @param  uart_sel 串口选择：ENCODER_UART_MOTOR(3)/ENCODER_UART_SWING(4)/ENCODER_UART_SHAFT(5)
-  * @param  state    使能状态：PRJ_ENABLE / PRJ_DISABLE（语义同 HAL ENABLE/DISABLE）
-  */
-void Drv_EncoderLevelShifter_SetEnable(EncoderUartSel_t uart_sel, FunctionalState_t state);
-
-/**
-  * @brief  在 USART3/4/5 中断入口（调用 HAL_UART_IRQHandler 之前）锁存 ISR 错误位
-  * @param  uart_sel 编码器串口选择
-  */
-void Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(EncoderUartSel_t uart_sel);
+Status_t Drv_SwingArmEncoder_Data_Get(uint8_t *pu8Out);
 
 /**
   * @brief  错帧调试：打印 RxEvent/IRQ 锁存与当前 ISR 的 ORE/NE/FE/PE，并清除锁存与当前错误标志
   * @param  uart_sel 编码器串口选择
   */
-void Drv_EncoderUart_LogHwErrorFlags(EncoderUartSel_t uart_sel);
+void Drv_EncoderUart_HwErrorFlags_Log(EncoderUartSel_t uart_sel);
+
+/* -------- 5.2 层内接口（Drv_Loc_*） -------- */
+
+/**
+ * @brief 向指定编码器 UART 发送单字节 0x02 触发（TIM1 分相：更新/比较1/比较2 各触发一路）
+ * @param uart_sel ENCODER_UART_MOTOR / ENCODER_UART_SWING / ENCODER_UART_SHAFT
+ * @note 层内接口：由 `tim.c` 定时分相调用；上层不应依赖
+ */
+void Drv_Loc_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
+
+/**
+  * @brief  控制编码器串口对应电平转换芯片的使能引脚
+  * @param  uart_sel 串口选择：ENCODER_UART_MOTOR(3)/ENCODER_UART_SWING(4)/ENCODER_UART_SHAFT(5)
+  * @param  state    使能状态：PRJ_ENABLE / PRJ_DISABLE（语义同 HAL ENABLE/DISABLE）
+  * @note  层内接口：由 `tim.c` / `stm32g4xx_it.c` 调用；上层不应依赖
+  */
+void Drv_Loc_EncoderLevelShifter_Enable_Set(EncoderUartSel_t uart_sel, FunctionalState_t state);
+
+/**
+  * @brief  在 USART3/4/5 中断入口（调用 HAL_UART_IRQHandler 之前）锁存 ISR 错误位
+  * @param  uart_sel 编码器串口选择
+  * @note  层内接口：由 `stm32g4xx_it.c` 调用；上层不应依赖
+  */
+void Drv_Loc_EncoderUart_HwErrorFlags_AtIrqEntry_Latch(EncoderUartSel_t uart_sel);
 
 /* USER CODE END Includes */
 

@@ -100,7 +100,7 @@ extern "C" {
 /**
  * @brief ADC 驱动自测开关（仅在 TEST_DRV=1 时生效）
  * @note  1: 自测循环内周期调用 Drv_ADC_TEST()
- *        0: 仅 Bsp_DelayMs(...)
+ *        0: 仅 Bsp_Ms_Delay(...)
  *        约束：TEST_ADC=1 必须同时 TEST_DRV=1（见 main.c 的 #error 校验）
  */
 #define TEST_ADC             0

@@ -2,7 +2,7 @@
 "softscalependulumdriveboard\startup_stm32g474xx.o"
 "softscalependulumdriveboard\state_machine.o"
 "softscalependulumdriveboard\simulink_protocol.o"
-"softscalependulumdriveboard\motor_service.o"
+"softscalependulumdriveboard\pendulum_service.o"
 "softscalependulumdriveboard\bsp.o"
 "softscalependulumdriveboard\common.o"
 "softscalependulumdriveboard\main.o"

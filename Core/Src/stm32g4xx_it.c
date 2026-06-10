@@ -398,9 +398,9 @@ void USART3_IRQHandler(void)
   {
     USART3->ICR = USART_ICR_TCCF;
     CLEAR_BIT(USART3->CR1, USART_CR1_TCIE);
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_MOTOR, PRJ_DISABLE);
+    Drv_Loc_EncoderLevelShifter_Enable_Set(ENCODER_UART_MOTOR, PRJ_DISABLE);
   }
-  Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(ENCODER_UART_MOTOR);
+  Drv_Loc_EncoderUart_HwErrorFlags_AtIrqEntry_Latch(ENCODER_UART_MOTOR);
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
@@ -418,9 +418,9 @@ void UART4_IRQHandler(void)
   {
     UART4->ICR = USART_ICR_TCCF;
     CLEAR_BIT(UART4->CR1, USART_CR1_TCIE);
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SWING, PRJ_DISABLE);
+    Drv_Loc_EncoderLevelShifter_Enable_Set(ENCODER_UART_SWING, PRJ_DISABLE);
   }
-  Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(ENCODER_UART_SWING);
+  Drv_Loc_EncoderUart_HwErrorFlags_AtIrqEntry_Latch(ENCODER_UART_SWING);
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
@@ -438,9 +438,9 @@ void UART5_IRQHandler(void)
   {
     UART5->ICR = USART_ICR_TCCF;
     CLEAR_BIT(UART5->CR1, USART_CR1_TCIE);
-    Drv_EncoderLevelShifter_SetEnable(ENCODER_UART_SHAFT, PRJ_DISABLE);
+    Drv_Loc_EncoderLevelShifter_Enable_Set(ENCODER_UART_SHAFT, PRJ_DISABLE);
   }
-  Drv_EncoderUart_LatchHwErrorFlagsAtIrqEntry(ENCODER_UART_SHAFT);
+  Drv_Loc_EncoderUart_HwErrorFlags_AtIrqEntry_Latch(ENCODER_UART_SHAFT);
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN UART5_IRQn 1 */

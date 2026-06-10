@@ -5,7 +5,7 @@
  *          但不宜散落在各服务中的能力：阻塞延时、系统 Tick、printf 重定向、硬件 CRC16-MODBUS。
  *          本头文件仅依赖标准 `<stdint.h>`，不暴露 `HAL_*` 类型，便于上层无 HAL 耦合。
  *
- *          CRC16：`Bsp_Crc16Modbus_Byte` 使用片内 CRC，须与 CubeMX `MX_CRC_Init` 配置一致
+ *          CRC16：`Bsp_Crc16Modbus_Calc` 使用片内 CRC，须与 CubeMX `MX_CRC_Init` 配置一致
  *          （多项式 0x8005、初值 0xFFFF、字节/输出反相等，即标准 MODBUS CRC16）。
  *
  *          printf：实现在 `bsp.c` 的 `fputc`（本头已引入 `<stdio.h>`，包含后可直接 `printf`）。
@@ -63,13 +63,13 @@ void Bsp_Init(void);
  * @brief 阻塞延时（毫秒级）
  * @param u32Ms 延时毫秒数
  */
-void Bsp_DelayMs(uint32_t u32Ms);
+void Bsp_Ms_Delay(uint32_t u32Ms);
 
 /**
  * @brief 获取系统毫秒级 tick（自上电起累计）
  * @return 当前 tick（毫秒）
  */
-uint32_t Bsp_GetTickMs(void);
+uint32_t Bsp_TickMs_Get(void);
 
 /**
  * @brief 硬件计算 CRC16-MODBUS（多项式 0xA001 反射形式、初值 0xFFFF）
@@ -78,18 +78,7 @@ uint32_t Bsp_GetTickMs(void);
  * @return 参数非法或长度为 0 时返回 0；否则为 CRC16（MODBUS，低字节在先与帧尾一致）
  * @note 须在 `MX_CRC_Init()` 之后调用；内部对 CRC 外设做短临界区保护，勿在中断里长时间占用
  */
-uint16_t Bsp_Crc16Modbus_Byte(const uint8_t *pu8Data, uint16_t u16Length);
-
-/**
- * @brief 启用 DWT 周期计数器（供编码器帧间隔微秒计时，须在 `SystemCoreClock` 已更新后调用）
- */
-void Bsp_DwtInit(void);
-
-/**
- * @brief 自上电起 DWT 周期计数换算的微秒时间戳（约 71 分钟回绕 @170MHz）
- * @return 微秒时间戳；须先调用 `Bsp_DwtInit`
- */
-uint32_t Bsp_DwtGetUs(void);
+uint16_t Bsp_Crc16Modbus_Calc(const uint8_t *pu8Data, uint16_t u16Length);
 
 #ifdef __cplusplus
 }
