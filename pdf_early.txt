@@ -1,0 +1,360 @@
+=== PAGE 1 ===
+CompactRIO 
+Single-Board 
+Controller with 
+NI-DAQmx 
+System 
+Development 
+2026-06-11
+
+
+=== PAGE 2 ===
+Contents Contents 
+CompactRIO Single Board Controller with DAQmx User Manual . . . . . . . . . . . . . . . . . . . . . . .  9 
+CompactRIO Single-Board Controller Concepts . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  9 
+sbRIO I/O Module . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  11 
+RMC Connector Design Guide . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  12 
+RMC Connector Overview . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  12 
+RMC Connector Pins . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  12 
+RMC Connector Pinout . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  13 
+Pins with Dedicated Functions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  14 
+General Purpose Digital I/O Pins . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  19 
+RMC Connector Electrical Characteristics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  20 
+RMC Connector Power Requirements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  20 
+PCIe over RMC . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  21 
+PCIe Reference Schematic . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  21 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . .  22 
+SATA over RMC . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  23 
+SATA Reference Schematic . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  23 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . .  24 
+Fixed Behavior Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  24 
+Power Rails . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  24 
+FPGA_VIO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  24 
+VIN_Filtered . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  24 
+VIN_Filtered Implementation on the RMC . . . . . . . . . . . . . . . . . . . . . . . .  25 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . .  25 
+USB Support . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  26 
+USB Host Implementation on the RMC . . . . . . . . . . . . . . . . . . . . . . . . . . .  26 
+Supporting Onboard USB Devices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  27 
+USB Routing Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  27 
+C Series Interface . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  28 
+C Series Implementation on the RMC . . . . . . . . . . . . . . . . . . . . . . . . . . . .  28 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . .  29 
+C Series Routing Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  30 
+RTC Battery (VBAT) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  30 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+2 ni.com
+
+=== PAGE 3 ===
+VBAT Implementation on the RMC . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  30 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . .  31 
+Resets . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  31 
+RMC RST# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  31 
+SYS_RST# . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  31 
+Reset Implementation on the RMC . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  32 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . .  32 
+FPGA_CONF . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  32 
+FPGA_CONF Implementation on the RMC . . . . . . . . . . . . . . . . . . . . . . . .  33 
+User-Defined FPGA Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  33 
+Accessing User-Defined FPGA . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  33 
+FPGA DIO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  34 
+FPGA DIO Clock Capabilities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  34 
+Additional UART Support . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  35 
+Additional RS-232 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  35 
+RS-232 Reference Schematic . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  35 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . .  36 
+Additional RS-485 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  37 
+RS-485 Reference Schematic . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  37 
+Reference Schematic Design Considerations . . . . . . . . . . . . . . . . . . . . . .  38 
+RS-485 Layout Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  38 
+RMC PCB Layout Guidelines . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  39 
+Impedance-Controlled Signaling . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  39 
+Single-Ended Signal Best Practices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  39 
+Differential Signal Best Practices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  39 
+Ground Plane Recommendations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  40 
+Fanout and Layout Options . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  40 
+Mechanical Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  40 
+Selecting an Appropriate Mating Connector . . . . . . . . . . . . . . . . . . . . . . . . . . .  41 
+Selecting Appropriate Standoffs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  41 
+NI Custom Standoffs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  42 
+Discovering the Controller in MAX . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  43 
+Setting a System Password . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  43 
+Installing Software on the Controller . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  44 
+Testing Your Controller in MAX . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  45 
+Changing sbRIO I/O Module Programming Modes in MAX . . . . . . . . . . . . . . . . . . . .  45 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 3
+
+=== PAGE 4 ===
+Configuring Startup Options . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  46 
+sbRIO-96xx Startup Options . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  46 
+Configuring FPGA Startup App . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  47 
+Using the sbRIO-96xx in LabVIEW . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  47 
+Adding the sbRIO-96xx to a LabVIEW Project . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  47 
+Deploying Your sbRIO I/O Module in a Programming Mode in LabVIEW . . .  48 
+Adding the sbRIO-96xx to a LabVIEW FPGA Project . . . . . . . . . . . . . . . . . . . . . . . . . .  49 
+Deploying Your sbRIO I/O Module in a Programming Mode in LabVIEW 
+FPGA . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  49 
+Choosing Your Programming Mode . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  50 
+Software Configuration in NI-DAQmx Programming Mode . . . . . . . . . . . . . . . . . . . . . . . .  53 
+Analog Input with NI-DAQmx . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  53 
+Hardware-Timed Single Point (HWTSP) Mode . . . . . . . . . . . . . . . . . . . . . . . . . .  54 
+Analog Input Triggering Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  54 
+Analog Input Timing Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  55 
+AI Sample Clock Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  55 
+AI Sample Clock Timebase Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  55 
+AI Start Trigger Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  55 
+AI Reference Trigger Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  57 
+AI Pause Trigger Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  58 
+AI Convert Clock Signal Behavior For Analog Input Modules . . . . . . . .  59 
+Getting Started with AI Applications in Software . . . . . . . . . . . . . . . . . . . . . . .  61 
+Analog Output with NI-DAQmx . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  61 
+Analog Output Data Generation Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  61 
+Software-Timed Generations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  62 
+Hardware-Timed Generations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  62 
+Analog Output Triggering Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  64 
+Analog Output Timing Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  64 
+AO Sample Clock Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  64 
+AO Sample Clock Timebase Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  65 
+AO Start Trigger Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  65 
+AO Pause Trigger Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  66 
+Minimizing Glitches on the Output Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  67 
+Getting Started with AO Applications in Software . . . . . . . . . . . . . . . . . . . . . .  68 
+Digital Input/Output with NI-DAQmx . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  68 
+Serial DIO versus Parallel DIO Modules . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  68 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+4 ni.com
+
+=== PAGE 5 ===
+Static DIO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  69 
+Digital Input . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  69 
+Digital Input Triggering Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  70 
+Digital Input Timing Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  70 
+Digital Input Filters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  75 
+Getting Started with DI Applications in Software . . . . . . . . . . . . . . . . . .  75 
+Change Detection Event . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  76 
+Digital Output . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  76 
+Digital Output Data Generation Methods . . . . . . . . . . . . . . . . . . . . . . . . .  77 
+Digital Output Triggering Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  79 
+Digital Output Timing Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  79 
+Getting Started with DO Applications in Software . . . . . . . . . . . . . . . . .  82 
+Digital Input/Output Configuration for NI 9401 . . . . . . . . . . . . . . . . . . . . . . . . .  83 
+PFI with NI-DAQmx . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  83 
+PFI Filters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  83 
+Counters with NI-DAQmx . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  85 
+Counter Timing Engine . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  85 
+Counter Triggering . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  87 
+Default Counter/Timer Routing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  88 
+Other Counter Features . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  88 
+Cascading Counters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  88 
+Prescaling . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  89 
+Synchronization Modes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  89 
+80 MHz Source Mode . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  90 
+External or Internal Source Less than 20 MHz . . . . . . . . . . . . . . . . . . . . .  90 
+Counter Input Applications . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  90 
+Counting Edges . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  90 
+Single Point (On-Demand) Edge Counting . . . . . . . . . . . . . . . . . . . . . . . .  90 
+Buffered (Sample Clock) Edge Counting . . . . . . . . . . . . . . . . . . . . . . . . . .  91 
+Controlling the Direction of Counting . . . . . . . . . . . . . . . . . . . . . . . . . . . .  92 
+Pulse-Width Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  92 
+Single Pulse-Width Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  92 
+Implicit Buffered Pulse-Width Measurement . . . . . . . . . . . . . . . . . . . . . .  93 
+Sample Clocked Buffered Pulse-Width Measurement . . . . . . . . . . . . . .  93 
+Pulse Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  94 
+Single Pulse Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  94 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 5
+
+=== PAGE 6 ===
+Implicit Buffered Pulse Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . .  95 
+Sample Clocked Buffered Pulse Measurement . . . . . . . . . . . . . . . . . . . .  95 
+Semi-Period Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  96 
+Single Semi-Period Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  96 
+Implicit Buffered Semi-Period Measurement . . . . . . . . . . . . . . . . . . . . . .  96 
+Pulse versus Semi-Period Measurements . . . . . . . . . . . . . . . . . . . . . . . . .  97 
+Frequency Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  97 
+Low Frequency with One Counter . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  97 
+High Frequency with Two Counters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  98 
+Large Range of Frequencies with Two Counters . . . . . . . . . . . . . . . . . . .  99 
+Sample Clocked Buffered Frequency Measurement . . . . . . . . . . . . . .  100 
+Choosing a Method for Measuring Frequency . . . . . . . . . . . . . . . . . . . .  101 
+Which Method Is Best? . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  102 
+Period Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  105 
+Position Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  105 
+Measurements Using Quadrature Encoders . . . . . . . . . . . . . . . . . . . . . .  105 
+Measurements Using Two Pulse Encoders . . . . . . . . . . . . . . . . . . . . . . .  107 
+Buffered (Sample Clock) Position Measurement . . . . . . . . . . . . . . . . .  107 
+Two-Signal Edge-Separation Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . .  108 
+Single Two-Signal Edge-Separation Measurement . . . . . . . . . . . . . . . .  108 
+Implicit Buffered Two-Signal Edge-Separation Measurement . . . . . .  109 
+Sample Clocked Buffered Two-Signal Separation Measurement . . .  109 
+Counter Output Applications . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  110 
+Simple Pulse Generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  110 
+Single Pulse Generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  110 
+Single Pulse Generation with Start Trigger . . . . . . . . . . . . . . . . . . . . . . .  110 
+Pulse Train Generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  111 
+Finite Pulse Train Generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  111 
+Retriggerable Pulse or Pulse Train Generation . . . . . . . . . . . . . . . . . . .  111 
+Continuous Pulse Train Generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  112 
+Buffered Pulse Train Generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  113 
+Finite Implicit Buffered Pulse Train Generation . . . . . . . . . . . . . . . . . . .  114 
+Continuous Buffered Implicit Pulse Train Generation . . . . . . . . . . . . .  114 
+Finite Buffered Sample Clocked Pulse Train Generation . . . . . . . . . . .  115 
+Continuous Buffered Sample Clocked Pulse Train Generation . . . . .  116 
+Frequency Generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  116 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+6 ni.com
+
+=== PAGE 7 ===
+Using the Frequency Generator . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  116 
+Frequency Division . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  117 
+Pulse Generation for ETS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  117 
+Counter Timing Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  118 
+Counter n Source Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  118 
+Counter n Gate Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  120 
+Counter n Aux Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  121 
+Counter n A, Counter n B, and Counter n Z Signals . . . . . . . . . . . . . . . . . . . .  121 
+Counter n Up_Down Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  122 
+Counter n HW Arm Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  122 
+Counter n Sample Clock Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  123 
+Counter n Internal Output and Counter n TC Signals . . . . . . . . . . . . . . . . . .  124 
+Frequency Output Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  125 
+Digital Routing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  125 
+Synchronization Across a Network . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  125 
+Internal Timebase . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  125 
+Network-based Synchronization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  126 
+Differences Between IEEE 802.1AS-2011 and IEEE 1588-2008 . . . . . . . . . . .  126 
+IEEE 1588 External Switch Requirements . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  127 
+Clock Routing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  127 
+Onboard Clock Routing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  128 
+80 MHz Timebase . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  128 
+20 MHz and 100 kHz Timebases . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  128 
+40 MHz Onboard Clock . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  129 
+13.1072 MHz, 12.8 MHz, and 10 MHz Timebases and Carrier Clocks . . . . . . . . . . .  129 
+BIOS Configuration . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  129 
+Resetting the System CMOS and BIOS Settings . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  129 
+Power-On Self Test Warning Messages . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  130 
+BIOS Setup Utility . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  130 
+Launching the BIOS Setup Utility for BIOS with DisplayPort . . . . . . . . . . . .  130 
+Launching the BIOS Setup Utility for BIOS with Console Out . . . . . . . . . . .  131 
+BIOS Setup Utility Keyboard Navigation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  131 
+Main Setup Menu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  132 
+Advanced Setup Menu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  133 
+Power/Wake Configuration Submenu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  133 
+PCI Subsystem Configuration Submenu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  133 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 7
+
+=== PAGE 8 ===
+SATA Drives Submenu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  134 
+SDIO Configuration Submenu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  134 
+USB Configuration Submenu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  135 
+Security Setup Menu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  135 
+Boot Setup Menu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  136 
+Boot Settings Configuration Submenu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  136 
+Save & Exit Menu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  137 
+File System . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  138 
+Planned Software Support . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  138 
+NI Services . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  139 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+8 ni.com
+
+=== PAGE 9 ===
+CompactRIO Single Board Controller with 
+DAQmx User Manual 
+Use this document to do the following hardware tasks. 
+• Design a RIO mezzanine card 
+Use this document to do the following software tasks. 
+• Configure the single-board controller using LabVIEW 
+• Program the single-board controller using Real-Time Scan Interface, LabVIEW 
+FPGA, and NI-DAQmx 
+• Customize BIOS settings 
+• Read and write external disk drives 
+Table 1. CompactRIO Single-Board Controller with DAQmx Models 
+Digital I/O Models Multifunction I/O Models 
+sbRIO-9603 sbRIO-9628 
+sbRIO-9608 sbRIO-9629 
+sbRIO-9609 sbRIO-9638 
+CompactRIO Single-Board Controller Concepts 
+Table 2. System Development Manual Definitions 
+Term Definition 
+Connector0 Connector0 refers to the MIO connector on the 
+Note For information about mounting, grounding, and connecting the 
+single-board controller, refer to the CompactRIO Single-Board Controller 
+with DAQmx Hardware Installation Manual on ni.com/manuals. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 9
+
+=== PAGE 10 ===
+Term Definition 
+sbRIO-9628, sbRIO-9629, and sbRIO-9638. 
+Connector1 Connector1 refers to the DIO connector on the 
+sbRIO-9638. 
+sbRIO-960x 
+In this document, sbRIO-960x refers exclusively 
+to the following CompactRIO single-board 
+controllers with NI-DAQmx: sbRIO-9603, 
+sbRIO-9608, and sbRIO-9609. 
+sbRIO-962x/sbRIO-963x 
+In this document, sbRIO-962x/sbRIO-963x refers 
+exclusively to the following CompactRIO single-
+board controllers with NI-DAQmx: sbRIO-9628, 
+sbRIO-9629, and sbRIO-9638. 
+sbRIO-96xx 
+In this document, sbRIO-96xx refers exclusively 
+to the CompactRIO single-board controllers with 
+NI-DAQmx. 
+C Series Module 
+C Series Module refers to any board-only C Series 
+module designed for implementation in an 
+sbRIO system. 
+Onboard I/O Module Onboard module refers to the distinct onboard 
+modules designed into the sbRIO-96xx. 
+sbRIO I/O Module In this document, sbRIO I/O module refers to 
+both onboard modules and C Series modules. 
+Table 3. RMC Design Concepts 
+Term Definition 
+RMC connector 240-pin, 40 × 6 position, high-density open pin 
+field SEARAY on the sbRIO device. 
+SEARAY Connector family used for the RMC connector on 
+the sbRIO device. Manufactured by Samtec. 
+SoC System on Chip. 
+USB Host USB interface that controls the bus and 
+communicates with connected USB devices. 
+LVTTL In compliance with the Low-Voltage Transistor-
+Transistor Logic (LVTTL) specification. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+10 ni.com
+
+=== PAGE 11 ===
+Term Definition 
+LVCMOS 
+In compliance with the Low-Voltage 
+Complementary Metal Oxide Semiconductor 
+(LVCMOS) specification. 
+LVDS In compliance with the Low-Voltage Differential 
+Signalling (LVDS) specification. 
+Table 4. Schematic Conventions 
+Element Definition 
+Off-page symbol that represents communication 
+to and from the mating connector. 
+Off-page symbol that represents communication 
+from the mating connector. 
+Off-page symbol that represents communication 
+to the mating connector. 
+On-page symbol that represents the signal being 
+driven. 
+On-page symbol that represents the signal being 
+received. 
+Power supply rail. 
+I Analog ground. 
+Digital ground. 
+Chassis ground. 
+SPARE Refers to an unpopulated reference designator. 
+sbRIO I/O Module 
+This document uses the term sbRIO I/O module to refer to any I/O implemented in an 
+sbRIO system. This includes both Onboard I/O modules and C Series modules. See the 
+descriptions below for an overview of programming and implementation differences. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 11
+

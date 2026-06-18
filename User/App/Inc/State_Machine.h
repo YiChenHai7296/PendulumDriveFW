@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
  * @file    State_Machine.h
  * @brief   应用层（业务层）：主循环状态机对外入口
@@ -7,7 +6,6 @@
  *          不包含 HAL/寄存器细节，头文件无第三方依赖（仅声明 `void` 入口）。
  *          依赖关系：业务层 → 服务层（`simulink_protocol`、`pendulum_service`）。
  */
-/* USER CODE END Header */
 
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H

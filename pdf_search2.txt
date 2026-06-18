@@ -1,0 +1,638 @@
+=== PAGE 9 KEYWORD: Connector0 ===
+CompactRIO Single Board Controller with 
+DAQmx User Manual 
+Use this document to do the following hardware tasks. 
+• Design a RIO mezzanine card 
+Use this document to do the following software tasks. 
+• Configure the single-board controller using LabVIEW 
+• Program the single-board controller using Real-Time Scan Interface, LabVIEW 
+FPGA, and NI-DAQmx 
+• Customize BIOS settings 
+• Read and write external disk drives 
+Table 1. CompactRIO Single-Board Controller with DAQmx Models 
+Digital I/O Models Multifunction I/O Models 
+sbRIO-9603 sbRIO-9628 
+sbRIO-9608 sbRIO-9629 
+sbRIO-9609 sbRIO-9638 
+CompactRIO Single-Board Controller Concepts 
+Table 2. System Development Manual Definitions 
+Term Definition 
+Connector0 Connector0 refers to the MIO connector on the 
+Note For information about mounting, grounding, and connecting the 
+single-board controller, refer to the CompactRIO Single-Board Controller 
+with DAQmx Hardware Installation Manual on ni.com/manuals. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 9
+
+=====
+
+=== PAGE 10 KEYWORD: Connector1 ===
+Term Definition 
+sbRIO-9628, sbRIO-9629, and sbRIO-9638. 
+Connector1 Connector1 refers to the DIO connector on the 
+sbRIO-9638. 
+sbRIO-960x 
+In this document, sbRIO-960x refers exclusively 
+to the following CompactRIO single-board 
+controllers with NI-DAQmx: sbRIO-9603, 
+sbRIO-9608, and sbRIO-9609. 
+sbRIO-962x/sbRIO-963x 
+In this document, sbRIO-962x/sbRIO-963x refers 
+exclusively to the following CompactRIO single-
+board controllers with NI-DAQmx: sbRIO-9628, 
+sbRIO-9629, and sbRIO-9638. 
+sbRIO-96xx 
+In this document, sbRIO-96xx refers exclusively 
+to the CompactRIO single-board controllers with 
+NI-DAQmx. 
+C Series Module 
+C Series Module refers to any board-only C Series 
+module designed for implementation in an 
+sbRIO system. 
+Onboard I/O Module Onboard module refers to the distinct onboard 
+modules designed into the sbRIO-96xx. 
+sbRIO I/O Module In this document, sbRIO I/O module refers to 
+both onboard modules and C Series modules. 
+Table 3. RMC Design Concepts 
+Term Definition 
+RMC connector 240-pin, 40 × 6 position, high-density open pin 
+field SEARAY on the sbRIO device. 
+SEARAY Connector family used for the RMC connector on 
+the sbRIO device. Manufactured by Samtec. 
+SoC System on Chip. 
+USB Host USB interface that controls the bus and 
+communicates with connected USB devices. 
+LVTTL In compliance with the Low-Voltage Transistor-
+Transistor Logic (LVTTL) specification. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+10 ni.com
+
+=====
+
+=== PAGE 12 KEYWORD: Connector0 ===
+Onboard I/O Module 
+The sbRIO-962x and sbRIO-963x feature onboard modules that provide additional 
+analog I/O and digital I/O through Connector0 and Connector1. You can program this 
+I/O in Real-Time (NI-DAQmx) or FPGA modes. You can not program Onboard I/O 
+modules in Real-Time Scan mode. 
+C Series Module 
+The sbRIO-960x and sbRIO-962x feature a high-density RMC connector with digital I/O. 
+This connector provides two dedicated C Series interfaces for use with board-only C 
+Series modules. The sbRIO controller can access these C Series modules in three 
+programming modes: Real-Time (NI-DAQmx), Real-Time Scan, and FPGA. You can 
+implement the C Series interfaces with an NI-9697 or NI-9698 RMC breakout board or 
+via a custom RMC daughter board. Refer to the RMC Connector Design Guide section of 
+this document for more information and reference schematics. 
+RMC Connector Design Guide 
+Use this section to design and implement an RIO mezzanine card that communicates 
+with the sbRIO-96xx. The RMC connector on the sbRIO-96xx is a high-density, high-
+throughput connector that features up to 96 single-ended DIO lines or up to 45 
+differential pairs directly connected to the FPGA with the ability to add up to two C 
+Series modules and additional peripherals, including mass storage devices over PCIe 
+or SATA. This section details RMC pins and their functions, reference schematics, PCB 
+layout guidelines, and mechanical considerations. 
+RMC Connector Pins 
+The pins on the RMC connector are divided into the following groups: 
+• Pins with dedicated functions. 
+• General purpose digital I/O pins. 
+• Pins reserved for future use. 
+Note Leave reserved and unused pins disconnected on RMCs. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+12 ni.com
+
+=====
+
+=== PAGE 15 KEYWORD: Table 6 ===
+Table 6. RMC Connector Pins with Dedicated Functions 
+Pin Group Pin Name Pin Number Direction (from 
+Host System) Description 
+Power (Output) GND 
+2, 4, 6, 8, 10, 12, 
+13, 15, 17, 19, 21, 
+23, 26, 28, 30, 36, 
+39, 41, 44, 47, 49, 
+52, 57, 62, 65, 67, 
+70, 75, 78, 80, 83, 
+85, 88, 93, 96, 98, 
+101, 103, 106, 111, 
+114, 116, 119, 121, 
+124, 129, 132, 134, 
+137, 139, 142, 147, 
+150, 157, 160, 165, 
+168, 170, 173, 175, 
+178, 183, 186, 188, 
+191, 193, 196, 201, 
+204, 206, 209, 211, 
+214, 219, 222, 224, 
+227, 229, 232, 237 
+O 
+Digital ground 
+from the RMC 
+connector host 
+system. 
+Power (Output) 
+3.3 V 48 O 
+3.3 V from the 
+RMC connector 
+host system. The 
+rail is always on 
+when the main 
+host system is not 
+in sleep mode. 
+5 V 54, 60, 66, 72 O 
+5 V from the RMC 
+connector host 
+system. The rail is 
+always on when 
+the main host 
+system is not in 
+sleep mode. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 15
+
+=====
+
+=== PAGE 22 KEYWORD: Table 9 ===
+Figure 2. PCIe Reference Schematic 
+10µFC42
+1
+2
++3.3V
+0.1µFC43
+1
+2
+0.1µFC44
+1
+2
+10µFC45
+1
+2
++3.3V
+0.1µFC46
+1
+2
+0.1µFC47
+1
+2
+10µFC48
+1
+2
++3.3V
+0.1µFC49
+1
+2
+0.1µFC50
+1
+2
+0Ω
+R321 2
+0.1µF
+1
+2
++3.3VS
+4
+1
+3 1 2
+2
+VCC
+VIO
+OUT
+GND
+R30
+39.2
+SG-3030JC32KHZ
+U7
+10K
+1
+2
+R31
++3.3VS
++3.3VS
++3.3V
+LED-LX0603GW
+DS1
+R331 22 1
+2
+1
+332
+R34
+SPARE
+GRN
+POPULATION OPTIONS FOR DEBUG LED
+3.3V[0]
+3.3V[1]
+NC[0]
+NC[1]
+DAS/DSS#
+3.3V[2]
+3.3V[3]
+3.3V[4]
+3.3V[5]
+NC[2]
+NC[3]
+NC[4]
+NC[5]
+NC[6]
+NC[7]
+NC[8]
+NC[9]
+NC[10]
+DEVSLP
+NC[11]
+NC[12]
+NC[13]
+NC[14]
+NC[15]
+PERST
+CLKREQ
+PEWAKE
+MFG_Data/Reserved[0]
+MFG_Clock/Reserved[1]
+SUSCLK
+3.3V[6]
+3.3V[7]
+3.3V[8]
+GND[0]
+GND[1]
+PERn3
+PERp3
+GND[2]
+PETn3
+PETp3
+GND[3]
+PERn2
+PERp2
+GND[4]
+PETn2
+PETp2
+GND[5]
+PERn1
+PERp1
+GND[6]
+PETn1
+PETp1
+GND[7]
+PERn0/SATA-B+
+PERp0/SATA-B-
+GND[8]
+PETn0/SATA-A-
+PETp0/SATA-A+
+GND[9]
+REFCLKn
+REFCLKp
+GND[10]
+NC[24]
+PEDET
+GND[11]
+GND[12]
+GND[13]
+SHIELD1
+SHIELD2
+PCIe_CLK+
+PCIe_CLK–
+PCIe_Gen2_TX+
+PCIe_Gen2_TX–
+PCIe_Gen2_RX+
+PCIe_Gen2_RX–
+1
+2
+R36
+0
+1
+2
+R35
+0
+M.2 Socket
+75 pin M.2 Socket 3 SSD (Mechanical Key M)J6
+37
+76
+48
+56
+23
+55
+27
+11
+69
+67
+35
+25
+45
+19
+7
+5
+49
+3
+71
+21
+39
+43
+72
+70
+68
+73
+51
+17
+53
+29
+15
+74
+58
+31
+52
+77
+50
+41
+9
+54
+75
+47
+57
+33
+13
+1
+46
+42
+40
+38
+36
+34
+32
+28
+26
+24
+30
+22
+20
+44
+18
+16
+4
+14
+6
+10
+12
+2
+8
+SMTSO-M3-2-ET
+MH1
+Surface mount standoffSee M.2 specification for placementlocation of the standoff.
+1
+CLK_REQ#
+RST#
+Reference Schematic Design Considerations 
+Table 9. PCIe Reference Schematic Design Considerations 
+Consideration Notes 
+Differential signals 85 Ω ±10% 
+PCIe Gen1 Keep signal length shorter than 203.2 mm (8 in.) 
+PCIe Gen2 Keep signal length shorter than 152.4 mm (6 in.) 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+22 ni.com
+
+=====
+
+=== PAGE 25 KEYWORD: Table 11 ===
+VIN_Filtered Implementation on the RMC 
+Figure 4. VIN_Filtered Reference Schematic EMI-COMM-MODE, SM
+2744045447
+9 V-30 V
+2
+3
+1
+L1
+4
+C1
+50 V
+1000 pF1
+2 2
+1
+C2
+1000 pF
+50 V
+VIN_EXT+
+GND
+VIN_FUSED
+VIN_EXT–
+VIN_Filtered
+12 AMP,
+SM
+F1
+21
+CR1
+36 V
+A
+C
+Connect a well-regulated voltage that falls in the range of 9 V to 30 V to the 
+VIN_Filtered pins to power up the board. 
+Include a common mode choke in the design before connecting the voltage rails to the 
+RMC connector. Place a transient voltage suppressor before the common choke. 
+Reference Schematic Design Considerations 
+The following table lists design considerations for the schematic shown in the previous 
+figure. 
+Table 11. Power Rails Reference Schematic Design Considerations 
+Consideration Notes 
+TVS Selection 
+The recommended part is SMDJ36CA from 
+LittleFuse. Any TVS with reverse standoff voltage 
+and breakdown voltage of more than 30 V can be 
+designed in. 
+Common Mode Choke 
+The recommended part is 2744045447 from Fair-
+Rite. Alternatively, use a common mode choke 
+that matches the performance of this part in 
+terms of the DC and AC impedance. 
+Capacitor 
+1000 pf is the recommended value of the 
+decoupling input and output capacitor. The 
+recommended part is a ceramic COG. 
+Note If simultaneously connected to multiple power sources, the sbRIO-96xx 
+draws power from the terminal with the higher voltage. Ensure that the 
+preferred power supply is 500 mV higher than the alternative power supply. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 25
+
+=====
+
+=== PAGE 29 KEYWORD: Table 12 ===
+Figure 7. C Series without Current Limiter Reference Schematic 
+6.8UH
+SHELL1
+SHELL2
+1 2
+L4
+2
+1
+C14
+0.1 µF
+2
+1
+C13
+0.1 µF
+C15
+100 µF
+2
+1+
+2
+C16
+0.01 µF
+1
+J3
+15
+17
+10
+13
+5
+11
+4
+16
+9
+3
+2
+6
+8
+1
+12
+14
+7
+NC_RESERVED_3
+SLEEP
+VCC_SLOT_FILT
+SPICS#_DIO5
+TRIG_DIO1
+MOSI_DIO7
+SPIFUNC_DIO4
+ID_SELECT#
+CVRT#_DIO3
+OSCLK_DIO0
+SPI_CLK
+MISO_DIO6
+DONE#_DIO2
+NC_RESERVED_13
+5V_C_SERIES
+K86X-ED-15P-BR
+Use a current limiter to protect the PI inductor from overcurrenting in a fault condition 
+and prevent the 5 V pin from accidentally shorting to either GND or CHSY. This 
+protection is beneficial in environments where hot-plugging C Series modules are 
+used. 
+Reference Schematic Design Considerations 
+The following table lists design considerations for the schematics shown in the 
+previous figures. 
+Table 12. C Series Reference Schematic Design Considerations 
+Consideration Notes 
+Current limiter U4 
+If a current limiter is used, you must re-buffer the 
+sleep signal to the DSUB connector. If a current 
+limiter is not used, you can connect the sleep 
+signal directly to the DSUB connector by 
+removing U15 in the schematic. The buffer 
+prevents the sleep signal from being driven to 
+the C Series module in an overcurrent condition. 
+Inductor L3 or L4 
+Power PI Filter specifications: 
+• Value: 6.8 μH ±20% 
+• ESR: <200 mΩ 
+• Rated Current: >=400 mA 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 29
+
+=====
+
+=== PAGE 34 KEYWORD: Connector1 ===
+3. In the Socket Properties dialog box, select your CLIP and click OK. The I/O 
+appears under the socket, or the I/O is connected directly to the RT processor. 
+FPGA DIO 
+Figure 11. Circuitry of One 3.3 V DIO Channel on the RMC Connector 
+XILINX ARTIX-7 FPGA RMC Connector10 Ω
+The RMC has 96 2.5 V/3.3 V single-ended I/O or 45 differential pairs. The NI sbRIO-96xx 
+is tested with all DIO channels driving ±3 mA DC loads. FPGA DIO startup states are 
+dependent on the FPGA_VIO power rails, which do not provide valid voltages until 
+after the FPGA is configured. This allows the user to correctly configure the FPGA_VIO 
+voltage levels and prevent accidental damage to connected circuitry. 
+To ensure startup values, prior to FPGA configuration, place pull-up or pull-down 
+resistors on the RMC DIO channel. When placing pull-up resistors, NI recommends 
+pulling up to FPGA_VIO. Receiving circuitry that interfaces with the RMC DIO should 
+also be powered from FPGA_VIO to ensure stable startup states. The DIO channels on 
+the NI sbRIO-96xx are routed with a 55 Ω  characteristic trace impedance. Route all 
+RMCs with a similar impedance to ensure the best signal quality. 
+Signals ending in a P or N route loosely differential. If you implement them as 
+differential signals, route with 100 Ω  differential impedance on your board. If you 
+implement them as single-ended signals, break them into two seperate traces with 
+55 Ω  impedance each. 
+FPGA DIO Clock Capabilities 
+The light blue FPGA Clock Optimized designations in the RMC connector pinout 
+indicate either SRCC or MRCC FPGA pins. 
+• Single-region clock capable (SRCC)— These pins provide a direct connection to the 
+global clock distribution buffers in the FPGA. The pins also connect to the regional 
+buffers on a specific bank of pins. 
+Note For a given FPGA target, you must use either the digital I/O method or 
+the socketed CLIP method for all 96 DIO lines. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+34 ni.com
+
+=====
+
+=== PAGE 53 KEYWORD: Connector0 ===
+on the host computer, or have 
+access to a compiled bitfile that 
+you can download to the FPGA. 
+In either case, you use the Open 
+FPGA VI Reference function in a 
+LabVIEW Real-Time VI to access 
+the FPGA VI or bitfile. 
+Table 20. Supported Programming Modes for Popular Tasks 
+Task Real-Time (NI-
+DAQmx) Real-Time Scan FPGA 
+Control rates up to 1 kHz ■ ■ 
+Control rates between 1 kHz 
+and 
+2.5 kHz(application dependent) 
+■ ■ ■ 
+Control rates over 2.5 kHz ■ 
+High-speed waveform 
+acquisition ■ ■ 
+Analog Input with NI-DAQmx 
+You can perform analog input measurements using one of two methods: 
+• Install a supported single board analog input C Series module with any sbRIO-96xx 
+controller. 
+• Use Connector0 to access the sbRIO I/O module on the sbRIO-962x/sbRIO-963x. 
+Set the programming mode to Real-Time (NI-DAQmx) mode. The measurement 
+specifications, such as number of channels, channel configuration, sample rate, and 
+Note Some sbRIO I/O modules can only be used in certain programming 
+modes. For module-specific software support information, visit ni.com/r/
+swsupport. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 53
+
+=====
+
+=== PAGE 138 KEYWORD: CAN FD ===
+File System 
+LabVIEW mounts USB devices to the directory and creates symbolic links /u, /v, /w, 
+or /x to the media mount point, starting with /u if it is available. To prevent any file 
+corruption to external storage devices, verify that any file I/O operations with the 
+specific drive finish before removing the device. Refer to the LabVIEW Help for more 
+information. 
+The file system of the sbRIO-96xx follows conventions established for UNIX-style 
+operating systems. Other LabVIEW Real-Time targets follow Microsoft Windows-style 
+conventions. In order to facilitate the porting of applications from those targets, this 
+target supports the Windows-style /C home directory. This path is bound to the UNIX-
+style directory /home/lvuser. 
+Various LabVIEW Real-Time system files which would be accessible from C: (or /C) on 
+other LabVIEW Real-Time targets are found in different locations on this target. 
+UNIX-style file systems support the concept of a symbolic link, which allows access to a 
+file using an alternative file path. For example, it is possible to link /C/ni-rt/
+system, where dynamic libraries are deployed on other LabVIEW Real-Time targets, 
+to /usr/local/lib, where they are stored on the sbRIO-96xx, if the application 
+requires this. 
+For more information, visit ni.com/r/RT_Paths. 
+Planned Software Support 
+The following signals are not supported in NI CompactRIO 19.5. Refer to the following 
+table for future release support information. 
+Interface Software Release 
+RS-232 through the RMC connector NI CompactRIO 19.6 
+RS-485 through the RMC connector NI CompactRIO 19.6 
+CAN and CAN FD through the dedicated CAN port TBD 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+138 ni.com
+
+=====
+

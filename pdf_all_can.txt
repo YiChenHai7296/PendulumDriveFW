@@ -1,0 +1,2568 @@
+=== PAGE 12 LINE 2 ===
+Onboard I/O Module 
+The sbRIO-962x and sbRIO-963x feature onboard modules that provide additional 
+analog I/O and digital I/O through Connector0 and Connector1. You can program this 
+I/O in Real-Time (NI-DAQmx) or FPGA modes. You can not program Onboard I/O 
+modules in Real-Time Scan mode. 
+C Series Module 
+
+=== PAGE 12 LINE 3 ===
+Onboard I/O Module 
+The sbRIO-962x and sbRIO-963x feature onboard modules that provide additional 
+analog I/O and digital I/O through Connector0 and Connector1. You can program this 
+I/O in Real-Time (NI-DAQmx) or FPGA modes. You can not program Onboard I/O 
+modules in Real-Time Scan mode. 
+C Series Module 
+The sbRIO-960x and sbRIO-962x feature a high-density RMC connector with digital I/O. 
+
+=== PAGE 12 LINE 8 ===
+C Series Module 
+The sbRIO-960x and sbRIO-962x feature a high-density RMC connector with digital I/O. 
+This connector provides two dedicated C Series interfaces for use with board-only C 
+Series modules. The sbRIO controller can access these C Series modules in three 
+programming modes: Real-Time (NI-DAQmx), Real-Time Scan, and FPGA. You can 
+implement the C Series interfaces with an NI-9697 or NI-9698 RMC breakout board or 
+via a custom RMC daughter board. Refer to the RMC Connector Design Guide section of 
+
+=== PAGE 12 LINE 9 ===
+The sbRIO-960x and sbRIO-962x feature a high-density RMC connector with digital I/O. 
+This connector provides two dedicated C Series interfaces for use with board-only C 
+Series modules. The sbRIO controller can access these C Series modules in three 
+programming modes: Real-Time (NI-DAQmx), Real-Time Scan, and FPGA. You can 
+implement the C Series interfaces with an NI-9697 or NI-9698 RMC breakout board or 
+via a custom RMC daughter board. Refer to the RMC Connector Design Guide section of 
+this document for more information and reference schematics. 
+
+=== PAGE 14 LINE 24 ===
+VBAT Yes Yes Yes 
+Processor I/O via 
+DIO[0..95] 
+CAN Yes No Not guaranteed 
+RS-232 Yes Visit ni.com/r/
+sbrio for more 
+information 
+
+=== PAGE 20 LINE 24 ===
+• 3.3 V, which provides an auxiliary power source to the RMC 
+• FPGA_VIO, which provides I/O power for the FPGA I/O pins 
+Notice Ensure that your RMC does not source any current onto any of the 
+power pins and can tolerate 5 V, 3.3 V, and FPGA_VIO coming up in any order. 
+Notice If FPGA_VIO<47..0> and FPGA_VIO<96..48> are configured as 
+different voltages by the LabVIEW FPGA CLIP wizard, then ensure these are 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 23 LINE 2 ===
+SATA over RMC 
+SATA is routed to the RMC connector to allow additional SSD storage integrated into 
+the RMC board. These signals can be routed to an onboard SSD, M.2 connector, or 
+mSATA connector. mSATA performs more consistently than other connecters in 
+environments with shock and vibration conditions. 
+SATA Reference Schematic 
+
+=== PAGE 24 LINE 11 ===
+Power Rails 
+FPGA_VIO 
+FPGA_VIO only contains a valid voltage when the FPGA is configured. At other times 
+the voltage rail is floating and will typically settle to 0 V. FPGA_CONF can be monitored 
+to know when FPGA_VIO is valid. If FPGA_VIO is required to be at a known voltage at 
+power up then download your FPGA application to the flash of the sbRIO-96xx. 
+Both FPGA_VIO<47..0> and FPGA_VIO<96..48>can be configured for either 2.5 V or 3.3 
+
+=== PAGE 24 LINE 14 ===
+the voltage rail is floating and will typically settle to 0 V. FPGA_CONF can be monitored 
+to know when FPGA_VIO is valid. If FPGA_VIO is required to be at a known voltage at 
+power up then download your FPGA application to the flash of the sbRIO-96xx. 
+Both FPGA_VIO<47..0> and FPGA_VIO<96..48>can be configured for either 2.5 V or 3.3 
+V. A voltage of 2.5 V allows for either 2.5 V single ended IO standards or differential 
+LVDS IO standards. A voltage of 3.3 V allows for 3.3 V single ended IO standards. When 
+configuring the IO through the CLIP both 2.5 V and 3.3 V is supported. When 
+
+=== PAGE 25 LINE 42 ===
+TVS Selection 
+The recommended part is SMDJ36CA from 
+LittleFuse. Any TVS with reverse standoff voltage 
+and breakdown voltage of more than 30 V can be 
+designed in. 
+Common Mode Choke 
+The recommended part is 2744045447 from Fair-
+
+=== PAGE 27 LINE 87 ===
+R3
+4.75 kΩ
++5V
+These lines can swapif layout is easier
+Supporting Onboard USB Devices 
+When you implement a USB device directly on your RMC, you can connect the device 
+to a USB Host port from the sbRIO device. For this case, use the following design 
+
+=== PAGE 27 LINE 89 ===
++5V
+These lines can swapif layout is easier
+Supporting Onboard USB Devices 
+When you implement a USB device directly on your RMC, you can connect the device 
+to a USB Host port from the sbRIO device. For this case, use the following design 
+guidelines: 
+• You can connect the USB data pair directly to a USB device on your RMC. 
+
+=== PAGE 27 LINE 92 ===
+When you implement a USB device directly on your RMC, you can connect the device 
+to a USB Host port from the sbRIO device. For this case, use the following design 
+guidelines: 
+• You can connect the USB data pair directly to a USB device on your RMC. 
+• A current limiter is not required. 
+• Use the RST# signal to reset the USB device when the sbRIO device is in reset. 
+USB Routing Considerations 
+
+=== PAGE 28 LINE 3 ===
+the length at which USB compliance was tested. 
+C Series Interface 
+• The C Series interface provides up to two slots of C Series support on the RMC. 
+• All lines can be connected directly to the 15-pin DSUB connector except for the 5 V 
+power. The 5 V power has specific filtering requirements. 
+• You can program C Series modules with Real-Time (NI-DAQmx) mode, Real-Time 
+Scan mode, and FPGA mode. 
+
+=== PAGE 28 LINE 5 ===
+• The C Series interface provides up to two slots of C Series support on the RMC. 
+• All lines can be connected directly to the 15-pin DSUB connector except for the 5 V 
+power. The 5 V power has specific filtering requirements. 
+• You can program C Series modules with Real-Time (NI-DAQmx) mode, Real-Time 
+Scan mode, and FPGA mode. 
+C Series Implementation on the RMC 
+The following figures show schematic designs for the C Series implementation on the 
+
+=== PAGE 29 LINE 68 ===
+Current limiter U4 
+If a current limiter is used, you must re-buffer the 
+sleep signal to the DSUB connector. If a current 
+limiter is not used, you can connect the sleep 
+signal directly to the DSUB connector by 
+removing U15 in the schematic. The buffer 
+prevents the sleep signal from being driven to 
+
+=== PAGE 31 LINE 9 ===
+–
+BATHLDR-747921-01
+Reference Schematic Design Considerations 
+You can directly connect the battery to VBAT. The sbRIO device already provides a 
+current-limiting resistor and reverse-voltage protection. 
+Resets 
+The sbRIO device provides signals for implementing a reset button on an RMC and 
+
+=== PAGE 31 LINE 26 ===
+Run Mode, Safe Mode, and Sleep Mode. 
+The amount of time for which you assert this signal determines the specific reset 
+behavior. 
+You can assert the SYS_RST# signal before you apply power to the sbRIO-96xx. The 
+sbRIO-96xx remains in reset until the SYS_RST# signal de-asserts. If you assert the 
+SYS_RST# signal before power is applied, then you must de-assert the SYS_RST# signal 
+within five seconds. 
+
+=== PAGE 32 LINE 0 ===
+Sleep Mode is an advanced feature. You can use the Linux “shutdown -h now” 
+command to send the system into Sleep Mode. You can wake up the system by 
+asserting SYS_RST# low. 
+Reset Implementation on the RMC 
+
+=== PAGE 32 LINE 1 ===
+Sleep Mode is an advanced feature. You can use the Linux “shutdown -h now” 
+command to send the system into Sleep Mode. You can wake up the system by 
+asserting SYS_RST# low. 
+Reset Implementation on the RMC 
+The following figure shows a schematic design for the Reset implementation on the 
+
+=== PAGE 33 LINE 12 ===
+User-Defined FPGA Signals 
+Example applications include, but are not limited to, singled-ended or LVDS 
+differential DAC and ADC interfaces, SPI or I2C connections to sensors, buttons, and 
+relays. In addition to FPGA Digital I/O (DIO), you can use these pins to implement 
+RS-232 and RS-485 devices: 
+DIO[47..0] and DIO[96..48] can be configured for either 2.5 V or 3.3 V. A voltage of 2.5 V 
+allows for either 2.5 V single-ended I/O standards or differential LVDS I/O standards. A 
+
+=== PAGE 33 LINE 14 ===
+differential DAC and ADC interfaces, SPI or I2C connections to sensors, buttons, and 
+relays. In addition to FPGA Digital I/O (DIO), you can use these pins to implement 
+RS-232 and RS-485 devices: 
+DIO[47..0] and DIO[96..48] can be configured for either 2.5 V or 3.3 V. A voltage of 2.5 V 
+allows for either 2.5 V single-ended I/O standards or differential LVDS I/O standards. A 
+voltage of 3.3 V allows for 3.3 V single-ended I/O standards. When configuring the I/O 
+through the CLIP both 2.5 V and 3.3 V is supported. When configuring the I/O by 
+
+=== PAGE 33 LINE 24 ===
+• Right-click your FPGA Target and select New » RIO Mezzanine Card... to choose a 
+generic Digital RMC and access all 96 DIO lines with digital I/O nodes. 
+• 1. Right click your FPGA Target and select Launch sbRIO CLIP Generator... to 
+launch the NI Single-Board RIO CLIP Generator application, which you can use 
+to create a socketed component-level IP (CLIP) that defines the FPGA signals or 
+processor peripherals to use in your application. 
+2. After you create a CLIP, return to LabVIEW and right-click an RMC Socket under 
+
+=== PAGE 35 LINE 8 ===
+transceiver on your RMC design. 
+RS-232 and RS-485 processor peripherals created using the CLIP generator are routed 
+from the processor to the FPGA and then to RMC FPGA DIO pins. The FPGA must be 
+configured before the driver is loaded. This can be guaranteed by downloading your 
+FPGA application to the flash of the sbRIO-96xx. You must connect each of these 
+interfaces to an appropriate RS-232 or RS-485 serial transceiver on your RMC design. 
+Additional RS-232 
+
+=== PAGE 35 LINE 12 ===
+FPGA application to the flash of the sbRIO-96xx. You must connect each of these 
+interfaces to an appropriate RS-232 or RS-485 serial transceiver on your RMC design. 
+Additional RS-232 
+You can use any FPGA pins, either 3.3 V or 2.5 V single-ended, to implement additional 
+RS-232 ports. 
+All sbRIO-96xx can implement four additional RS-232 ports: 
+• sbRIO-960x—ASRL2, ASRL3, ASRL4, ASRL5 
+
+=== PAGE 35 LINE 14 ===
+Additional RS-232 
+You can use any FPGA pins, either 3.3 V or 2.5 V single-ended, to implement additional 
+RS-232 ports. 
+All sbRIO-96xx can implement four additional RS-232 ports: 
+• sbRIO-960x—ASRL2, ASRL3, ASRL4, ASRL5 
+• sbRIO-962x/sbRIO-963x—ASRL4, ASRL5, ASRL6, ASRL7 
+RS-232 Reference Schematic 
+
+=== PAGE 36 LINE 176 ===
+Caps are placed to reduce 
+emissions. Standard practice.
+120pF, 220pF, 470pF, 
+etc. can be used
+SPAREC0402
+C29
+C30
+
+=== PAGE 37 LINE 16 ===
+this way prevents any unwanted glitches on the 
+RS-232 port. 
+Additional RS-485 
+You can use any FPGA pins, either 3.3 V or 2.5 V single-ended, to implement additional 
+RS-485 ports. 
+All sbRIO-96xx models can implement two additional RS-485 ports: 
+• sbRIO-960x—ASRL6, ASRL7 
+
+=== PAGE 37 LINE 18 ===
+Additional RS-485 
+You can use any FPGA pins, either 3.3 V or 2.5 V single-ended, to implement additional 
+RS-485 ports. 
+All sbRIO-96xx models can implement two additional RS-485 ports: 
+• sbRIO-960x—ASRL6, ASRL7 
+• sbRIO-962x/sbRIO-963x—ASRL8, ASRL9 
+RS-485 Reference Schematic 
+
+=== PAGE 38 LINE 69 ===
+RxD
+These 485_* signals areselected from DIO (0-95)in the clip generator
++3.3V
+In the clip generator the RS-485 ports can include RTS and CTS signals, though those signals are not shown.
+485_RXN
+485_TXP
+485_RXP
+
+=== PAGE 44 LINE 18 ===
+username for the sbRIO-96xx is admin. There is no default password for 
+the sbRIO-96xx. To set a password for your system, refer to Setting a 
+System Password. 
+Tip You can use this wizard at any time to install additional software. 
+Note Download the NI Device Drivers appropriate for the programming 
+mode deployed in your system design: 
+◦ LabVIEW FPGA Module is required to run your modules in the 
+
+=== PAGE 46 LINE 5 ===
+1. In MAX, expand your system under Remote Systems. 
+2. Select the Startup Settings tab to configure the startup settings. 
+sbRIO-96xx Startup Options 
+You can configure the following sbRIO-96xx startup options. 
+Table 19. sbRIO-96xx Startup Options 
+Startup Option Description 
+Force Safe Mode 
+
+=== PAGE 46 LINE 18 ===
+Enable Console Out 
+Rebooting the sbRIO-96xx with this setting on 
+redirects the console output to the RS-232 serial 
+port. You can use a serial-port terminal program 
+to read the IP address and firmware version of 
+the sbRIO-96xx. Use a null-modem cable to 
+connect the RS-232 serial port to a computer. 
+
+=== PAGE 47 LINE 12 ===
+enables you to add the target to a LabVIEW 
+project. 
+Configuring FPGA Startup App 
+Use the RIO Device Setup utility, which you can launch in the following ways, to select 
+an FPGA startup application: 
+• (Windows 8) Click the NI Launcher tile on the Start screen and select RIO Device 
+Setup. 
+
+=== PAGE 47 LINE 19 ===
+• (Windows 7 or earlier) Select Start»All Programs»National Instruments»RIO 
+Device Setup. 
+Adding the sbRIO-96xx to a LabVIEW Project 
+You can use LabVIEW to program in Real-Time (NI-DAQmx) or Real-Time Scan (IO 
+Variables) modes. For applications using advanced functionality that require 
+programming the FPGA, LabVIEW FPGA Module is required to deploy sbRIO I/O 
+modules in the LabVIEW FPGA programming mode. 
+
+=== PAGE 48 LINE 25 ===
+Note If your system is not listed, LabVIEW could not detect it on the 
+network. Ensure that your system is properly configured with a valid IP 
+address in Measurement & Automation Explorer. If your system is on a 
+remote subnet, you can also select to manually enter the IP address. You 
+can locate the system IP address in MAX in the System Settings for the 
+sbRIO-96xx. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 48 LINE 26 ===
+network. Ensure that your system is properly configured with a valid IP 
+address in Measurement & Automation Explorer. If your system is on a 
+remote subnet, you can also select to manually enter the IP address. You 
+can locate the system IP address in MAX in the System Settings for the 
+sbRIO-96xx. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+48 ni.com
+
+=== PAGE 49 LINE 0 ===
+LabVIEW, go to ni.com/r/criodaqmx. You can also access example projects in LabVIEW 
+by selecting Help»Find Examples, and navigating to Hardware Input and 
+Output»sbRIO. 
+Adding the sbRIO-96xx to a LabVIEW FPGA Project 
+
+=== PAGE 49 LINE 21 ===
+The LabVIEW project is created. All sbRIO I/O modules and corresponding I/O 
+appear under the FPGA Target. 
+Deploying Your sbRIO I/O Module in a Programming Mode in LabVIEW FPGA 
+Note You can locate the system IP address in MAX in the System Settings 
+for the sbRIO-96xx. 
+Note By default, all sbRIO I/O modules appear under the FPGA Target, 
+which indicates that all modules are selected for use in LabVIEW FPGA 
+
+=== PAGE 52 LINE 11 ===
+which types of C Series 
+modules are plugged into 
+module slots. 
+You can not program Onboard 
+I/O in Real-Time Scan mode. 
+FPGA 
+Enables you to use sbRIO I/O 
+
+=== PAGE 53 LINE 2 ===
+on the host computer, or have 
+access to a compiled bitfile that 
+you can download to the FPGA. 
+In either case, you use the Open 
+FPGA VI Reference function in a 
+LabVIEW Real-Time VI to access 
+
+=== PAGE 53 LINE 19 ===
+High-speed waveform 
+acquisition ■ ■ 
+Analog Input with NI-DAQmx 
+You can perform analog input measurements using one of two methods: 
+• Install a supported single board analog input C Series module with any sbRIO-96xx 
+controller. 
+• Use Connector0 to access the sbRIO I/O module on the sbRIO-962x/sbRIO-963x. 
+
+=== PAGE 53 LINE 25 ===
+• Use Connector0 to access the sbRIO I/O module on the sbRIO-962x/sbRIO-963x. 
+Set the programming mode to Real-Time (NI-DAQmx) mode. The measurement 
+specifications, such as number of channels, channel configuration, sample rate, and 
+Note Some sbRIO I/O modules can only be used in certain programming 
+modes. For module-specific software support information, visit ni.com/r/
+swsupport. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 54 LINE 2 ===
+gain, are determined by the type of sbRIO I/O module used. 
+The sbRIO controller has eight input timing engines, which means that up to eight 
+hardware-timed analog input tasks can be running at a time on the controller. An 
+analog input task can include channels from multiple analog input modules. However, 
+channels from a single module cannot be used in multiple tasks. 
+Multiple timing engines allow the sbRIO controller to run up to eight analog input 
+
+=== PAGE 54 LINE 3 ===
+gain, are determined by the type of sbRIO I/O module used. 
+The sbRIO controller has eight input timing engines, which means that up to eight 
+hardware-timed analog input tasks can be running at a time on the controller. An 
+analog input task can include channels from multiple analog input modules. However, 
+channels from a single module cannot be used in multiple tasks. 
+Multiple timing engines allow the sbRIO controller to run up to eight analog input 
+tasks simultaneously, each using independent timing and triggering configurations. 
+
+=== PAGE 54 LINE 23 ===
+internal software triggering, external digital triggering, analog triggering, and internal 
+time triggering. 
+Three triggers are available: Start Trigger, Reference Trigger, and Pause Trigger. An 
+analog or digital signal can initiate these three trigger actions. sbRIO I/O Parallel digital 
+input modules can be used in any controller slot to supply a digital trigger. 
+Note DSA modules do not support HWTSP mode. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 54 LINE 24 ===
+time triggering. 
+Three triggers are available: Start Trigger, Reference Trigger, and Pause Trigger. An 
+analog or digital signal can initiate these three trigger actions. sbRIO I/O Parallel digital 
+input modules can be used in any controller slot to supply a digital trigger. 
+Note DSA modules do not support HWTSP mode. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+54 ni.com
+
+=== PAGE 55 LINE 4 ===
+AI Sample Clock Signal 
+A sample consists of one reading from each channel in the AI task. Sample Clock 
+signals the start of a sample of all analog input channels in the task. The sample clock 
+can be generated from external or internal sources as shown in the figure below. 
+Figure 14. AI Sample Clock Timing Options 
+Programmable
+Clock
+
+=== PAGE 55 LINE 25 ===
+10 MHz Timebase
+100 kHz Timebase
+Routing the Sample Clock to an Output Terminal 
+You can route Sample Clock to any output PFI terminal. Sample Clock is an active high 
+pulse by default. 
+AI Sample Clock Timebase Signal 
+The AI Sample Clock Timebase signal is divided down to provide a source for Sample 
+
+=== PAGE 55 LINE 29 ===
+pulse by default. 
+AI Sample Clock Timebase Signal 
+The AI Sample Clock Timebase signal is divided down to provide a source for Sample 
+Clock. AI Sample Clock Timebase can be generated from external or internal sources. 
+AI Sample Clock Timebase is not available as an output from the controller. 
+AI Start Trigger Signal 
+Use the Start Trigger signal to begin a measurement acquisition which consists of one 
+
+=== PAGE 56 LINE 4 ===
+An acquisition that uses a start trigger (but not a reference trigger) is sometimes 
+referred to as a posttriggered acquisition. That is, samples are measured only after the 
+trigger. 
+When you are using an internal sample clock, you can specify a default delay from the 
+start trigger to the first sample. 
+Using a Digital Source 
+To use the Start Trigger signal with a digital source, specify a source and a rising or 
+
+=== PAGE 56 LINE 11 ===
+falling edge. Use the following signals as the source: 
+• Any PFI terminal 
+• Counter n Internal Output 
+The source also can be one of several other internal signals on your sbRIO controller. 
+Refer to the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help 
+for more information. 
+Using an Analog Source 
+
+=== PAGE 56 LINE 15 ===
+Refer to the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help 
+for more information. 
+Using an Analog Source 
+Some sbRIO I/O modules can generate a trigger based on an analog signal. In NI-
+DAQmx, this is called the Analog Comparison Event. When you use an analog trigger 
+source for Start Trigger, the acquisition begins on the first rising edge of the Analog 
+Comparison Event signal. 
+
+=== PAGE 56 LINE 20 ===
+source for Start Trigger, the acquisition begins on the first rising edge of the Analog 
+Comparison Event signal. 
+Routing AI Start Trigger to an Output Terminal 
+You can route the Start Trigger signal to any output PFI terminal. The output is an 
+active high pulse. 
+Using a Time Source 
+To use the Start Trigger signal with a time source, configure a specific time in NI-
+
+=== PAGE 57 LINE 12 ===
+condition occurs before the sbRIO controller captures the specified number of 
+pretrigger samples, the controller ignores the condition. 
+If the buffer becomes full, the sbRIO controller continuously discards the oldest 
+samples in the buffer to make space for the next sample. This data can be accessed 
+(with some limitations) before the sbRIO controller discards it. Refer to the Can a 
+Pretriggered Acquisition be Continuous? document for more information. 
+When the reference trigger occurs, the sbRIO controller continues to write samples to 
+
+=== PAGE 57 LINE 13 ===
+pretrigger samples, the controller ignores the condition. 
+If the buffer becomes full, the sbRIO controller continuously discards the oldest 
+samples in the buffer to make space for the next sample. This data can be accessed 
+(with some limitations) before the sbRIO controller discards it. Refer to the Can a 
+Pretriggered Acquisition be Continuous? document for more information. 
+When the reference trigger occurs, the sbRIO controller continues to write samples to 
+the buffer until the buffer contains the number of posttrigger samples desired. The 
+
+=== PAGE 57 LINE 25 ===
+Posttrigger Samples
+Using a Digital Source 
+To use a reference trigger with a digital source, specify a source and a rising or falling 
+edge. Either PFI or one of several internal signals on the sbRIO controller can provide 
+the source. Refer to the "Device Routing in MAX" topic in the NI-DAQmx Help or the 
+LabVIEW Help for more information. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 58 LINE 1 ===
+Using an Analog Source 
+Some C Series modules can generate a trigger based on an analog signal. In NI-DAQmx, 
+this is called the Analog Comparison Event. 
+When you use an analog trigger source, the acquisition stops on the first rising or 
+falling edge of the Analog Comparison Event signal, depending on the trigger 
+
+=== PAGE 58 LINE 7 ===
+falling edge of the Analog Comparison Event signal, depending on the trigger 
+properties. 
+Routing the Reference Trigger Signal to an Output Terminal 
+You can route a reference trigger to any output PFI terminal. Reference Trigger is active 
+high by default. 
+AI Pause Trigger Signal 
+You can use the Pause Trigger to pause and resume a measurement acquisition. The 
+
+=== PAGE 58 LINE 10 ===
+You can route a reference trigger to any output PFI terminal. Reference Trigger is active 
+high by default. 
+AI Pause Trigger Signal 
+You can use the Pause Trigger to pause and resume a measurement acquisition. The 
+internal sample clock pauses while the external trigger signal is active and resumes 
+when the signal is inactive. You can program the active level of the pause trigger to be 
+high or low. 
+
+=== PAGE 58 LINE 12 ===
+AI Pause Trigger Signal 
+You can use the Pause Trigger to pause and resume a measurement acquisition. The 
+internal sample clock pauses while the external trigger signal is active and resumes 
+when the signal is inactive. You can program the active level of the pause trigger to be 
+high or low. 
+Using a Digital Source 
+To use the Pause Trigger, specify a source and a polarity. The source can be either from 
+
+=== PAGE 58 LINE 15 ===
+when the signal is inactive. You can program the active level of the pause trigger to be 
+high or low. 
+Using a Digital Source 
+To use the Pause Trigger, specify a source and a polarity. The source can be either from 
+PFI or one of several other internal signals on your sbRIO controller. Refer to the 
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+
+=== PAGE 58 LINE 20 ===
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+Using an Analog Source 
+Some C Series modules can generate a trigger based on an analog signal. In NI-DAQmx, 
+this is called the Analog Comparison Event. 
+When you use an analog trigger source, the internal sample clock pauses when the 
+Analog Comparison Event signal is low and resumes when the signal goes high (or vice 
+
+=== PAGE 60 LINE 4 ===
+supplies 10 MHz, 12.8 MHz, and 13.1072 MHz timebases from which software 
+automatically selects based on the modules in the task. When delta-sigma modules 
+with different oversample clock frequencies are used in an analog input task, the AI 
+Sample Clock Timebase can use any of the available frequencies; by default, the 
+fastest available is used. The sample rate of all modules in the task is an integer divisor 
+of the frequency of the AI Sample Clock Timebase. 
+When one or more delta-sigma modules are in an analog input task, the delta-sigma 
+
+=== PAGE 61 LINE 2 ===
+controller, go to ni.com/r/rdcdaq. 
+Getting Started with AI Applications in Software 
+You can use the sbRIO controller in the following analog input applications: 
+• Single-point acquisition 
+• Hardware-Timed Single Point acquisition 
+• Finite acquisition 
+
+=== PAGE 61 LINE 15 ===
+channel configuration, update rate, and output range, are determined by the type of 
+sbRIO I/O module used. 
+The sbRIO controller has eight output timing engines, which means that up to eight 
+hardware-timed analog output tasks can be running at a time on the controller. On a 
+single analog output sbRIO I/O module, you can assign any number of channels to 
+either a hardware-timed task or a software-timed (single-point) task. However, you 
+cannot assign some channels to a hardware-timed task and other channels (on the 
+
+=== PAGE 61 LINE 16 ===
+sbRIO I/O module used. 
+The sbRIO controller has eight output timing engines, which means that up to eight 
+hardware-timed analog output tasks can be running at a time on the controller. On a 
+single analog output sbRIO I/O module, you can assign any number of channels to 
+either a hardware-timed task or a software-timed (single-point) task. However, you 
+cannot assign some channels to a hardware-timed task and other channels (on the 
+same module) to a software-timed task. 
+
+=== PAGE 62 LINE 0 ===
+When performing an analog output operation, you either can perform software-timed 
+generations or hardware-timed generations. 
+Software-Timed Generations 
+With a software-timed generation, software controls the rate at which data is 
+
+=== PAGE 62 LINE 11 ===
+voltage. 
+The following considerations apply to software-timed generations: 
+• If any AO channel on a module is used in a hardware-timed (waveform) task, no 
+channels on that module can be used in a software-timed task 
+• You can configure software-timed generations to simultaneously update 
+• Only one simultaneous update task can run at a time 
+• A hardware-timed AO task and a simultaneous update AO task cannot run at the 
+
+=== PAGE 62 LINE 12 ===
+The following considerations apply to software-timed generations: 
+• If any AO channel on a module is used in a hardware-timed (waveform) task, no 
+channels on that module can be used in a software-timed task 
+• You can configure software-timed generations to simultaneously update 
+• Only one simultaneous update task can run at a time 
+• A hardware-timed AO task and a simultaneous update AO task cannot run at the 
+same time 
+
+=== PAGE 62 LINE 13 ===
+• If any AO channel on a module is used in a hardware-timed (waveform) task, no 
+channels on that module can be used in a software-timed task 
+• You can configure software-timed generations to simultaneously update 
+• Only one simultaneous update task can run at a time 
+• A hardware-timed AO task and a simultaneous update AO task cannot run at the 
+same time 
+Hardware-Timed Generations 
+
+=== PAGE 62 LINE 18 ===
+same time 
+Hardware-Timed Generations 
+With a hardware-timed generation, a digital hardware signal controls the rate of the 
+generation. This signal can be generated internally on the controller or provided 
+externally. 
+Hardware-timed generations have several advantages over software-timed 
+acquisitions: 
+
+=== PAGE 62 LINE 22 ===
+externally. 
+Hardware-timed generations have several advantages over software-timed 
+acquisitions: 
+• The time between samples can be much shorter 
+• The timing between samples is deterministic 
+• Hardware-timed acquisitions can use hardware triggering 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 62 LINE 24 ===
+acquisitions: 
+• The time between samples can be much shorter 
+• The timing between samples is deterministic 
+• Hardware-timed acquisitions can use hardware triggering 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+62 ni.com
+
+=== PAGE 63 LINE 12 ===
+A buffer is a temporary storage in computer memory for generated samples. In a 
+buffered generation, data is moved from a host buffer to the sbRIO controller onboard 
+FIFO before it is written to the sbRIO I/O modules. 
+One property of buffered I/O operations is sample mode. The sample mode can be 
+either finite or continuous: 
+• Finite—Finit e sample mode generation refers to the generation of a specific, 
+predetermined number of data samples. After the specified number of samples is 
+
+=== PAGE 63 LINE 24 ===
+written. These modes are regeneration, onboard regeneration, and non-
+regeneration: 
+◦ In regeneration mode, you define a buffer in host memory. The data from the 
+buffer is continually downloaded to the FIFO to be written out. New data can 
+be written to the host buffer at any time without disrupting the output. There 
+is no limitation on the number of waveform channels supported by 
+regeneration mode. 
+
+=== PAGE 64 LINE 19 ===
+internal software triggering, external digital triggering, analog triggering, and internal 
+time triggering. 
+Analog output supports two different triggering actions: AO Start Trigger and AO Pause 
+Trigger. An analog or digital signal can initiate these actions. sbRIO I/O parallel digital 
+input modules can be used in any controller slot to supply a digital trigger. An analog 
+trigger can be supplied by some sbRIO I/O analog modules. 
+AO Sample Clock Signal 
+
+=== PAGE 64 LINE 20 ===
+time triggering. 
+Analog output supports two different triggering actions: AO Start Trigger and AO Pause 
+Trigger. An analog or digital signal can initiate these actions. sbRIO I/O parallel digital 
+input modules can be used in any controller slot to supply a digital trigger. An analog 
+trigger can be supplied by some sbRIO I/O analog modules. 
+AO Sample Clock Signal 
+The AO sample clock signals when all the analog output channels in the task update. 
+
+=== PAGE 64 LINE 21 ===
+Analog output supports two different triggering actions: AO Start Trigger and AO Pause 
+Trigger. An analog or digital signal can initiate these actions. sbRIO I/O parallel digital 
+input modules can be used in any controller slot to supply a digital trigger. An analog 
+trigger can be supplied by some sbRIO I/O analog modules. 
+AO Sample Clock Signal 
+The AO sample clock signals when all the analog output channels in the task update. 
+AO Sample Clock can be generated from external or internal sources as shown in the 
+
+=== PAGE 64 LINE 24 ===
+trigger can be supplied by some sbRIO I/O analog modules. 
+AO Sample Clock Signal 
+The AO sample clock signals when all the analog output channels in the task update. 
+AO Sample Clock can be generated from external or internal sources as shown in the 
+figure below. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+64 ni.com
+
+=== PAGE 65 LINE 21 ===
+10 MHz Timebase
+100 kHz Timebase
+Routing AO Sample Clock to an Output Terminal 
+You can route AO Sample Clock to any output PFI terminal. AO Sample Clock is active 
+high by default. 
+AO Sample Clock Timebase Signal 
+The AO Sample Clock Timebase signal is divided down to provide a source for AO 
+
+=== PAGE 65 LINE 25 ===
+high by default. 
+AO Sample Clock Timebase Signal 
+The AO Sample Clock Timebase signal is divided down to provide a source for AO 
+Sample Clock. AO Sample Clock Timebase can be generated from external or internal 
+sources, and is not available as an output from the controller. 
+Delta-Sigma Modules 
+The oversample clock is used as the AO Sample Clock Timebase. The sbRIO controller 
+
+=== PAGE 65 LINE 31 ===
+The oversample clock is used as the AO Sample Clock Timebase. The sbRIO controller 
+supplies 10 MHz, 12.8 MHz, and 13.1072 MHz timebases. When delta-sigma modules 
+with different oversample clock frequencies are used in an analog output task, the AO 
+Sample Clock Timebase can use any of the available frequencies; by default, the 
+fastest available is used. The update rate of all modules in the task is an integer divisor 
+of the frequency of the AO Sample Clock Timebase. 
+AO Start Trigger Signal 
+
+=== PAGE 65 LINE 36 ===
+of the frequency of the AO Sample Clock Timebase. 
+AO Start Trigger Signal 
+Use the AO Start Trigger signal to initiate a waveform generation. If you do not use 
+triggers, you can begin a generation with a software command. If you are using an 
+Note DSA modules do not support HWTSP mode. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 65
+
+=== PAGE 66 LINE 0 ===
+internal sample clock, you can specify a delay from the start trigger to the first sample. 
+For more information, refer to the NI-DAQmx Help. 
+Using a Digital Source 
+To use AO Start Trigger, specify a source and a rising or falling edge. The source can be 
+
+=== PAGE 66 LINE 3 ===
+internal sample clock, you can specify a delay from the start trigger to the first sample. 
+For more information, refer to the NI-DAQmx Help. 
+Using a Digital Source 
+To use AO Start Trigger, specify a source and a rising or falling edge. The source can be 
+one of the following signals: 
+• A pulse initiated by host software 
+• Any PFI terminal 
+
+=== PAGE 66 LINE 9 ===
+• Any PFI terminal 
+• AI Reference Trigger 
+• AI Start Trigger 
+The source also can be one of several internal signals on the sbRIO controller. Refer to 
+the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+You also can specify whether the waveform generation begins on the rising edge or 
+
+=== PAGE 66 LINE 12 ===
+The source also can be one of several internal signals on the sbRIO controller. Refer to 
+the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+You also can specify whether the waveform generation begins on the rising edge or 
+falling edge of AO Start Trigger. 
+Routing AO Start Trigger Signal to an Output Terminal 
+You can route AO Start Trigger to any output PFI terminal. The output is an active high 
+
+=== PAGE 66 LINE 15 ===
+You also can specify whether the waveform generation begins on the rising edge or 
+falling edge of AO Start Trigger. 
+Routing AO Start Trigger Signal to an Output Terminal 
+You can route AO Start Trigger to any output PFI terminal. The output is an active high 
+pulse. 
+Using a Time Source 
+To use the Start Trigger signal with a time source, configure a specific time in NI-
+
+=== PAGE 67 LINE 15 ===
+Pause Trigger
+Sample Clock
+Using a Digital Source 
+To use AO Pause Trigger, specify a source and a polarity. The source can be a PFI signal 
+or one of several other internal signals on the sbRIO controller. 
+You also can specify whether the samples are paused when AO Pause Trigger is at a 
+logic high or low level. Refer to the "Device Routing in MAX" topic in the NI-DAQmx 
+
+=== PAGE 67 LINE 17 ===
+Using a Digital Source 
+To use AO Pause Trigger, specify a source and a polarity. The source can be a PFI signal 
+or one of several other internal signals on the sbRIO controller. 
+You also can specify whether the samples are paused when AO Pause Trigger is at a 
+logic high or low level. Refer to the "Device Routing in MAX" topic in the NI-DAQmx 
+Help or the LabVIEW Help for more information. 
+Minimizing Glitches on the Output Signal 
+
+=== PAGE 67 LINE 24 ===
+When you use a DAC to generate a waveform, you may observe glitches on the output 
+signal. These glitches are normal; when a DAC switches from one voltage to another, it 
+produces glitches due to released charges. The largest glitches occur when the most 
+significant bit of the DAC code changes. You can build a lowpass deglitching filter to 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 67
+
+=== PAGE 68 LINE 3 ===
+remove some of these glitches, depending on the frequency and nature of the output 
+signal. Go to ni.com/support for more information about minimizing glitches. 
+Getting Started with AO Applications in Software 
+You can use the sbRIO controller in the following analog output applications: 
+• Single-point (on-demand) generation 
+• Hardware-Timed Single Point generation 
+• Finite generation 
+
+=== PAGE 68 LINE 16 ===
+controller. The I/O specifications, such as number of lines, logic levels, update rate, 
+and line direction, are determined by the type of sbRIO I/O module used. 
+Serial DIO versus Parallel DIO Modules 
+Serial digital modules have more than eight lines of digital input/output. They can be 
+used in any controller slot and can perform the following tasks: 
+• Software-timed and hardware-timed digital input/output tasks 
+Parallel digital modules can be used in any controller slot and can perform the 
+
+=== PAGE 68 LINE 17 ===
+and line direction, are determined by the type of sbRIO I/O module used. 
+Serial DIO versus Parallel DIO Modules 
+Serial digital modules have more than eight lines of digital input/output. They can be 
+used in any controller slot and can perform the following tasks: 
+• Software-timed and hardware-timed digital input/output tasks 
+Parallel digital modules can be used in any controller slot and can perform the 
+following tasks: 
+
+=== PAGE 68 LINE 19 ===
+Serial digital modules have more than eight lines of digital input/output. They can be 
+used in any controller slot and can perform the following tasks: 
+• Software-timed and hardware-timed digital input/output tasks 
+Parallel digital modules can be used in any controller slot and can perform the 
+following tasks: 
+• Software-timed and hardware-timed digital input/output tasks 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 69 LINE 0 ===
+• Counter/timer tasks (can be used in up to two slots) 
+• Accessing PFI signal tasks (can be used in up to two slots) 
+• Filter digital input signals 
+Software-timed and hardware-timed digital input/output tasks have the following 
+
+=== PAGE 69 LINE 1 ===
+• Counter/timer tasks (can be used in up to two slots) 
+• Accessing PFI signal tasks (can be used in up to two slots) 
+• Filter digital input signals 
+Software-timed and hardware-timed digital input/output tasks have the following 
+restrictions: 
+
+=== PAGE 69 LINE 10 ===
+• You cannot use serial modules for triggering. 
+• You cannot do both static and timed tasks at the same time on a single serial 
+module. 
+• You can only do hardware timing in one direction at a time on a serial bidirectional 
+module. 
+To determine the capability of digital modules supported by the controller, refer to the 
+Software Support for CompactRIO, CompactDAQ, Single-Board RIO, R Series, and 
+
+=== PAGE 69 LINE 16 ===
+Software Support for CompactRIO, CompactDAQ, Single-Board RIO, R Series, and 
+EtherCAT document. 
+Static DIO 
+Each of the DIO lines can be used as a static DI or DO line. You can use static DIO lines 
+to monitor or control digital signals on some sbRIO I/O modules. Each DIO line can be 
+individually configured as a digital input (DI) or digital output (DO), if the sbRIO I/O 
+module being used allows such configuration. 
+
+=== PAGE 69 LINE 17 ===
+EtherCAT document. 
+Static DIO 
+Each of the DIO lines can be used as a static DI or DO line. You can use static DIO lines 
+to monitor or control digital signals on some sbRIO I/O modules. Each DIO line can be 
+individually configured as a digital input (DI) or digital output (DO), if the sbRIO I/O 
+module being used allows such configuration. 
+All samples of static DI lines and updates of static DO lines are software-timed. 
+
+=== PAGE 69 LINE 22 ===
+module being used allows such configuration. 
+All samples of static DI lines and updates of static DO lines are software-timed. 
+Digital Input 
+You can acquire digital waveforms using either parallel or serial digital modules. The DI 
+waveform acquisition FIFO stores the digital samples. The sbRIO controller samples 
+the DIO lines on each rising or falling edge of the DI Sample Clock signal. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 70 LINE 12 ===
+internal software triggering, external digital triggering, analog triggering, and internal 
+time triggering. 
+Three triggers are available: Start Trigger, Reference Trigger, and Pause Trigger. An 
+analog or digital trigger can initiate these three trigger actions. sbRIO I/O parallel 
+digital input modules can be used in any controller slot to supply a digital trigger. 
+Digital Input Timing Signals 
+The sbRIO controller features the following digital input timing signals: 
+
+=== PAGE 70 LINE 13 ===
+time triggering. 
+Three triggers are available: Start Trigger, Reference Trigger, and Pause Trigger. An 
+analog or digital trigger can initiate these three trigger actions. sbRIO I/O parallel 
+digital input modules can be used in any controller slot to supply a digital trigger. 
+Digital Input Timing Signals 
+The sbRIO controller features the following digital input timing signals: 
+• DI Sample Clock Signal* 
+
+=== PAGE 71 LINE 2 ===
+A sample consists of one reading from each channel in the DI task. DI Sample Clock 
+signals the start of a sample of all digital input channels in the task. DI Sample Clock 
+can be generated from external or internal sources as shown in the following figure. 
+Figure 19. DI Sample Clock Timing Options 
+Programmable
+Clock
+
+=== PAGE 71 LINE 24 ===
+10 MHz Timebase
+100 kHz Timebase
+Routing DI Sample Clock to an Output Terminal 
+You can route DI Sample Clock to any output PFI terminal. 
+DI Sample Clock Timebase Signal 
+The DI Sample Clock Timebase signal is divided down to provide a source for DI 
+Sample Clock. DI Sample Clock Timebase can be generated from external or internal 
+
+=== PAGE 71 LINE 27 ===
+You can route DI Sample Clock to any output PFI terminal. 
+DI Sample Clock Timebase Signal 
+The DI Sample Clock Timebase signal is divided down to provide a source for DI 
+Sample Clock. DI Sample Clock Timebase can be generated from external or internal 
+sources. DI Sample Clock Timebase is not available as an output from the controller. 
+Using an Internal Source 
+To use DI Sample Clock with an internal source, specify the signal source and the 
+
+=== PAGE 72 LINE 0 ===
+Several other internal signals can be routed to DI Sample Clock. Refer to the "Device 
+Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+Using an External Source 
+
+=== PAGE 72 LINE 4 ===
+Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+Using an External Source 
+You can route the following signals as DI Sample Clock: 
+• Any PFI terminal 
+• Analog Comparison Event (an analog trigger) 
+You can sample data on the rising or falling edge of DI Sample Clock. 
+
+=== PAGE 72 LINE 7 ===
+You can route the following signals as DI Sample Clock: 
+• Any PFI terminal 
+• Analog Comparison Event (an analog trigger) 
+You can sample data on the rising or falling edge of DI Sample Clock. 
+Routing DI Sample Clock to an Output Terminal 
+You can route DI Sample Clock to any output PFI terminal. The PFI circuitry inverts the 
+polarity of DI Sample Clock before driving the PFI terminal. 
+
+=== PAGE 72 LINE 9 ===
+• Analog Comparison Event (an analog trigger) 
+You can sample data on the rising or falling edge of DI Sample Clock. 
+Routing DI Sample Clock to an Output Terminal 
+You can route DI Sample Clock to any output PFI terminal. The PFI circuitry inverts the 
+polarity of DI Sample Clock before driving the PFI terminal. 
+DI Start Trigger Signal 
+Use the DI Start Trigger signal to begin a measurement acquisition. A measurement 
+
+=== PAGE 72 LINE 22 ===
+An acquisition that uses a start trigger (but not a reference trigger) is sometimes 
+referred to as a posttriggered acquisition. That is, samples are measured only after the 
+trigger. 
+When you are using an internal sample clock, you can specify a delay from the start 
+trigger to the first sample. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+72 ni.com
+
+=== PAGE 73 LINE 9 ===
+edge. Use the following signals as the source: 
+• Any PFI terminal 
+• Counter n Internal Output 
+The source also can be one of several other internal signals on the sbRIO controller. 
+Refer to the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help 
+for more information. 
+Routing DI Start Trigger to an Output Terminal 
+
+=== PAGE 73 LINE 13 ===
+Refer to the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help 
+for more information. 
+Routing DI Start Trigger to an Output Terminal 
+You can route DI Start Trigger to any output PFI terminal. The output is an active high 
+pulse. 
+DI Reference Trigger Signal 
+Use a reference trigger signal to stop a measurement acquisition. To use a reference 
+
+=== PAGE 74 LINE 1 ===
+If the buffer becomes full, the sbRIO controller continuously discards the oldest 
+samples in the buffer to make space for the next sample. This data can be accessed 
+(with some limitations) before the sbRIO controller discards it. Refer to the Can a 
+Pretriggered Acquisition be Continuous? document for more information. 
+When the reference trigger occurs, the sbRIO controller continues to write samples to 
+
+=== PAGE 74 LINE 2 ===
+If the buffer becomes full, the sbRIO controller continuously discards the oldest 
+samples in the buffer to make space for the next sample. This data can be accessed 
+(with some limitations) before the sbRIO controller discards it. Refer to the Can a 
+Pretriggered Acquisition be Continuous? document for more information. 
+When the reference trigger occurs, the sbRIO controller continues to write samples to 
+the buffer until the buffer contains the number of posttrigger samples desired. The 
+
+=== PAGE 74 LINE 14 ===
+Posttrigger Samples
+Using a Digital Source 
+To use DI Reference Trigger with a digital source, specify a source and a rising or falling 
+edge. Either PFI or one of several internal signals on the sbRIO controller can provide 
+the source. Refer to the "Device Routing in MAX" topic in the NI-DAQmx Help or the 
+LabVIEW Help for more information. 
+Routing DI Reference Trigger Signal to an Output Terminal 
+
+=== PAGE 74 LINE 18 ===
+the source. Refer to the "Device Routing in MAX" topic in the NI-DAQmx Help or the 
+LabVIEW Help for more information. 
+Routing DI Reference Trigger Signal to an Output Terminal 
+You can route DI Reference Trigger to any output PFI terminal. Reference Trigger is 
+active high by default. 
+DI Pause Trigger Signal 
+You can use the DI Pause Trigger signal to pause and resume a measurement 
+
+=== PAGE 74 LINE 21 ===
+You can route DI Reference Trigger to any output PFI terminal. Reference Trigger is 
+active high by default. 
+DI Pause Trigger Signal 
+You can use the DI Pause Trigger signal to pause and resume a measurement 
+acquisition. The internal sample clock pauses while the external trigger signal is active 
+and resumes when the signal is inactive. You can program the active level of the pause 
+trigger to be high or low. 
+
+=== PAGE 74 LINE 23 ===
+DI Pause Trigger Signal 
+You can use the DI Pause Trigger signal to pause and resume a measurement 
+acquisition. The internal sample clock pauses while the external trigger signal is active 
+and resumes when the signal is inactive. You can program the active level of the pause 
+trigger to be high or low. 
+Using a Digital Source 
+To use DI Pause Trigger, specify a source and a polarity. The source can be either from 
+
+=== PAGE 74 LINE 26 ===
+and resumes when the signal is inactive. You can program the active level of the pause 
+trigger to be high or low. 
+Using a Digital Source 
+To use DI Pause Trigger, specify a source and a polarity. The source can be either from 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+74 ni.com
+
+=== PAGE 75 LINE 4 ===
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+Digital Input Filters 
+When performing a hardware timed task, you can enable a programmable debouncing 
+filter on the digital input lines of a parallel DIO module. All lines on a module must 
+share the same filter configuration. When the filter is enabled, the controller samples 
+the inputs with a user-configured Filter Clock derived from the controller timebase. 
+
+=== PAGE 75 LINE 27 ===
+Filtered Input
+1 1 21 1 21
+Getting Started with DI Applications in Software 
+You can use the sbRIO controller in the following digital input applications: 
+• Single-point acquisition 
+4. Tp is a nominal value; the accuracy of the controller timebase and I/O distortion will affect this value. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 76 LINE 9 ===
+The Change Detection Event is the signal generated when a change on the rising or 
+falling edge lines is detected by the change detection task. 
+Routing Change Detection Event to an Output Terminal 
+You can route ChangeDetectionEvent to any output PFI terminal. 
+Change Detection Acquisition 
+You can configure lines on parallel digital modules to detect rising or falling edges. 
+When one or more of these lines sees the edge specified for that line, the sbRIO 
+
+=== PAGE 76 LINE 11 ===
+Routing Change Detection Event to an Output Terminal 
+You can route ChangeDetectionEvent to any output PFI terminal. 
+Change Detection Acquisition 
+You can configure lines on parallel digital modules to detect rising or falling edges. 
+When one or more of these lines sees the edge specified for that line, the sbRIO 
+controller samples all the lines in the task. The rising and falling edge lines do not 
+necessarily have to be in the task. 
+
+=== PAGE 76 LINE 15 ===
+When one or more of these lines sees the edge specified for that line, the sbRIO 
+controller samples all the lines in the task. The rising and falling edge lines do not 
+necessarily have to be in the task. 
+Change detection acquisitions can only be buffered: 
+• Buffered Change Detection Acquisition—A buff er is a temporary storage in 
+computer memory for acquired samples. In a buffered acquisition, data is stored in 
+the sbRIO controller onboard FIFO then transferred to a PC buffer. Buffered 
+
+=== PAGE 77 LINE 3 ===
+channel configuration, update rate, and output range, are determined by the type of 
+sbRIO I/O module used. 
+With parallel digital output modules (formerly known as hardware-timed modules), 
+you can do multiple software-timed tasks on a single module, as well as mix hardware-
+timed and software-timed digital output tasks on a single module. On serial digital 
+output modules (formerly known as static digital output modules), you cannot mix 
+hardware-timed and software-timed tasks, but you can run multiple software-timed 
+
+=== PAGE 77 LINE 6 ===
+you can do multiple software-timed tasks on a single module, as well as mix hardware-
+timed and software-timed digital output tasks on a single module. On serial digital 
+output modules (formerly known as static digital output modules), you cannot mix 
+hardware-timed and software-timed tasks, but you can run multiple software-timed 
+tasks. 
+You may have a hardware-timed task or a software-timed task include channels from 
+multiple modules, but a hardware-timed task may not include a mix of channels from 
+
+=== PAGE 77 LINE 16 ===
+ot0, ot1,… ot7. All eight of the output timing engines are shared between analog 
+output and digital output tasks, allowing up to 8 hardware-timed output tasks. 
+Digital Output Data Generation Methods 
+When performing a digital output operation, you either can perform software-timed 
+generations or hardware-timed generations. 
+Software-Timed Generations 
+With a software-timed generation, software controls the rate at which data is 
+
+=== PAGE 77 LINE 25 ===
+timing. Software-timed generations are also referred to as immediate or static 
+operations. They are typically used for writing out a single value. 
+For software-timed generations, if any DO channel on a serial digital module is used in 
+a hardware-timed task, no channels on that module can be used in a software-timed 
+task. 
+Hardware-Timed Generations 
+With a hardware-timed generation, a digital hardware signal controls the rate of the 
+
+=== PAGE 78 LINE 0 ===
+generation. This signal can be generated internally on the controller or provided 
+externally. 
+Hardware-timed generations have several advantages over software-timed 
+acquisitions: 
+
+=== PAGE 78 LINE 4 ===
+externally. 
+Hardware-timed generations have several advantages over software-timed 
+acquisitions: 
+• The time between samples can be much shorter. 
+• The timing between samples is deterministic. 
+• Hardware-timed acquisitions can use hardware triggering. 
+Hardware-Timed Single Point (HWTSP) Mode 
+
+=== PAGE 78 LINE 6 ===
+acquisitions: 
+• The time between samples can be much shorter. 
+• The timing between samples is deterministic. 
+• Hardware-timed acquisitions can use hardware triggering. 
+Hardware-Timed Single Point (HWTSP) Mode 
+In HWTSP mode, samples are acquired or generated continuously using hardware 
+timing and no buffer. You must use the sample clock or change detection timing types. 
+
+=== PAGE 78 LINE 19 ===
+A buffer is a temporary storage in computer memory for generated samples. In a 
+buffered generation, data is moved from a host buffer to the sbRIO controller onboard 
+FIFO before it is written to the sbRIO I/O module(s). 
+One property of buffered I/O operations is sample mode. The sample mode can be 
+either finite or continuous: 
+• Finite—Finit e sample mode generation refers to the generation of a specific, 
+predetermined number of data samples. After the specified number of samples is 
+
+=== PAGE 79 LINE 5 ===
+written. These modes are regeneration, onboard regeneration, and non-
+regeneration: 
+◦ In regeneration mode, you define a buffer in host memory. The data from the 
+buffer is continually downloaded to the FIFO to be written out. New data can 
+be written to the host buffer at any time without disrupting the output. 
+◦ With onboard regeneration, the entire buffer is downloaded to the FIFO and 
+regenerated from there. After the data is downloaded, new data cannot be 
+
+=== PAGE 79 LINE 25 ===
+internal software triggering, external digital triggering, analog triggering, and internal 
+time triggering. 
+Digital output supports two different triggering actions: DO Start Trigger and DO Pause 
+Trigger. A digital or analog trigger can initiate these actions. Any PFI terminal can 
+supply a digital trigger, and some sbRIO I/O analog modules can supply an analog 
+trigger. 
+Digital Output Timing Signals 
+
+=== PAGE 79 LINE 26 ===
+time triggering. 
+Digital output supports two different triggering actions: DO Start Trigger and DO Pause 
+Trigger. A digital or analog trigger can initiate these actions. Any PFI terminal can 
+supply a digital trigger, and some sbRIO I/O analog modules can supply an analog 
+trigger. 
+Digital Output Timing Signals 
+Note Install parallel DO modules in slots 1 through 4 to maximize 
+
+=== PAGE 80 LINE 9 ===
+information. 
+DO Sample Clock Signal 
+The DO Sample Clock signals when all the digital output channels in the task update. 
+DO Sample Clock can be generated from external or internal sources as shown in the 
+image below. 
+Figure 22. Digital Output Timing Options 
+Programmable
+
+=== PAGE 80 LINE 32 ===
+10 MHz Timebase
+100 kHz Timebase
+Routing DO Sample Clock to an Output Terminal 
+You can route DO Sample Clock to any output PFI terminal. DO Sample Clock is active 
+high by default. 
+DO Sample Clock Timebase Signal 
+The DO Sample Clock Timebase signal is divided down to provide a source for DO 
+
+=== PAGE 80 LINE 36 ===
+high by default. 
+DO Sample Clock Timebase Signal 
+The DO Sample Clock Timebase signal is divided down to provide a source for DO 
+Sample Clock. DO Sample Clock Timebase can be generated from external or internal 
+sources and is not available as an output from the controller. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+80 ni.com
+
+=== PAGE 81 LINE 2 ===
+DO Start Trigger Signal 
+Use the DO Start Trigger signal to initiate a waveform generation. If you do not use 
+triggers, you can begin a generation with a software command. If you are using an 
+internal sample clock, you can specify a delay from the start trigger to the first sample. 
+For more information, refer to the NI-DAQmx Help. 
+Using a Time Source 
+
+=== PAGE 81 LINE 3 ===
+DO Start Trigger Signal 
+Use the DO Start Trigger signal to initiate a waveform generation. If you do not use 
+triggers, you can begin a generation with a software command. If you are using an 
+internal sample clock, you can specify a delay from the start trigger to the first sample. 
+For more information, refer to the NI-DAQmx Help. 
+Using a Time Source 
+To use the Start Trigger signal with a time source, configure a specific time in NI-
+
+=== PAGE 81 LINE 10 ===
+DAQmx. Refer to the "Timestamps" and "Time Triggering" topics in the NI-DAQmx Help 
+for more information on accessing time-based features in the NI-DAQmx API. 
+Using a Digital Source 
+To use DO Start Trigger, specify a source and a rising or falling edge. The source can be 
+one of the following signals: 
+• A pulse initiated by host software 
+• Any PFI terminal 
+
+=== PAGE 81 LINE 16 ===
+• Any PFI terminal 
+• AI Reference Trigger 
+• AI Start Trigger 
+The source also can be one of several internal signals on the sbRIO controller. Refer to 
+the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+You also can specify whether the waveform generation begins on the rising edge or 
+
+=== PAGE 81 LINE 19 ===
+The source also can be one of several internal signals on the sbRIO controller. Refer to 
+the "Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information. 
+You also can specify whether the waveform generation begins on the rising edge or 
+falling edge of DO Start Trigger. 
+Routing DO Start Trigger Signal to an Output Terminal 
+You can route DO Start Trigger to any output PFI terminal. The output is an active high 
+
+=== PAGE 81 LINE 22 ===
+You also can specify whether the waveform generation begins on the rising edge or 
+falling edge of DO Start Trigger. 
+Routing DO Start Trigger Signal to an Output Terminal 
+You can route DO Start Trigger to any output PFI terminal. The output is an active high 
+pulse. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 81
+
+=== PAGE 82 LINE 19 ===
+Pause Trigger
+Sample Clock
+Using a Digital Source 
+To use DO Pause Trigger, specify a source and a polarity. The source can be a PFI signal 
+or one of several other internal signals on the sbRIO controller. 
+You also can specify whether the samples are paused when DO Pause Trigger is at a 
+logic high or low level. Refer to the "Device Routing in MAX" topic in the NI-DAQmx 
+
+=== PAGE 82 LINE 21 ===
+Using a Digital Source 
+To use DO Pause Trigger, specify a source and a polarity. The source can be a PFI signal 
+or one of several other internal signals on the sbRIO controller. 
+You also can specify whether the samples are paused when DO Pause Trigger is at a 
+logic high or low level. Refer to the "Device Routing in MAX" topic in the NI-DAQmx 
+Help or the LabVIEW Help for more information. 
+Getting Started with DO Applications in Software 
+
+=== PAGE 83 LINE 0 ===
+You can use the sbRIO controller in the following digital output applications: 
+• Single-point (on-demand) generation 
+• Hardware-Timed Single Point generation 
+• Finite generation 
+
+=== PAGE 83 LINE 17 ===
+configuration command. During the line configuration command, the output lines are 
+maintained without glitching. 
+PFI with NI-DAQmx 
+You can configure channels of a parallel digital module as Programmable Function 
+Interface (PFI) terminals. The sbRIO controller also provides one terminal for PFI. Up to 
+two digital modules can be used to access PFI terminals in a single controller 
+You can configure each PFI individually as the following: 
+
+=== PAGE 83 LINE 19 ===
+PFI with NI-DAQmx 
+You can configure channels of a parallel digital module as Programmable Function 
+Interface (PFI) terminals. The sbRIO controller also provides one terminal for PFI. Up to 
+two digital modules can be used to access PFI terminals in a single controller 
+You can configure each PFI individually as the following: 
+• Timing input signal for AI, AO, DI, DO, or counter/timer functions 
+• Timing output signal from AI, AO, DI, DO, or counter/timer functions 
+
+=== PAGE 83 LINE 20 ===
+You can configure channels of a parallel digital module as Programmable Function 
+Interface (PFI) terminals. The sbRIO controller also provides one terminal for PFI. Up to 
+two digital modules can be used to access PFI terminals in a single controller 
+You can configure each PFI individually as the following: 
+• Timing input signal for AI, AO, DI, DO, or counter/timer functions 
+• Timing output signal from AI, AO, DI, DO, or counter/timer functions 
+PFI Filters 
+
+=== PAGE 84 LINE 0 ===
+You can enable a programmable debouncing filter on each PFI signal. When the filter is 
+enabled, the controller samples the inputs with a user-configured Filter Clock derived 
+from the controller timebase. This is used to determine whether a pulse is propagated 
+to the rest of the circuit. 
+
+=== PAGE 85 LINE 11 ===
+Filtered Input
+Counters with NI-DAQmx 
+The sbRIO controller has four general-purpose 32-bit counter/timers and one 
+frequency generator. The general-purpose counter/timers can be used for many 
+measurement and pulse generation applications. The figure below shows the sbRIO 
+controller Counter 0 and the frequency generator. All four counters on the sbRIO 
+controller are identical. 
+
+=== PAGE 85 LINE 34 ===
+Counter 0 Sample Clock
+Counters have eight input signals, although in most applications only a few inputs are 
+used. 
+Each counter has a FIFO that can be used for buffered acquisition and generation. Each 
+counter also contains an embedded counter (Embedded Ctrn) for use in what are 
+traditionally two-counter measurements and generations. The embedded counters 
+cannot be programmed independent of the main counter; signals from the embedded 
+
+=== PAGE 86 LINE 3 ===
+Unlike analog input, analog output, digital input, and digital output, the sbRIO 
+controller counters do not have the ability to divide down a timebase to produce an 
+internal counter sample clock. For sample clocked operations, an external signal must 
+be provided to supply a clock source. The source can be any of the following signals: 
+• AI Sample Clock 
+• AI Start Trigger 
+• AI Reference Trigger 
+
+=== PAGE 86 LINE 20 ===
+buffered pulse width measurement latches in data on each edge of a pulse. For this 
+measurement, the measured signal determines when data is latched in. These 
+operations are referred to as implicit timed operations. However, many of the same 
+measurements can be clocked at an interval with a sample clock. These are referred to 
+as sample clocked operations. The following table shows the different options for the 
+different measurements. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 87 LINE 15 ===
+Counter Triggering 
+Counters support three different triggering actions: 
+• Arm Start Trigger— To begin any counter input or output function, you must first 
+enable, or arm, the counter. Software can arm a counter or configure counters to 
+be armed on a hardware signal. Software calls this hardware signal the Arm Start 
+Trigger. Internally, software routes the Arm Start Trigger to the Counter n HW Arm 
+input of the counter. 
+
+=== PAGE 87 LINE 19 ===
+be armed on a hardware signal. Software calls this hardware signal the Arm Start 
+Trigger. Internally, software routes the Arm Start Trigger to the Counter n HW Arm 
+input of the counter. 
+For counter output operations, you can use it in addition to the start and pause 
+triggers. For counter input operations, you can use the arm start trigger to have 
+start trigger-like behavior. The arm start trigger can be used for synchronizing 
+multiple counter input and output tasks. 
+
+=== PAGE 87 LINE 20 ===
+Trigger. Internally, software routes the Arm Start Trigger to the Counter n HW Arm 
+input of the counter. 
+For counter output operations, you can use it in addition to the start and pause 
+triggers. For counter input operations, you can use the arm start trigger to have 
+start trigger-like behavior. The arm start trigger can be used for synchronizing 
+multiple counter input and output tasks. 
+When using an arm start trigger, the arm start trigger source is routed to the 
+
+=== PAGE 87 LINE 21 ===
+input of the counter. 
+For counter output operations, you can use it in addition to the start and pause 
+triggers. For counter input operations, you can use the arm start trigger to have 
+start trigger-like behavior. The arm start trigger can be used for synchronizing 
+multiple counter input and output tasks. 
+When using an arm start trigger, the arm start trigger source is routed to the 
+Counter n HW Arm signal. 
+
+=== PAGE 87 LINE 25 ===
+multiple counter input and output tasks. 
+When using an arm start trigger, the arm start trigger source is routed to the 
+Counter n HW Arm signal. 
+• Start Trigger— You can use the start trigger for counter output functions. You can 
+configure a start trigger to begin a finite or continuous pulse generation. After a 
+continuous generation has triggered, the pulses continue to generate until you 
+stop the operation in software. For finite generations, the specified number of 
+
+=== PAGE 88 LINE 6 ===
+When using a start trigger, the start trigger source is routed to the Counter n Gate 
+signal input of the counter. Possible triggers for counter output operations are a 
+hardware signal. 
+For counter input functions, you can use the arm start trigger to have start trigger-
+like behavior. 
+• Pause Trigger— You can use pause triggers in edge counting and continuous pulse 
+generation applications. For edge counting acquisitions, the counter stops 
+
+=== PAGE 88 LINE 8 ===
+hardware signal. 
+For counter input functions, you can use the arm start trigger to have start trigger-
+like behavior. 
+• Pause Trigger— You can use pause triggers in edge counting and continuous pulse 
+generation applications. For edge counting acquisitions, the counter stops 
+counting edges while the external trigger signal is low and resumes when the 
+signal goes high or vice versa. 
+
+=== PAGE 88 LINE 20 ===
+Counter/timer signals are available to parallel digital sbRIO I/O modules. To determine 
+the signal routing options for modules installed in your system, refer to the Device 
+Routes tab in MAX. 
+You can use these defaults or select other sources and destinations for the counter/
+timer signals in NI-DAQmx. Refer to "Connecting Counter Signals" in the NI-DAQmx 
+Help for more information about how to connect your signals for common counter 
+measurements and generations. Refer to "Physical Channels" in the NI-DAQmx Help 
+
+=== PAGE 88 LINE 26 ===
+measurements and generations. Refer to "Physical Channels" in the NI-DAQmx Help 
+for a list of default PFI lines for counter functions. 
+Cascading Counters 
+You can internally route the Counter n Internal Output and Counter n TC signals of 
+each counter to the Gate inputs of the other counter. By cascading two counters 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+88 ni.com
+
+=== PAGE 89 LINE 0 ===
+together, you can effectively create a 64-bit counter. By cascading counters, you also 
+can enable other applications. For example, to improve the accuracy of frequency 
+measurements, use reciprocal frequency measurement, as described in the Large 
+Range of Frequencies with Two Counters section. 
+
+=== PAGE 89 LINE 1 ===
+together, you can effectively create a 64-bit counter. By cascading counters, you also 
+can enable other applications. For example, to improve the accuracy of frequency 
+measurements, use reciprocal frequency measurement, as described in the Large 
+Range of Frequencies with Two Counters section. 
+Prescaling 
+
+=== PAGE 89 LINE 7 ===
+Prescaling 
+Prescaling allows the counter to count a signal that is faster than the maximum 
+timebase of the counter. The sbRIO controller offers 8X and 2X prescaling on each 
+counter. Prescaling can be disabled. Each prescaler consists of a small, simple counter 
+that counts to eight (or two) and rolls over. This counter can run faster than the larger 
+counters, which simply count the rollovers of this smaller counter. Thus, the prescaler 
+acts as a frequency divider on the Source and puts out a frequency that is one-eighth 
+
+=== PAGE 89 LINE 8 ===
+Prescaling allows the counter to count a signal that is faster than the maximum 
+timebase of the counter. The sbRIO controller offers 8X and 2X prescaling on each 
+counter. Prescaling can be disabled. Each prescaler consists of a small, simple counter 
+that counts to eight (or two) and rolls over. This counter can run faster than the larger 
+counters, which simply count the rollovers of this smaller counter. Thus, the prescaler 
+acts as a frequency divider on the Source and puts out a frequency that is one-eighth 
+(or one-half) of what it is accepting as shown in the figure below. 
+
+=== PAGE 89 LINE 22 ===
+Prescaling is intended to be used for frequency measurement where the measurement 
+is made on a continuous, repetitive signal. The prescaling counter cannot be read; 
+therefore, you cannot determine how many edges have occurred since the previous 
+rollover. Prescaling can be used for event counting provided it is acceptable to have an 
+error of up to seven (or one) ticks. Prescaling can be used when the counter Source is 
+an external signal. Prescaling is not available if the counter Source is one of the 
+internal timebases (80 MHz Timebase, 20 MHz Timebase, or 100 kHz Timebase). 
+
+=== PAGE 89 LINE 23 ===
+is made on a continuous, repetitive signal. The prescaling counter cannot be read; 
+therefore, you cannot determine how many edges have occurred since the previous 
+rollover. Prescaling can be used for event counting provided it is acceptable to have an 
+error of up to seven (or one) ticks. Prescaling can be used when the counter Source is 
+an external signal. Prescaling is not available if the counter Source is one of the 
+internal timebases (80 MHz Timebase, 20 MHz Timebase, or 100 kHz Timebase). 
+Synchronization Modes 
+
+=== PAGE 90 LINE 20 ===
+Count
+Counting Edges 
+In edge counting applications, the counter counts edges on its Source after the counter 
+is armed. You can configure the counter to count rising or falling edges on its Source 
+input. You also can control the direction of counting (up or down), as described in the 
+Controlling the Direction of Counting section. The counter values can be read on 
+demand or with a sample clock. 
+
+=== PAGE 90 LINE 21 ===
+Counting Edges 
+In edge counting applications, the counter counts edges on its Source after the counter 
+is armed. You can configure the counter to count rising or falling edges on its Source 
+input. You also can control the direction of counting (up or down), as described in the 
+Controlling the Direction of Counting section. The counter values can be read on 
+demand or with a sample clock. 
+Single Point (On-Demand) Edge Counting 
+
+=== PAGE 90 LINE 22 ===
+In edge counting applications, the counter counts edges on its Source after the counter 
+is armed. You can configure the counter to count rising or falling edges on its Source 
+input. You also can control the direction of counting (up or down), as described in the 
+Controlling the Direction of Counting section. The counter values can be read on 
+demand or with a sample clock. 
+Single Point (On-Demand) Edge Counting 
+With single point (on-demand) edge counting, the counter counts the number of edges 
+
+=== PAGE 91 LINE 0 ===
+software can read the counter contents at any time without disturbing the counting 
+process. The following figure shows an example of single point edge counting. 
+Figure 30. Single Point (On-Demand) Edge Counting 
+Counter Armed
+
+=== PAGE 91 LINE 6 ===
+Counter Armed
+SOURCE
+Counter Value 10 5432
+You also can use a pause trigger to pause (or gate) the counter. When the pause trigger 
+is active, the counter ignores edges on its Source input. When the pause trigger is 
+inactive, the counter counts edges normally. 
+You can route the pause trigger to the Gate input of the counter. You can configure the 
+
+=== PAGE 91 LINE 9 ===
+You also can use a pause trigger to pause (or gate) the counter. When the pause trigger 
+is active, the counter ignores edges on its Source input. When the pause trigger is 
+inactive, the counter counts edges normally. 
+You can route the pause trigger to the Gate input of the counter. You can configure the 
+counter to pause counting when the pause trigger is high or when it is low. The 
+following figure shows an example of on-demand edge counting with a pause trigger. 
+Figure 31. Single Point (On-Demand) Edge Counting with Pause Trigger 
+
+=== PAGE 91 LINE 24 ===
+counter is sampled on each active edge of a sample clock and stored in the FIFO. The 
+sampled values will be transferred to host memory using a high-speed data stream. 
+The count values returned are the cumulative counts since the counter armed event. 
+That is, the sample clock does not reset the counter. You can configure the counter to 
+sample on the rising or falling edge of the sample clock. 
+The following figure shows an example of buffered edge counting. Notice that 
+counting begins when the counter is armed, which occurs before the first active edge 
+
+=== PAGE 92 LINE 11 ===
+Buffer
+10 763 4 52
+Controlling the Direction of Counting 
+In edge counting applications, the counter can count up or down. You can configure 
+the counter to do the following: 
+• Always count up 
+• Always count down 
+
+=== PAGE 92 LINE 18 ===
+• Count up when the Counter 0 B input is high; count down when it is low 
+Pulse-Width Measurement 
+In pulse-width measurements, the counter measures the width of a pulse on its Gate 
+input signal. You can configure the counter to measure the width of high pulses or low 
+pulses on the Gate signal. 
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+
+=== PAGE 92 LINE 20 ===
+In pulse-width measurements, the counter measures the width of a pulse on its Gate 
+input signal. You can configure the counter to measure the width of high pulses or low 
+pulses on the Gate signal. 
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+on the Source signal while the pulse on the Gate signal is active. 
+You can calculate the pulse width by multiplying the period of the Source signal by the 
+
+=== PAGE 92 LINE 23 ===
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+on the Source signal while the pulse on the Gate signal is active. 
+You can calculate the pulse width by multiplying the period of the Source signal by the 
+number of edges returned by the counter. 
+A pulse-width measurement will be accurate even if the counter is armed while a pulse 
+train is in progress. If a counter is armed while the pulse is in the active state, it will 
+
+=== PAGE 94 LINE 20 ===
+Gate input signal after the counter is armed. A pulse is defined in terms of its high and 
+low time, high and low ticks or frequency and duty cycle. This is similar to the pulse-
+width measurement, except that the inactive pulse is measured as well. 
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+occurring on the Source input between two edges of the Gate signal. 
+You can calculate the high and low time of the Gate input by multiplying the period of 
+
+=== PAGE 94 LINE 23 ===
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+occurring on the Source input between two edges of the Gate signal. 
+You can calculate the high and low time of the Gate input by multiplying the period of 
+the Source signal by the number of edges returned by the counter. 
+Single Pulse Measurement 
+Single (on-demand) pulse measurement is equivalent to two single pulse-width 
+
+=== PAGE 95 LINE 13 ===
+counter stores the count in the FIFO. The sampled values will be transferred to host 
+memory using a high-speed data stream. 
+The counter begins counting when it is armed. The arm usually occurs between edges 
+on the Gate input but the counting does not start until the desired edge. You can select 
+whether to read the high pulse or low pulse first using the StartingEdge property in NI-
+DAQmx. 
+The figure below shows an example of an implicit buffered pulse measurement. 
+
+=== PAGE 96 LINE 17 ===
+In semi-period measurements, the counter measures a semi-period on its Gate input 
+signal after the counter is armed. A semi-period is the time between any two 
+consecutive edges on the Gate input. 
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+occurring on the Source input between two edges of the Gate signal. 
+You can calculate the semi-period of the Gate input by multiplying the period of the 
+
+=== PAGE 96 LINE 20 ===
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+occurring on the Source input between two edges of the Gate signal. 
+You can calculate the semi-period of the Gate input by multiplying the period of the 
+Source signal by the number of edges returned by the counter. 
+Single Semi-Period Measurement 
+Single semi-period measurement is equivalent to single pulse-width measurement. 
+
+=== PAGE 96 LINE 29 ===
+counter stores the count in the FIFO. The sampled values will be transferred to host 
+memory using a high-speed data stream. 
+The counter begins counting when it is armed. The arm usually occurs between edges 
+on the Gate input. You can select whether to read the first active low or active high 
+semi-period using the CI.SemiPeriod.StartingEdge property in NI-DAQmx. 
+Note If a pulse does not occur between sample clocks, an overrun error 
+occurs. 
+
+=== PAGE 97 LINE 33 ===
+Low Frequency with One Counter 
+For low frequency measurements with one counter, you measure one period of your 
+signal using a known timebase. 
+You can route the signal to measure (fx) to the Gate of a counter. You can route a 
+known timebase (fk) to the Source of the counter. The known timebase can be an 
+onboard timebase, such as 80 MHz Timebase, 20 MHz Timebase, or 100 kHz Timebase, 
+or any other signal with a known rate. 
+
+=== PAGE 97 LINE 34 ===
+For low frequency measurements with one counter, you measure one period of your 
+signal using a known timebase. 
+You can route the signal to measure (fx) to the Gate of a counter. You can route a 
+known timebase (fk) to the Source of the counter. The known timebase can be an 
+onboard timebase, such as 80 MHz Timebase, 20 MHz Timebase, or 100 kHz Timebase, 
+or any other signal with a known rate. 
+You can configure the counter to measure one period of the gate signal. The frequency 
+
+=== PAGE 97 LINE 37 ===
+known timebase (fk) to the Source of the counter. The known timebase can be an 
+onboard timebase, such as 80 MHz Timebase, 20 MHz Timebase, or 100 kHz Timebase, 
+or any other signal with a known rate. 
+You can configure the counter to measure one period of the gate signal. The frequency 
+of fx is the inverse of the period. The following figure illustrates this method. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 97
+
+=== PAGE 98 LINE 20 ===
+For high frequency measurements with two counters, you measure one pulse of a 
+known width using your signal and derive the frequency of your signal from the result. 
+In this method, you route a pulse of known duration (T) to the Gate of a counter. You 
+can generate the pulse using a second counter. You also can generate the pulse 
+externally and connect it to a PFI terminal. You only need to use one counter if you 
+generate the pulse externally. 
+Route the signal to measure (fx) to the Source of the counter. Configure the counter for 
+
+=== PAGE 99 LINE 1 ===
+Large Range of Frequencies with Two Counters 
+By using two counters, you can accurately measure a signal that might be high or low 
+frequency. This technique is called reciprocal frequency measurement. When 
+measuring a large range of frequencies with two counters, you generate a long pulse 
+using the signal to measure. You then measure the long pulse with a known timebase. 
+
+=== PAGE 99 LINE 5 ===
+frequency. This technique is called reciprocal frequency measurement. When 
+measuring a large range of frequencies with two counters, you generate a long pulse 
+using the signal to measure. You then measure the long pulse with a known timebase. 
+The sbRIO controller can measure this long pulse more accurately than the faster input 
+signal. 
+You can route the signal to measure to the Source input of Counter 0, as shown in the 
+following figure. Assume this signal to measure has frequency fx. NI-DAQmx 
+
+=== PAGE 99 LINE 7 ===
+using the signal to measure. You then measure the long pulse with a known timebase. 
+The sbRIO controller can measure this long pulse more accurately than the faster input 
+signal. 
+You can route the signal to measure to the Source input of Counter 0, as shown in the 
+following figure. Assume this signal to measure has frequency fx. NI-DAQmx 
+automatically configures Counter 0 to generate a single pulse that is the width of N 
+periods of the source input signal. 
+
+=== PAGE 99 LINE 30 ===
+Interval
+to Measure
+0 1 2 3 … N
+Next, route the Counter 0 Internal Output signal to the Gate input of Counter 1. You can 
+route a signal of known frequency (fk) to the Counter 1 Source input. Configure 
+Counter 1 to perform a single pulse-width measurement. Suppose the result is that the 
+pulse width is J periods of the fk clock. 
+
+=== PAGE 100 LINE 1 ===
+Sample Clocked Buffered Frequency Measurement 
+Sample clocked buffered point frequency measurements can either be a single 
+frequency measurement or an average between sample clocks. Use 
+CI.Freq.EnableAveraging to set the behavior. For buffered frequency, the default is 
+True. 
+
+=== PAGE 101 LINE 4 ===
+Choosing a Method for Measuring Frequency 
+The best method to measure frequency depends on several factors including the 
+expected frequency of the signal to measure, the desired accuracy, how many 
+counters are available, and how long the measurement can take. For all frequency 
+measurement methods, assume the following: 
+fx is the frequency to be measured if no error 
+fk is the known source or gate frequency 
+
+=== PAGE 103 LINE 5 ===
+High Frequency Large Range 
+error (Hz) 
+Max. error % .00128 .0625 2 .00125 
+From this, you can see that while the measurement time for one counter is shorter, the 
+accuracy is best in the sample clocked and two counter large range measurements. For 
+another example, the following table shows the results for 5 MHz. 
+Table 25. 5 MHz Frequency Measurement Methods 
+
+=== PAGE 105 LINE 2 ===
+Period Measurement 
+In period measurements, the counter measures a period on its Gate input signal after 
+the counter is armed. You can configure the counter to measure the period between 
+two rising edges or two falling edges of the Gate input signal. 
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+
+=== PAGE 105 LINE 4 ===
+In period measurements, the counter measures a period on its Gate input signal after 
+the counter is armed. You can configure the counter to measure the period between 
+two rising edges or two falling edges of the Gate input signal. 
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+occurring on the Source input between the two active edges of the Gate signal. 
+You can calculate the period of the Gate input by multiplying the period of the Source 
+
+=== PAGE 105 LINE 7 ===
+You can route an internal or external periodic clock signal (with a known period) to the 
+Source input of the counter. The counter counts the number of rising (or falling) edges 
+occurring on the Source input between the two active edges of the Gate signal. 
+You can calculate the period of the Gate input by multiplying the period of the Source 
+signal by the number of edges returned by the counter. 
+Period measurements return the inverse results of frequency measurements. 
+Position Measurement 
+
+=== PAGE 105 LINE 11 ===
+signal by the number of edges returned by the counter. 
+Period measurements return the inverse results of frequency measurements. 
+Position Measurement 
+You can use the counters to perform position measurements with quadrature encoders 
+or two-pulse encoders. You can measure angular position with X1, X2, and X4 angular 
+encoders. Linear position can be measured with two-pulse encoders. You can choose 
+to do either a single point (on-demand) position measurement or a buffered (sample 
+
+=== PAGE 105 LINE 12 ===
+Period measurements return the inverse results of frequency measurements. 
+Position Measurement 
+You can use the counters to perform position measurements with quadrature encoders 
+or two-pulse encoders. You can measure angular position with X1, X2, and X4 angular 
+encoders. Linear position can be measured with two-pulse encoders. You can choose 
+to do either a single point (on-demand) position measurement or a buffered (sample 
+clock) position measurement. You must arm a counter to begin position 
+
+=== PAGE 105 LINE 13 ===
+Position Measurement 
+You can use the counters to perform position measurements with quadrature encoders 
+or two-pulse encoders. You can measure angular position with X1, X2, and X4 angular 
+encoders. Linear position can be measured with two-pulse encoders. You can choose 
+to do either a single point (on-demand) position measurement or a buffered (sample 
+clock) position measurement. You must arm a counter to begin position 
+measurements. 
+
+=== PAGE 105 LINE 18 ===
+clock) position measurement. You must arm a counter to begin position 
+measurements. 
+Measurements Using Quadrature Encoders 
+The counters can perform measurements of quadrature encoders that use X1, X2, or X4 
+encoding. A quadrature encoder can have up to three channels—channels A, B, and Z. 
+• X1 Encoding— When channel A leads channel B in a quadrature cycle, the counter 
+increments. When channel B leads channel A in a quadrature cycle, the counter 
+
+=== PAGE 105 LINE 19 ===
+measurements. 
+Measurements Using Quadrature Encoders 
+The counters can perform measurements of quadrature encoders that use X1, X2, or X4 
+encoding. A quadrature encoder can have up to three channels—channels A, B, and Z. 
+• X1 Encoding— When channel A leads channel B in a quadrature cycle, the counter 
+increments. When channel B leads channel A in a quadrature cycle, the counter 
+decrements. The amount of increments and decrements per cycle depends on the 
+
+=== PAGE 106 LINE 23 ===
+Channel Z Behavior 
+Some quadrature encoders have a third channel, channel Z, which is also referred to 
+as the index channel. A high level on channel Z causes the counter to be reloaded with 
+a specified value in a specified phase of the quadrature cycle. You can program this 
+reload to occur in any one of the four phases in a quadrature cycle. 
+Channel Z behavior—when it g oes high and how long it stays high—diff ers with 
+quadrature encoder designs. You must refer to the documentation for your quadrature 
+
+=== PAGE 107 LINE 30 ===
+value of the counter is sampled on each active edge of a sample clock. The sampled 
+values will be transferred to host memory using a high-speed data stream. The count 
+values returned are the cumulative counts since the counter armed event; that is, the 
+sample clock does not reset the counter. You can route the counter sample clock to the 
+Gate input of the counter. You can configure the counter to sample on the rising or 
+falling edge of the sample clock. 
+The figure below shows an example of a buffered X1 position measurement. 
+
+=== PAGE 107 LINE 31 ===
+values will be transferred to host memory using a high-speed data stream. The count 
+values returned are the cumulative counts since the counter armed event; that is, the 
+sample clock does not reset the counter. You can route the counter sample clock to the 
+Gate input of the counter. You can configure the counter to sample on the rising or 
+falling edge of the sample clock. 
+The figure below shows an example of a buffered X1 position measurement. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 108 LINE 22 ===
+ignores additional edges on the Aux input. 
+The counter stops counting upon receiving an active edge on the Gate input. The 
+counter stores the count in the FIFO. 
+You can configure the rising or falling edge of the Aux input to be the active edge. You 
+can configure the rising or falling edge of the Gate input to be the active edge. 
+Use this type of measurement to count events or measure the time that occurs 
+between edges on two signals. This type of measurement is sometimes referred to as 
+
+=== PAGE 108 LINE 23 ===
+The counter stops counting upon receiving an active edge on the Gate input. The 
+counter stores the count in the FIFO. 
+You can configure the rising or falling edge of the Aux input to be the active edge. You 
+can configure the rising or falling edge of the Gate input to be the active edge. 
+Use this type of measurement to count events or measure the time that occurs 
+between edges on two signals. This type of measurement is sometimes referred to as 
+start/stop trigger measurement, second gate measurement, or A-to-B measurement. 
+
+=== PAGE 110 LINE 12 ===
+3 33
+SampleClock
+Single Pulse Generation 
+The counter can output a single pulse. The pulse appears on the Counter n Internal 
+Output signal of the counter. 
+You can specify a delay from when the counter is armed to the beginning of the pulse. 
+The delay is measured in terms of a number of active edges of the Source input. 
+
+=== PAGE 110 LINE 14 ===
+Single Pulse Generation 
+The counter can output a single pulse. The pulse appears on the Counter n Internal 
+Output signal of the counter. 
+You can specify a delay from when the counter is armed to the beginning of the pulse. 
+The delay is measured in terms of a number of active edges of the Source input. 
+You can specify a pulse width. The pulse width is also measured in terms of a number 
+of active edges of the Source input. You also can specify the active edge of the Source 
+
+=== PAGE 110 LINE 16 ===
+Output signal of the counter. 
+You can specify a delay from when the counter is armed to the beginning of the pulse. 
+The delay is measured in terms of a number of active edges of the Source input. 
+You can specify a pulse width. The pulse width is also measured in terms of a number 
+of active edges of the Source input. You also can specify the active edge of the Source 
+input (rising or falling). 
+The following figure shows a generation of a pulse with a pulse delay of four and a 
+
+=== PAGE 110 LINE 17 ===
+You can specify a delay from when the counter is armed to the beginning of the pulse. 
+The delay is measured in terms of a number of active edges of the Source input. 
+You can specify a pulse width. The pulse width is also measured in terms of a number 
+of active edges of the Source input. You also can specify the active edge of the Source 
+input (rising or falling). 
+The following figure shows a generation of a pulse with a pulse delay of four and a 
+pulse width of three (using the rising edge of Source). 
+
+=== PAGE 110 LINE 26 ===
+OUT
+Counter Armed
+Single Pulse Generation with Start Trigger 
+The counter can output a single pulse in response to one pulse on a hardware Start 
+Trigger signal. The pulse appears on the Counter n Internal Output signal of the 
+Note If an active edge on the Gate and an active edge on the Aux does not 
+occur between sample clocks, an overrun error occurs. 
+
+=== PAGE 111 LINE 1 ===
+counter. 
+You can specify a delay from the Start Trigger to the beginning of the pulse. You also 
+can specify the pulse width. The delay is measured in terms of a number of active 
+edges of the Source input. 
+You can specify a pulse width. The pulse width is also measured in terms of a number 
+
+=== PAGE 111 LINE 2 ===
+counter. 
+You can specify a delay from the Start Trigger to the beginning of the pulse. You also 
+can specify the pulse width. The delay is measured in terms of a number of active 
+edges of the Source input. 
+You can specify a pulse width. The pulse width is also measured in terms of a number 
+of active edges of the Source input. You can also specify the active edge of the Source 
+
+=== PAGE 111 LINE 4 ===
+You can specify a delay from the Start Trigger to the beginning of the pulse. You also 
+can specify the pulse width. The delay is measured in terms of a number of active 
+edges of the Source input. 
+You can specify a pulse width. The pulse width is also measured in terms of a number 
+of active edges of the Source input. You can also specify the active edge of the Source 
+input (rising and falling). 
+The following figure shows a generation of a pulse with a pulse delay of four and a 
+
+=== PAGE 111 LINE 5 ===
+can specify the pulse width. The delay is measured in terms of a number of active 
+edges of the Source input. 
+You can specify a pulse width. The pulse width is also measured in terms of a number 
+of active edges of the Source input. You can also specify the active edge of the Source 
+input (rising and falling). 
+The following figure shows a generation of a pulse with a pulse delay of four and a 
+pulse width of three (using the rising edge of Source). 
+
+=== PAGE 111 LINE 26 ===
+Ctrx
+Counter Armed
+Retriggerable Pulse or Pulse Train Generation 
+The counter can output a single pulse or multiple pulses in response to each pulse on 
+a hardware Start Trigger signal. The generated pulses appear on the Counter n Internal 
+Output signal of the counter. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+
+=== PAGE 112 LINE 0 ===
+You can route the Start Trigger signal to the Gate input of the counter. You can specify a 
+delay from the Start Trigger to the beginning of each pulse. You also can specify the 
+pulse width. The delay and pulse width are measured in terms of a number of active 
+edges of the Source input. The initial delay can be applied to only the first trigger or to 
+
+=== PAGE 112 LINE 1 ===
+You can route the Start Trigger signal to the Gate input of the counter. You can specify a 
+delay from the Start Trigger to the beginning of each pulse. You also can specify the 
+pulse width. The delay and pulse width are measured in terms of a number of active 
+edges of the Source input. The initial delay can be applied to only the first trigger or to 
+all triggers using the CO.EnableInitalDelayOnRetrigger property. The default for a 
+
+=== PAGE 112 LINE 3 ===
+You can route the Start Trigger signal to the Gate input of the counter. You can specify a 
+delay from the Start Trigger to the beginning of each pulse. You also can specify the 
+pulse width. The delay and pulse width are measured in terms of a number of active 
+edges of the Source input. The initial delay can be applied to only the first trigger or to 
+all triggers using the CO.EnableInitalDelayOnRetrigger property. The default for a 
+single pulse is True, while the default for finite pulse trains is False. 
+The counter ignores the Gate input while a pulse generation is in progress. After the 
+
+=== PAGE 113 LINE 2 ===
+This function generates a train of pulses with programmable frequency and duty cycle. 
+The pulses appear on the Counter n Internal Output signal of the counter. 
+You can specify a delay from when the counter is armed to the beginning of the pulse 
+train. The delay is measured in terms of a number of active edges of the Source input. 
+You specify the high and low pulse widths of the output signal. The pulse widths are 
+also measured in terms of a number of active edges of the Source input. You also can 
+
+=== PAGE 113 LINE 5 ===
+You can specify a delay from when the counter is armed to the beginning of the pulse 
+train. The delay is measured in terms of a number of active edges of the Source input. 
+You specify the high and low pulse widths of the output signal. The pulse widths are 
+also measured in terms of a number of active edges of the Source input. You also can 
+specify the active edge of the Source input (rising or falling). 
+The counter can begin the pulse train generation as soon as the counter is armed, or in 
+response to a hardware Start Trigger. You can route the Start Trigger to the Gate input 
+
+=== PAGE 113 LINE 7 ===
+You specify the high and low pulse widths of the output signal. The pulse widths are 
+also measured in terms of a number of active edges of the Source input. You also can 
+specify the active edge of the Source input (rising or falling). 
+The counter can begin the pulse train generation as soon as the counter is armed, or in 
+response to a hardware Start Trigger. You can route the Start Trigger to the Gate input 
+of the counter. 
+You also can use the Gate input of the counter as a Pause Trigger (if it is not used as a 
+
+=== PAGE 113 LINE 8 ===
+also measured in terms of a number of active edges of the Source input. You also can 
+specify the active edge of the Source input (rising or falling). 
+The counter can begin the pulse train generation as soon as the counter is armed, or in 
+response to a hardware Start Trigger. You can route the Start Trigger to the Gate input 
+of the counter. 
+You also can use the Gate input of the counter as a Pause Trigger (if it is not used as a 
+Start Trigger). The counter pauses pulse generation when the Pause Trigger is active. 
+
+=== PAGE 113 LINE 10 ===
+The counter can begin the pulse train generation as soon as the counter is armed, or in 
+response to a hardware Start Trigger. You can route the Start Trigger to the Gate input 
+of the counter. 
+You also can use the Gate input of the counter as a Pause Trigger (if it is not used as a 
+Start Trigger). The counter pauses pulse generation when the Pause Trigger is active. 
+The figure below shows a continuous pulse train generation (using the rising edge of 
+Source). 
+
+=== PAGE 113 LINE 23 ===
+the Counter n Internal Output signal is equal to the frequency of the Source input 
+divided by M + N. 
+Buffered Pulse Train Generation 
+The sbRIO controller counters can use the FIFO to perform a buffered pulse train 
+generation. This pulse train can use implicit timing or sample clock timing. When using 
+implicit timing, the pulse idle time and active time changes with each sample you 
+write. With sample clocked timing, each sample you write updates the idle time and 
+
+=== PAGE 113 LINE 24 ===
+divided by M + N. 
+Buffered Pulse Train Generation 
+The sbRIO controller counters can use the FIFO to perform a buffered pulse train 
+generation. This pulse train can use implicit timing or sample clock timing. When using 
+implicit timing, the pulse idle time and active time changes with each sample you 
+write. With sample clocked timing, each sample you write updates the idle time and 
+active time of your generation on each sample clock edge. Idle time and active time 
+
+=== PAGE 113 LINE 28 ===
+implicit timing, the pulse idle time and active time changes with each sample you 
+write. With sample clocked timing, each sample you write updates the idle time and 
+active time of your generation on each sample clock edge. Idle time and active time 
+can also be defined in terms of frequency and duty cycle or idle ticks and active ticks. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 113
+
+=== PAGE 115 LINE 27 ===
+modes. 
+Regeneration is the repetition of the data that is already in the buffer. 
+Standard regeneration is when data from the PC buffer is continually downloaded to 
+the FIFO to be written out. New data can be written to the PC buffer at any time 
+without disrupting the output. With FIFO regeneration, the entire buffer is downloaded 
+Note When the last sample is generated, the pulse train continues to 
+generate with these specifications until the task is stopped. 
+
+=== PAGE 116 LINE 16 ===
+the current pulse finishes generation and the next pulse uses the next sample 
+specifications. 
+Frequency Generation 
+You can generate a frequency by using a counter in pulse train generation mode or by 
+using the frequency generator circuit, as described in the Using the Frequency 
+Generator section. 
+Using the Frequency Generator 
+
+=== PAGE 116 LINE 20 ===
+using the frequency generator circuit, as described in the Using the Frequency 
+Generator section. 
+Using the Frequency Generator 
+The frequency generator can output a square wave at many different frequencies. The 
+frequency generator is independent of the four general-purpose 32-bit counter/timer 
+modules on the cRIO controller. 
+The following figure shows a block diagram of the frequency generator. 
+
+=== PAGE 117 LINE 2 ===
+The frequency generator generates the Frequency Output signal. The Frequency 
+Output signal is the Frequency Output Timebase divided by a number you select from 
+1 to 16. The Frequency Output Timebase can be either the 20 MHz Timebase, the 
+20 MHz Timebase divided by 2, or the 100 kHz Timebase. 
+The duty cycle of Frequency Output is 50% if the divider is either 1 or an even number. 
+For an odd divider, suppose the divider is set to D. In this case, Frequency Output is 
+
+=== PAGE 117 LINE 15 ===
+Timebase
+FREQ OUT
+(Divisor = 5)
+Frequency Output can be routed out to any PFI terminal. All PFI terminals are set to 
+high-impedance at startup. The FREQ OUT signal also can be routed to many internal 
+timing signals. 
+In software, program the frequency generator as you would program one of the 
+
+=== PAGE 117 LINE 16 ===
+FREQ OUT
+(Divisor = 5)
+Frequency Output can be routed out to any PFI terminal. All PFI terminals are set to 
+high-impedance at startup. The FREQ OUT signal also can be routed to many internal 
+timing signals. 
+In software, program the frequency generator as you would program one of the 
+counters for pulse train generation. 
+
+=== PAGE 117 LINE 21 ===
+In software, program the frequency generator as you would program one of the 
+counters for pulse train generation. 
+Frequency Division 
+The counters can generate a signal with a frequency that is a fraction of an input 
+signal. This function is equivalent to continuous pulse train generation. 
+Pulse Generation for ETS 
+In the equivalent time sampling (ETS) application, the counter produces a pulse on the 
+
+=== PAGE 117 LINE 29 ===
+the counter cumulatively increments the delay between the Gate and the pulse on the 
+output by a specified amount. Thus, the delay between the Gate and the pulse 
+produced successively increases. 
+The increase in the delay value can be between 0 and 255. For instance, if you specify 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 117
+
+=== PAGE 118 LINE 8 ===
+second it will be 110, on the third it will be 120; the process will repeat in this manner 
+until the counter is disarmed. The counter ignores any Gate edge that is received while 
+the pulse triggered by the previous Gate edge is in progress. 
+The waveform thus produced at the counter’s output can be used to provide timing for 
+undersampling applications where a digitizing system can sample repetitive 
+waveforms that are higher in frequency than the Nyquist frequency of the system. The 
+following figure shows an example of pulse generation for ETS; the delay from the 
+
+=== PAGE 118 LINE 9 ===
+until the counter is disarmed. The counter ignores any Gate edge that is received while 
+the pulse triggered by the previous Gate edge is in progress. 
+The waveform thus produced at the counter’s output can be used to provide timing for 
+undersampling applications where a digitizing system can sample repetitive 
+waveforms that are higher in frequency than the Nyquist frequency of the system. The 
+following figure shows an example of pulse generation for ETS; the delay from the 
+trigger to the pulse increases after each subsequent Gate active edge. 
+
+=== PAGE 118 LINE 25 ===
+Counter n Source Signal 
+The selected edge of the Counter n Source signal increments and decrements the 
+counter value depending on the application the counter is performing. The following 
+Note Note All counter timing signals can be filtered. Refer to the PFI Filters 
+section for more information. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+118 ni.com
+
+=== PAGE 119 LINE 11 ===
+Two-Edge Separation Counter Timebase 
+Routing a Signal to Counter n Source 
+Each counter has independent input selectors for the Counter n Source signal. Any of 
+the following signals can be routed to the Counter n Source input: 
+• 80 MHz Timebase 
+• 20 MHz Timebase 
+• 13.1072 MHz Timebase 
+
+=== PAGE 119 LINE 21 ===
+• Any PFI terminal 
+• Analog Comparison Event 
+• Change Detection Event 
+In addition, TC or Gate from a counter can be routed to a different counter source. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 119
+
+=== PAGE 120 LINE 4 ===
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information about available routing options. 
+Routing Counter n Source to an Output Terminal 
+You can route Counter n Source out to any PFI terminal. 
+Counter n Gate Signal 
+The Counter n Gate signal can perform many different operations depending on the 
+application including starting and stopping the counter, and saving the counter 
+
+=== PAGE 120 LINE 6 ===
+Routing Counter n Source to an Output Terminal 
+You can route Counter n Source out to any PFI terminal. 
+Counter n Gate Signal 
+The Counter n Gate signal can perform many different operations depending on the 
+application including starting and stopping the counter, and saving the counter 
+contents. 
+Routing a Signal to Counter n Gate 
+
+=== PAGE 120 LINE 11 ===
+contents. 
+Routing a Signal to Counter n Gate 
+Each counter has independent input selectors for the Counter n Gate signal. Any of the 
+following signals can be routed to the Counter n Gate input: 
+• Any PFI terminal 
+• AI Reference Trigger 
+• AI Start Trigger 
+
+=== PAGE 120 LINE 21 ===
+• DO Sample Clock 
+• Change Detection Event 
+• Analog Comparison Event 
+In addition, a counter’s Internal Output or Source can be routed to a different counter’s 
+gate. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+120 ni.com
+
+=== PAGE 121 LINE 4 ===
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information about available routing options. 
+Routing Counter n Gate to an Output Terminal 
+You can route Counter n Gate out to any PFI terminal. 
+Counter n Aux Signal 
+The Counter n Aux signal indicates the first edge in a two-signal edge-separation 
+measurement. 
+
+=== PAGE 121 LINE 10 ===
+measurement. 
+Routing a Signal to Counter n Aux 
+Each counter has independent input selectors for the Counter n Aux signal. Any of the 
+following signals can be routed to the Counter n Aux input: 
+• Any PFI terminal 
+• AI Reference Trigger 
+• AI Start Trigger 
+
+=== PAGE 121 LINE 16 ===
+• AI Start Trigger 
+• Analog Comparison Event 
+• Change Detection Event 
+In addition, a counter’s Internal Output, Gate or Source can be routed to a different 
+counter’s Aux. A counter’s own gate can also be routed to its Aux input. 
+Some of these options may not be available in some driver software. Refer to the 
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+
+=== PAGE 121 LINE 17 ===
+• Analog Comparison Event 
+• Change Detection Event 
+In addition, a counter’s Internal Output, Gate or Source can be routed to a different 
+counter’s Aux. A counter’s own gate can also be routed to its Aux input. 
+Some of these options may not be available in some driver software. Refer to the 
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information about available routing options. 
+
+=== PAGE 121 LINE 22 ===
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information about available routing options. 
+Counter n A, Counter n B, and Counter n Z Signals 
+Counter n B can control the direction of counting in edge counting applications. Use 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 121
+
+=== PAGE 122 LINE 4 ===
+measuring two pulse encoders. 
+Routing Signals to A, B, and Z Counter Inputs 
+Each counter has independent input selectors for each of the A, B, and Z inputs. Any of 
+the following signals can be routed to each input: 
+• Any PFI terminal 
+• Analog Comparison Event 
+Routing Counter n Z Signal to an Output Terminal 
+
+=== PAGE 122 LINE 8 ===
+• Any PFI terminal 
+• Analog Comparison Event 
+Routing Counter n Z Signal to an Output Terminal 
+You can route Counter n Z out to any PFI terminal. 
+Counter n Up_Down Signal 
+Counter n Up_Down is another name for the Counter n B signal. 
+Counter n HW Arm Signal 
+
+=== PAGE 122 LINE 17 ===
+counter. In some applications, such as a buffered edge count, the counter begins 
+counting when it is armed. In other applications, such as single pulse-width 
+measurement, the counter begins waiting for the Gate signal when it is armed. Counter 
+output operations can use the arm signal in addition to a start trigger. 
+Software can arm a counter or configure counters to be armed on a hardware signal. 
+Software calls this hardware signal the Arm Start Trigger. Internally, software routes 
+the Arm Start Trigger to the Counter n HW Arm input of the counter. 
+
+=== PAGE 122 LINE 18 ===
+counting when it is armed. In other applications, such as single pulse-width 
+measurement, the counter begins waiting for the Gate signal when it is armed. Counter 
+output operations can use the arm signal in addition to a start trigger. 
+Software can arm a counter or configure counters to be armed on a hardware signal. 
+Software calls this hardware signal the Arm Start Trigger. Internally, software routes 
+the Arm Start Trigger to the Counter n HW Arm input of the counter. 
+Routing Signals to Counter n HW Arm Input 
+
+=== PAGE 122 LINE 22 ===
+Software calls this hardware signal the Arm Start Trigger. Internally, software routes 
+the Arm Start Trigger to the Counter n HW Arm input of the counter. 
+Routing Signals to Counter n HW Arm Input 
+Any of the following signals can be routed to the Counter n HW Arm input: 
+• Any PFI terminal 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+122 ni.com
+
+=== PAGE 123 LINE 4 ===
+• AI Start Trigger 
+• Analog Comparison Event 
+• Change Detection Event 
+A counter’s Internal Output can be routed to a different counter’s HW Arm. 
+Some of these options may not be available in some driver software. Refer to the 
+"Device Routing in MAX" topic in the NI-DAQmx Help or the LabVIEW Help for more 
+information about available routing options. 
+
+=== PAGE 123 LINE 11 ===
+Counter n Sample Clock Signal 
+Use the Counter n Sample Clock (CtrnSampleClock) signal to perform sample clocked 
+acquisitions and generations. 
+You can specify an internal or external source for Counter n Sample Clock. You also can 
+specify whether the measurement sample begins on the rising edge or falling edge of 
+Counter n Sample Clock. 
+If the sbRIO controller receives a Counter n Sample Clock when the FIFO is full, it 
+
+=== PAGE 123 LINE 18 ===
+reports an overflow error to the host software. 
+Using an Internal Source 
+To use Counter n Sample Clock with an internal source, specify the signal source and 
+the polarity of the signal. The source can be any of the following signals: 
+• DI Sample Clock 
+• DO Sample Clock 
+• AI Sample Clock 
+
+=== PAGE 124 LINE 2 ===
+• AO Sample Clock 
+• DI Change Detection output 
+Several other internal signals can be routed to Counter n Sample Clock through 
+internal routes. Refer to "Device Routing in MAX" in the NI-DAQmx Help or the LabVIEW 
+Help for more information. 
+Using an External Source 
+
+=== PAGE 124 LINE 6 ===
+internal routes. Refer to "Device Routing in MAX" in the NI-DAQmx Help or the LabVIEW 
+Help for more information. 
+Using an External Source 
+You can route any of the following signals as Counter n Sample Clock: 
+• Any PFI terminal 
+• Analog Comparison Event 
+You can sample data on the rising or falling edge of Counter n Sample Clock. 
+
+=== PAGE 124 LINE 9 ===
+You can route any of the following signals as Counter n Sample Clock: 
+• Any PFI terminal 
+• Analog Comparison Event 
+You can sample data on the rising or falling edge of Counter n Sample Clock. 
+Routing Counter n Sample Clock to an Output Terminal 
+You can route Counter n Sample Clock out to any PFI terminal. The PFI circuitry inverts 
+the polarity of Counter n Sample Clock before driving the PFI terminal. 
+
+=== PAGE 124 LINE 11 ===
+• Analog Comparison Event 
+You can sample data on the rising or falling edge of Counter n Sample Clock. 
+Routing Counter n Sample Clock to an Output Terminal 
+You can route Counter n Sample Clock out to any PFI terminal. The PFI circuitry inverts 
+the polarity of Counter n Sample Clock before driving the PFI terminal. 
+Counter n Internal Output and Counter n TC Signals 
+The Counter n Internal Output signal changes in response to Counter n TC. 
+
+=== PAGE 124 LINE 18 ===
+The two software-selectable output options are pulse output on TC and toggle output 
+on TC. The output polarity is software-selectable for both options. 
+With pulse or pulse train generation tasks, the counter drives the pulse(s) on the 
+Counter n Internal Output signal. The Counter n Internal Output signal can be 
+internally routed to be a counter/timer input or an “external” source for AI, AO, DI, or 
+DO timing signals. 
+Routing Counter n Internal Output to an Output Terminal 
+
+=== PAGE 124 LINE 22 ===
+internally routed to be a counter/timer input or an “external” source for AI, AO, DI, or 
+DO timing signals. 
+Routing Counter n Internal Output to an Output Terminal 
+You can route Counter n Internal Output to any PFI terminal. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+124 ni.com
+
+=== PAGE 125 LINE 4 ===
+The Frequency Output (FREQ OUT) signal is the output of the frequency output 
+generator. 
+Routing Frequency Output to a Terminal 
+You can route Frequency Output to any PFI terminal. 
+Digital Routing 
+The digital routing circuitry of the sbRIO-96xx manages the flow of data between the 
+bus interface and the acquisition and generation sub-systems when programming 
+
+=== PAGE 125 LINE 13 ===
+(if present) in each sub-system to ensure efficient data movement. 
+The digital routing circuitry also routes timing and control signals. The acquisition and 
+generation sub-systems use these signals to manage and synchronize acquisitions and 
+generations. These signals can come from the following sources: 
+• sbRIO I/O modules programmed in Real-Time (NI-DAQmx) mode 
+• FPGA or DAQ ASIC using the sbRIO trigger bus to share hardware triggers and 
+signals between the LabVIEW FPGA and DAQmx applications 
+
+=== PAGE 126 LINE 6 ===
+digital I/O, and counter/timers to be synchronized to other chassis across a distributed 
+network. 
+When programming sbRIO I/O modules in FPGA mode, the Time Synchronization IO 
+Nodes can be used to synchronize the LabVIEW FPGA application to other network-
+synchronized devices. 
+Network-based Synchronization 
+IEEE 1588, also known as the precision time protocol (PTP), is an Ethernet-based 
+
+=== PAGE 126 LINE 26 ===
+port must be configured individually to the specific profile required for the network. 
+Differences Between IEEE 802.1AS-2011 and IEEE 1588-2008 
+IEEE 802.1AS-2011, also known as the generalized precision time protocol (gPTP), is a 
+profile of IEEE 1588. A sbRIO-96xx controller can be configured to use either the 
+IEEE 802.1AS-2011 profile or the IEEE 1588-2008 profile by configuring the port’s time 
+reference. If a user does not explicitly specify which time reference to use a sbRIO-96xx 
+controller will default to use the IEEE 802.1AS-2011 profile. There are some differences 
+
+=== PAGE 127 LINE 2 ===
+out below: 
+• IEEE 802.1AS-2011 assumes all communication between devices is done on the OSI 
+layer 2, while IEEE 1588-2008 can support various layer 2 and layer 3-4 
+communication methods. The IEEE 1588-2008 profile National Instruments 
+implements on the sbRIO-96xx only supports layer 3-4 communication methods. 
+Operating on the layer 2 yields better performance for the IEEE 802.1AS-2011. 
+
+=== PAGE 127 LINE 15 ===
+• With IEEE 802.1AS-2011 there are only two types of time-aware systems: time-
+aware end stations and time-aware bridges. Whereas with IEEE 1588-2008, there 
+are the following: ordinary clock, boundary clock, end-to-end transparent clock 
+and a time-aware bridges. Based on these factors, IEEE 802.1AS-2011 can reduce 
+complexity and configuration challenges compared to IEEE 1588-2008. A 
+sbRIO-96xx controller acts as a time-aware end station for both protocols. 
+IEEE 1588 External Switch Requirements 
+
+=== PAGE 128 LINE 25 ===
+÷4
+80 MHz Timebase 
+When programming sbRIO I/O modules in Real-Time (NI-DAQmx) mode, the 80 MHz 
+timebase can function as the source input to the 32-bit general-purpose counter/
+timers. The 80 MHz timebase is generated from the onboard oscillator. 
+20 MHz and 100 kHz Timebases 
+When programming sbRIO I/O modules in Real-Time (NI-DAQmx) mode, the 20 MHz 
+
+=== PAGE 128 LINE 29 ===
+timers. The 80 MHz timebase is generated from the onboard oscillator. 
+20 MHz and 100 kHz Timebases 
+When programming sbRIO I/O modules in Real-Time (NI-DAQmx) mode, the 20 MHz 
+and 100 kHz timebases can be used to generate many of the analog input and analog 
+output timing signals. These timebases can also function as the source input to the 
+32-bit general-purpose counter/timers. The 20 MHz and 100 kHz timebases are 
+generated by dividing down the 80 MHz timebase, as shown in the previous figure. 
+
+=== PAGE 128 LINE 30 ===
+20 MHz and 100 kHz Timebases 
+When programming sbRIO I/O modules in Real-Time (NI-DAQmx) mode, the 20 MHz 
+and 100 kHz timebases can be used to generate many of the analog input and analog 
+output timing signals. These timebases can also function as the source input to the 
+32-bit general-purpose counter/timers. The 20 MHz and 100 kHz timebases are 
+generated by dividing down the 80 MHz timebase, as shown in the previous figure. 
+Note When switching between programming modes, you may notice the 
+
+=== PAGE 129 LINE 3 ===
+40 MHz Onboard Clock 
+When programming sbRIO I/O modules in FPGA mode, the 40 MHz onboard clock is 
+used as the top-level clock for your LabVIEW FPGA application and sbRIO I/O module 
+IO nodes. The 40 MHz onboard clock can be used to clock single-cycle timed loops. 
+Derived clocks of varying frequency can be generated from the 40 MHz onboard clock. 
+The 40 MHz onboard clock is phase aligned with the incoming 80 MHz clock. 
+13.1072 MHz, 12.8 MHz, and 10 MHz Timebases and Carrier Clocks 
+
+=== PAGE 129 LINE 4 ===
+When programming sbRIO I/O modules in FPGA mode, the 40 MHz onboard clock is 
+used as the top-level clock for your LabVIEW FPGA application and sbRIO I/O module 
+IO nodes. The 40 MHz onboard clock can be used to clock single-cycle timed loops. 
+Derived clocks of varying frequency can be generated from the 40 MHz onboard clock. 
+The 40 MHz onboard clock is phase aligned with the incoming 80 MHz clock. 
+13.1072 MHz, 12.8 MHz, and 10 MHz Timebases and Carrier Clocks 
+When programming sbRIO I/O modules in Real-Time (NI-DAQmx) mode, the 
+
+=== PAGE 129 LINE 8 ===
+The 40 MHz onboard clock is phase aligned with the incoming 80 MHz clock. 
+13.1072 MHz, 12.8 MHz, and 10 MHz Timebases and Carrier Clocks 
+When programming sbRIO I/O modules in Real-Time (NI-DAQmx) mode, the 
+13.1072 MHz, 12.8 MHz, and 10 MHz timebases can be used to generate many of the 
+analog input and analog output timing signals. These timebases can also function as 
+the source input to the 32-bit general-purpose counter/timers. The 13.1072 MHz, 
+12.8 MHz, and 10 MHz timebases are generated directly from the onboard clock 
+
+=== PAGE 129 LINE 9 ===
+13.1072 MHz, 12.8 MHz, and 10 MHz Timebases and Carrier Clocks 
+When programming sbRIO I/O modules in Real-Time (NI-DAQmx) mode, the 
+13.1072 MHz, 12.8 MHz, and 10 MHz timebases can be used to generate many of the 
+analog input and analog output timing signals. These timebases can also function as 
+the source input to the 32-bit general-purpose counter/timers. The 13.1072 MHz, 
+12.8 MHz, and 10 MHz timebases are generated directly from the onboard clock 
+generator. 
+
+=== PAGE 129 LINE 14 ===
+12.8 MHz, and 10 MHz timebases are generated directly from the onboard clock 
+generator. 
+When programming sbRIO I/O modules in FPGA mode, the 13.1072 MHz, 12.8 MHz, and 
+10 MHz carrier clocks can be used as the master clock for sbRIO I/O analog input and 
+analog output modules. The 13.1072 MHz, 12.8 MHz, and 10 MHz carrier clocks are 
+available as IO Nodes in LabVIEW FPGA applications and can be used to correlate the 
+onboard clocks with self-timed sbRIO I/O modules containing free-running clocks. 
+
+=== PAGE 129 LINE 16 ===
+When programming sbRIO I/O modules in FPGA mode, the 13.1072 MHz, 12.8 MHz, and 
+10 MHz carrier clocks can be used as the master clock for sbRIO I/O analog input and 
+analog output modules. The 13.1072 MHz, 12.8 MHz, and 10 MHz carrier clocks are 
+available as IO Nodes in LabVIEW FPGA applications and can be used to correlate the 
+onboard clocks with self-timed sbRIO I/O modules containing free-running clocks. 
+Resetting the System CMOS and BIOS Settings 
+The sbRIO-96xx BIOS configuration information is stored in a nonvolatile memory 
+
+=== PAGE 130 LINE 3 ===
+4. Reconnect power to the sbRIO-96xx. 
+The BIOS Reset Detected warning message appears onscreen. 
+Power-On Self Test Warning Messages 
+The sbRIO-96xx POST displays warning messages for specific issues onscreen. You can 
+use MAX to enable Console Out to send these warning messages through the RS-232 
+serial port. 
+The POST can display the following warning messages: 
+
+=== PAGE 130 LINE 6 ===
+The sbRIO-96xx POST displays warning messages for specific issues onscreen. You can 
+use MAX to enable Console Out to send these warning messages through the RS-232 
+serial port. 
+The POST can display the following warning messages: 
+• BIOS Reset Detected— This warning is displayed when the CMOS Reset button has 
+been pushed. This warning indicates that the BIOS settings have the default 
+values. 
+
+=== PAGE 130 LINE 17 ===
+BIOS Setup Utility 
+Use the BIOS setup utility to change configuration settings and to enable special 
+functions. The sbRIO-96xx ships with configuration settings that work for most 
+applications, but you can use the BIOS setup utility to change configuration settings to 
+meet the needs of your application. 
+Changing BIOS settings can cause incorrect behavior, including failure to boot. In 
+general, do not change a setting unless you are sure what the setting does. Reset the 
+
+=== PAGE 130 LINE 19 ===
+functions. The sbRIO-96xx ships with configuration settings that work for most 
+applications, but you can use the BIOS setup utility to change configuration settings to 
+meet the needs of your application. 
+Changing BIOS settings can cause incorrect behavior, including failure to boot. In 
+general, do not change a setting unless you are sure what the setting does. Reset the 
+BIOS settings to restoring the default configuration settings. 
+Launching the BIOS Setup Utility for BIOS with DisplayPort 
+
+=== PAGE 134 LINE 3 ===
+compatible and optimal configuration. 
+PCI Settings 
+• 64-Bit Memory-Mapped— This setting allows some PCI memory-mapped I/O to be 
+above the 32-bit boundary. This can be useful when using a 64-bit OS and a large 
+number of PCI devices. 
+• PCI System Error Report— This setting enables the reporting of PCI system errors. 
+For more information on PCI system errors visit ni.com/r/T1ASPC. 
+
+=== PAGE 136 LINE 2 ===
+entering Setup. 
+• User Password— This allows you to set the User password. If you only set the User 
+password, the password will have Administrator rights and you can use this 
+password to boot or enter Setup. 
+Boot Setup Menu 
+The Boot Setup menu contains setting related to the boot process and the boot device 
+
+=== PAGE 136 LINE 16 ===
+followed by 2nd Boot Device and 3rd Boot Device. If multiple boot devices are not 
+present, the BIOS setup utility does not display all of these configuration options. 
+To select a boot device, press <Enter> on the desired configuration option and 
+select a boot device from the resulting menu. You can also disable certain boot 
+devices by selecting Disabled. 
+Boot Settings Configuration Submenu 
+The Boot Settings Configuration submenu applies alternate configurations to boot 
+
+=== PAGE 137 LINE 11 ===
+selects this option. 
+• Discard Changes and Reset—Any chang es made to BIOS settings during this 
+session of the BIOS setup utility are discarded. The setup utility then exits and 
+reboots the controller. The <Esc> key can also be used to select this option. 
+• Save Changes—Chang es made to BIOS settings during this session are committed 
+to NVRAM. The setup utility remains active, allowing further changes. 
+• Discard Changes—Any chang es made to BIOS settings during this session of the 
+
+=== PAGE 138 LINE 25 ===
+Interface Software Release 
+RS-232 through the RMC connector NI CompactRIO 19.6 
+RS-485 through the RMC connector NI CompactRIO 19.6 
+CAN and CAN FD through the dedicated CAN port TBD 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+138 ni.com
+

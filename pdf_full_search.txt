@@ -1,0 +1,82 @@
+PATTERN CAN[_\s]?[HL]:
+
+LabVIEW Project Access 
+Rebooting the sbRIO-96xx with this setting on 
+enables you to add the target to a LabVIEW 
+project. 
+Configuring FPGA Startup App 
+Use the RIO Device Setup utility, which you can launch in the following ways, to select 
+an FPGA startup application: 
+• (Windows 8) Click the NI Launcher tile on the Start screen and select RIO Device 
+Setup. 
+• (Windows 7 or earlier) Select Start»
+---
+hat your system is properly configured with a valid IP 
+address in Measurement & Automation Explorer. If your system is on a 
+remote subnet, you can also select to manually enter the IP address. You 
+can locate the system IP address in MAX in the System Settings for the 
+sbRIO-96xx. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+48 ni.com
+LabVIEW, go to ni.com/r/criodaqmx. You can
+---
+ck Finish. 
+The LabVIEW project is created. All sbRIO I/O modules and corresponding I/O 
+appear under the FPGA Target. 
+Deploying Your sbRIO I/O Module in a Programming Mode in LabVIEW FPGA 
+Note You can locate the system IP address in MAX in the System Settings 
+for the sbRIO-96xx. 
+Note By default, all sbRIO I/O modules appear under the FPGA Target, 
+which indicates that all modules are selected for 
+---
+a counter to begin position 
+measurements. 
+Measurements Using Quadrature Encoders 
+The counters can perform measurements of quadrature encoders that use X1, X2, or X4 
+encoding. A quadrature encoder can have up to three channels—channels A, B, and Z. 
+• X1 Encoding— When channel A leads channel B in a quadrature cycle, the counter 
+increments. When channel B leads channel A in a quadrature cycle, the 
+---
+
+PATTERN dedicated CAN:
+r future release support information. 
+Interface Software Release 
+RS-232 through the RMC connector NI CompactRIO 19.6 
+RS-485 through the RMC connector NI CompactRIO 19.6 
+CAN and CAN FD through the dedicated CAN port TBD 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+138 ni.com
+NI Services 
+Visit ni.com/support to find support resources including documentation, downloads, 
+and troublesh
+---
+
+PATTERN CAN port:
+elease support information. 
+Interface Software Release 
+RS-232 through the RMC connector NI CompactRIO 19.6 
+RS-485 through the RMC connector NI CompactRIO 19.6 
+CAN and CAN FD through the dedicated CAN port TBD 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+138 ni.com
+NI Services 
+Visit ni.com/support to find support resources including documentation, downloads, 
+and troubleshootin
+---
+
+PATTERN 9.pin:
+
+PATTERN D-SUB.*CAN:
+
+PATTERN Connector.*CAN:
+roller with NI-DAQmx System Development
+© National Instruments 11
+Onboard I/O Module 
+The sbRIO-962x and sbRIO-963x feature onboard modules that provide additional 
+analog I/O and digital I/O through Connector0 and Connector1. You can program this 
+I/O in Real-Time (NI-DAQmx) or FPGA modes. You can not program Onboard I/O 
+modules in Real-Time Scan mode. 
+C Series Module 
+The sbRIO-960x and sbRIO-962x feature a high-density RMC co
+---
+

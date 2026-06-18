@@ -1,6 +1,6 @@
 /**
- * @file pendulum_service.c
- * @brief 服务层：摆系统驱动与反馈实现（电机、编码器、电流、软尺摆电压）
+ * @file    pendulum_service.c
+ * @brief   服务层：摆系统驱动与反馈实现（电机、编码器、电流、软尺摆电压）
  * @details 编码器帧解析使用 `common.h` 中 `Cmn_CRC8_Calc`；电流与 PWM 经 `adc.h` / `hrtim.h`；
  *          标定与等待使用 `bsp.h`（`Bsp_Ms_Delay`）。不向上层暴露 HAL 句柄。
  */
@@ -98,33 +98,40 @@ static float s_fMotorCurrentZeroOffsetA = 0.0f;
 static ControlObject_t s_enControlObject = CONTROL_OBJECT_INVERTED_PENDULUM;
 
 /* ======================== 6. 私有函数声明 ======================== */
-static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(EncoderUartSel_t uartSel,
-                                                          const uint8_t *pu8Frame,
+static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(const uint8_t *pu8Frame,
                                                           uint16_t u16Length,
                                                           EncoderFrame_t *struOut);
+
+/* 编码器数据读取 */
 static EncoderProtocolResult_t EncoderProtocol_Motor_Read(EncoderDual_t *struOut);
 static EncoderProtocolResult_t EncoderProtocol_OutputShaft_Read(EncoderDual_t *struOut);
 static EncoderProtocolResult_t EncoderProtocol_SwingArm_Read(EncoderDual_t *struOut);
 
+/* 编码器速度计算 */
 static float EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, EncoderBits_t bits);
 static float EncoderSpeed_Motor_Calc(const EncoderDual_t *struDual);
 static float EncoderSpeed_OutputShaft_Calc(const EncoderDual_t *struDual);
 static float EncoderSpeed_SwingArm_Calc(const EncoderDual_t *struDual);
 
+/* 电机电流获取 */
 static float MotorVoltage_Get(void);
 static float MotorCurrentRaw_Get(void);
-static void  Motor_Disable(void);
 static float MotorCurrent_Get(void);
 
-static int32_t SoftRulerVoltageMilliVolt_Get(int32_t *ps32RawAdc);
-
+/* 电机控制 */
+static void  Motor_Disable(void);
 static uint16_t Motor_DutyPermille_Calibrate_Map(uint16_t u16DutyPermilleAbs);
 
-static int32_t EncoderSpeed_Int32_ClampFromFloat(float v, int32_t s32Lo, int32_t s32Hi);
 
+/* 软尺摆摆幅电压 */
+static int32_t SoftRulerVoltageMilliVolt_Get(int32_t *ps32RawAdc);
+
+
+
+/* 其他 */
+static int32_t EncoderSpeed_Int32_ClampFromFloat(float v, int32_t s32Lo, int32_t s32Hi);
 static uint32_t OutputShaftPositionMask_Get(void);
 static EncoderBits_t OutputShaftEncoderBits_Get(void);
-
 static PendulumServiceResult_t EncoderResult_Map(EncoderProtocolResult_t encRes,
                                                           PendulumServiceResult_t encoderErr);
 
@@ -222,7 +229,7 @@ PendulumServiceResult_t Svc_PendulumService_FeedbackData_Get(PendulumFeedbackDat
     fCurrentA = MotorCurrent_Get();
 
     s32Val = (int32_t)(fCurrentA * MOTOR_CURRENT_TO_FEEDBACK_A);
-    BSP_LOG_PRINTF("fCurrentA = %f,val = %d\n",fCurrentA,val);
+    BSP_LOG_PRINTF("fCurrentA = %f,val = %d\n", fCurrentA, s32Val);
 
     if (s32Val > MOTOR_FEEDBACK_CURRENT_MAX)
     {
@@ -372,8 +379,7 @@ static PendulumServiceResult_t EncoderResult_Map(EncoderProtocolResult_t encRes,
  * @param struOut 解析结果输出
  * @return 解析结果
  */
-static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(EncoderUartSel_t uartSel,
-                                                          const uint8_t *pu8Frame,
+static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(const uint8_t *pu8Frame,
                                                           uint16_t u16Length,
                                                           EncoderFrame_t *struOut)
 {
@@ -411,7 +417,6 @@ static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(EncoderUartSel_t uart
                (unsigned int)pu8Frame[3],
                (unsigned int)pu8Frame[4],
                (unsigned int)pu8Frame[5]);
-        Drv_EncoderUart_HwErrorFlags_Log(uartSel);
         return ENCODER_PROTOCOL_ERR_LENGTH;
     }
 
@@ -428,7 +433,6 @@ static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(EncoderUartSel_t uart
                (unsigned int)pu8Frame[3],
                (unsigned int)pu8Frame[4],
                (unsigned int)pu8Frame[5]);
-        Drv_EncoderUart_HwErrorFlags_Log(uartSel);
         return ENCODER_PROTOCOL_ERR_CRC;
     }
 
@@ -466,12 +470,10 @@ static EncoderProtocolResult_t EncoderProtocol_Motor_Read(EncoderDual_t *struOut
         BSP_LOG_PRINTF("数据获取失败！\n");
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = EncoderProtocol_Frame_Parse(ENCODER_UART_MOTOR,
-                                               &au8RawBuf[0],
+    resLatest = EncoderProtocol_Frame_Parse(&au8RawBuf[0],
                                                ENCODER_FRAME_LENGTH_BYTES,
                                                &struOut->struLatest);
-    resPrev   = EncoderProtocol_Frame_Parse(ENCODER_UART_MOTOR,
-                                               &au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
+    resPrev   = EncoderProtocol_Frame_Parse(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
                                                ENCODER_FRAME_LENGTH_BYTES,
                                                &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -507,12 +509,10 @@ static EncoderProtocolResult_t EncoderProtocol_OutputShaft_Read(EncoderDual_t *s
     {
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = EncoderProtocol_Frame_Parse(ENCODER_UART_SHAFT,
-                                               &au8RawBuf[0],
+    resLatest = EncoderProtocol_Frame_Parse(&au8RawBuf[0],
                                                ENCODER_FRAME_LENGTH_BYTES,
                                                &struOut->struLatest);
-    resPrev   = EncoderProtocol_Frame_Parse(ENCODER_UART_SHAFT,
-                                               &au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
+    resPrev   = EncoderProtocol_Frame_Parse(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
                                                ENCODER_FRAME_LENGTH_BYTES,
                                                &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -554,12 +554,10 @@ static EncoderProtocolResult_t EncoderProtocol_SwingArm_Read(EncoderDual_t *stru
     {
         return ENCODER_PROTOCOL_ERR_DRIVER;
     }
-    resLatest = EncoderProtocol_Frame_Parse(ENCODER_UART_SWING,
-                                               &au8RawBuf[0],
+    resLatest = EncoderProtocol_Frame_Parse(&au8RawBuf[0],
                                                ENCODER_FRAME_LENGTH_BYTES,
                                                &struOut->struLatest);
-    resPrev   = EncoderProtocol_Frame_Parse(ENCODER_UART_SWING,
-                                               &au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
+    resPrev   = EncoderProtocol_Frame_Parse(&au8RawBuf[ENCODER_FRAME_LENGTH_BYTES],
                                                ENCODER_FRAME_LENGTH_BYTES,
                                                &struOut->struPrevious);
     if (resLatest != ENCODER_PROTOCOL_OK)
@@ -618,16 +616,24 @@ static float EncoderSpeed_Calc(uint32_t u32PosPrev, uint32_t u32PosCurr, Encoder
     switch (bits)
     {
         case ENCODER_BITS_21:
+        {
             u32MaxVal = ENCODER_ABS_POSITION_MAX_21BIT;
             break;
+        }
         case ENCODER_BITS_20:
+        {
             u32MaxVal = ENCODER_ABS_POSITION_MAX_20BIT;
             break;
+        }
         case ENCODER_BITS_17:
+        {
             u32MaxVal = ENCODER_ABS_POSITION_MAX_17BIT;
             break;
+        }
         default:
+        {
             return 0.0f;
+        }
     }
 
     u32PosPrev = (u32PosPrev > u32MaxVal) ? u32MaxVal : u32PosPrev;
@@ -766,10 +772,10 @@ static float MotorCurrentRaw_Get(void)
 static uint16_t Motor_DutyPermille_Calibrate_Map(uint16_t u16DutyPermilleAbs)
 {
     /* 标定表（单位：0.01%）
-       ls_actual_tbl：实际上位机目标占空比（期望实际输出）
-       ls_given_tbl ：反推得到的单片机给定占空比（用于 PWM 发生）
-       拟合依据：最新标定表（含 1.3%->0% 锚点）
-       保留逻辑：实际目标 >95% 时按 95% 处理（给定值可大于95%） */
+     * ls_actual_tbl：实际上位机目标占空比（期望实际输出）
+     * ls_given_tbl ：反推得到的单片机给定占空比（用于 PWM 发生）
+     * 拟合依据：最新标定表（含 1.3%->0% 锚点）
+     * 保留逻辑：实际目标 >95% 时按 95% 处理（给定值可大于95%） */
     static const uint16_t ls_actual_tbl[] = {
         0U, 38U, 68U, 112U, 161U, 208U, 254U, 308U, 402U,
         499U, 899U, 1397U, 1895U, 2394U, 2893U, 3400U, 3900U,

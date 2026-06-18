@@ -1,5 +1,5 @@
 /**
- * @file pendulum_service.h
+ * @file    pendulum_service.h
  * @brief 服务层：摆系统驱动与反馈（电机占空比、编码器、电流、摆幅电压等）
  * @details 模块路径：`User/Service`。对上提供 `Svc_PendulumService_*`，对下通过 `hrtim.h` / `usart.h` / `adc.h` 等
  *          驱动层 `Drv_*` 访问外设（具体 include 仅在对应 `.c`）。

@@ -1,0 +1,1470 @@
+=== PAGE 12 ===
+Onboard I/O Module 
+The sbRIO-962x and sbRIO-963x feature onboard modules that provide additional 
+analog I/O and digital I/O through Connector0 and Connector1. You can program this 
+I/O in Real-Time (NI-DAQmx) or FPGA modes. You can not program Onboard I/O 
+modules in Real-Time Scan mode. 
+C Series Module 
+The sbRIO-960x and sbRIO-962x feature a high-density RMC connector with digital I/O. 
+This connector provides two dedicated C Series interfaces for use with board-only C 
+Series modules. The sbRIO controller can access these C Series modules in three 
+programming modes: Real-Time (NI-DAQmx), Real-Time Scan, and FPGA. You can 
+implement the C Series interfaces with an NI-9697 or NI-9698 RMC breakout board or 
+via a custom RMC daughter board. Refer to the RMC Connector Design Guide section of 
+this document for more information and reference schematics. 
+RMC Connector Design Guide 
+Use this section to design and implement an RIO mezzanine card that communicates 
+with the sbRIO-96xx. The RMC connector on the sbRIO-96xx is a high-density, high-
+throughput connector that features up to 96 single-ended DIO lines or up to 45 
+differential pairs directly connected to the FPGA with the ability to add up to two C 
+Series modules and additional peripherals, including mass storage devices over PCIe 
+or SATA. This section details RMC pins and their functions, reference schematics, PCB 
+layout guidelines, and mechanical considerations. 
+RMC Connector Pins 
+The pins on the RMC connector are divided into the following groups: 
+• Pins with dedicated functions. 
+• General purpose digital I/O pins. 
+• Pins reserved for future use. 
+Note Leave reserved and unused pins disconnected on RMCs. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+12 ni.com
+
+=== PAGE 13 ===
+RMC Connector Pinout 
+Figure 1. RMC Connector Pin Listing 
+GND119
+SATA_TX–11
+GND17
+GND23
+USB_D+29
+USB_D–35
+GND41
+GND47
+SPIFUNC_DIO4[1]53
+PROC_LED59
+GND65
+MISO_DIO6[1]71
+SPIFUNC_DIO4[2]77
+GND83
+DIO_47 (DIO_47_P)89
+DIO_46 (DIO_47_N)95
+GND101
+DIO_45 (DIO_45_P)107
+DIO_44 (DIO_45_N)113
+SATA_TX+5
+FPGA_CONF239
+DIO_42 (DIO_43_N)131
+GND137
+DIO_41 (DIO_41_P)143
+DIO_40 (DIO_41_N)149
+GND155
+DIO_39 (DIO_39_P)161
+DIO_38 (DIO_39_N)167
+GND173
+DIO_37 (DIO_37_P)179
+DIO_36 (DIO_37_N)185
+GND191
+DIO_35 (DIO_35_P)197
+DIO_34 (DIO_35_N)203
+GND209
+DIO_33 (DIO_33_P)215
+DIO_32 (DIO_33_N)221
+GND227
+Reserved233
+DIO_43 (DIO_43_P)125
+DIO_12 (DIO_12_P)120
+GND12
+SATA_RX+18
+SATA_RX–24
+GND30
+GND36
+Reserved (3.3 V)42
+3.3 V48
+5 V54
+5 V60
+5 V66
+5 V72
+GND78
+Reserved84
+DIO_1590
+GND96
+DIO_14 (DIO_14_P)102
+DIO_13 (DIO_14_N)108
+GND114
+GND6
+FPGA_VIO 95..48240
+GND132
+DIO_10 (DIO_10_P)138
+DIO_09 (DIO_10_N)144
+GND150
+DIO_08 (DIO_08_P)156
+DIO_07 (DIO_08_N)162
+GND168
+DIO_06 (DIO_06_P)174
+DIO_05 (DIO_06_N)180
+GND186
+DIO_04 (DIO_04_P)192
+DIO_03 (DIO_04_N)198
+GND204
+DIO_02 (DIO_02_P)210
+DIO_01 (DIO_02_N)216
+GND222
+DIO_00228
+FPGA_VIO 47..0234
+DIO_11 (DIO_12_N)126
+DIO_76 (DIO_77_N)118
+GND10
+PCIe_Gen2 RX+16
+PCIe_Gen2 RX-22
+GND28
+Reserved34
+ID_SELECT#[1]40
+CVRT#_DIO3{1]46
+GND52
+OSCLK_DIO0[1]58
+TRIG_DIO1[1]64
+GND70
+OSCLK_DIO0[2]76
+TRIG_DIO1[2]82
+GND88
+DIO_79 (DIO_79_P)94
+DIO_78 (DIO_79_N)100
+GND106
+DIO_77 (DIO_77_P)112
+GND4
+Reserved238
+DIO_75 (DIO_75_P)130
+DIO_74 (DIO_75_N)136
+GND142
+DIO_73 (DIO_73_P)148
+DIO_72 (DIO_73_N)154
+GND160
+DIO_71 (DIO_71_P)166
+DIO_70 (DIO_71_N)172
+GND178
+DIO_69 (DIO_69_P)184
+DIO_68 (DIO_69_N)190
+GND196
+DIO_67 (DIO_67_P)202
+DIO_66 (DIO_67_N)208
+GND214
+DIO_65 (DIO_65_P)220
+DIO_64 (DIO_65_N)226
+GND232
+GND124
+DIO_29 (DIO_29_P)117
+PCIe_Gen2 TX-9
+GND15
+GND21
+Reserved27
+USB_CPEN33
+GND39
+SLEEP[1]45
+SLEEP[2]51
+GND57
+ID_SELECT#[2]63
+CVRT#_DIO3[2]69
+GND75
+MISO_DIO6[2]81
+Reserved87
+GND93
+DIO_31 (DIO_31_P)99
+DIO_30 (DIO_31_N)105
+GND111
+PCIe_Gen2 TX+3
+GND237
+GND129
+DIO_27 (DIO_27_P)135
+DIO_26 (DIO_27_N)141
+GND147
+DIO_25 (DIO_25_P)153
+DIO_24 (DIO_25_N)159
+GND165
+DIO_23 (DIO_23_P)171
+DIO_22 (DIO_23_N)177
+GND183
+DIO_21 (DIO_21_P)189
+DIO_20 (DIO_21_N)195
+GND201
+DIO_19 (DIO_19_P)207
+DIO_18 (DIO_19_N)213
+GND219
+DIO_17 (DIO_17_P)225
+DIO_16 (DIO_17_N)231
+DIO_28 (DIO_29_N)123
+GND116
+GND8
+VIN_Filtered14
+VIN_Filtered20
+GND26
+PCIe_Clk+32
+RST#38
+GND44
+DONE#_DIO2[1]50
+MOSI_DIO7[1]56
+GND62
+DONE#_DIO2[2]68
+MOSI_DIO7[2]74
+GND80
+5V C Series86
+DIO_6392
+GND98
+DIO_62 (DIO_62_P)104
+DIO_61 (DIO_62_N)110
+GND2
+VBAT236
+DIO_59 (DIO_60_N)128
+GND134
+DIO_58 (DIO_58_P)140
+DIO_57 (DIO_58_N)146
+GND152
+DIO_56 (DIO_56_P)158
+DIO_55 (DIO_56_N)164
+GND170
+DIO_54 (DIO_54_P)176
+DIO_53 (DIO_54_N)182
+GND188
+DIO_52 (DIO_52_P)194
+DIO_51 (DIO_52_N)200
+GND206
+DIO_50 (DIO_50_P)212
+DIO_49 (DIO_50_N)218
+GND224
+DIO_48230
+DIO_60 (DIO_60_P)122
+DIO_93 (DIO_94_N)115
+VIN_Filtered7
+GND13
+GND19
+Reserved25
+PCIe_Clk-31
+CLK_REQ# 37
+SYS_RST#43
+GND49
+SPICS#_DIO5[1]55
+SPI_CLK[1]61
+GND67
+SPICS#_DIO5[2]73
+SPI_CLK[2]79
+GND85
+5V C Series91
+DIO_9597
+GND103
+DIO_94 (DIO_94_P)109
+VIN_Filtered1
+DIO_80235
+DIO_92 (DIO_92_P)127
+DIO_91 (DIO_92_N)133
+GND139
+DIO_90 (DIO_90_P)145
+DIO_89 (DIO_90_N)151
+GND157
+DIO_88 (DIO_88_P)163
+DIO_87 (DIO_88_N)169
+GND175
+DIO_86 (DIO_86_P)181
+DIO_85 (DIO_86_N)187
+GND193
+DIO_84 (DIO_84_P)199
+DIO_83 (DIO_84_N)205
+GND211
+DIO_82 (DIO_82_P)217
+DIO_81 (DIO_82_N)223
+GND229
+GND121
+GND FPGA I/O FPGA Clock
+Optimized Processor i/O Power ReservedC Series
+Use the RMC Connector Feature Set Compatibility table to determine if a previously 
+designed RMC is compatible with the new RMC pinout and as guidance on how to 
+design an RMC for compatibility with future generations of the RMC. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 13
+
+=== PAGE 14 ===
+Table 5. RMC Connector Feature Set Compatibility 
+Feature Set 
+sbRIO-96x7 
+(Previous 
+Generation) 
+sbRIO-96xx 
+(CompactRIO 
+Single-Board 
+Controllers with 
+NI-DAQmx) 
+Future Design 
+Compatibility 
+DIO[0..63] Yes Yes Yes 
+DIO[64..95] Yes Yes Not guaranteed 
+FPGA_CONF Yes Yes Yes 
+USB_D+/- Yes Yes Yes 
+RST# Yes Yes Yes 
+SYS_RST# Yes Yes Yes 
+5V Yes Yes Yes 
+3.3V Yes Yes Yes 
+FPGA_VIO1 Yes Yes Yes 
+VBAT Yes Yes Yes 
+Processor I/O via 
+DIO[0..95] 
+CAN Yes No Not guaranteed 
+RS-232 Yes Visit ni.com/r/
+sbrio for more 
+information 
+Not guaranteed 
+RS-485 Yes Not guaranteed 
+SDHC Yes No Not guaranteed 
+GBE_MDI[0..3+/-] Yes No Not guaranteed 
+USB_MODE, USB_VBUS Yes No Not guaranteed 
+USB_CPEN Yes Yes Not guaranteed 
+Dedicated C Series DIO Yes Yes Not guaranteed 
+VIN_FILTERED Yes Yes Yes 
+PCIe No Yes No 
+SATA No Yes No 
+Pins with Dedicated Functions 
+1. FPGA_VIO present when the FPGA is programmed. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+14 ni.com
+
+=== PAGE 15 ===
+Table 6. RMC Connector Pins with Dedicated Functions 
+Pin Group Pin Name Pin Number Direction (from 
+Host System) Description 
+Power (Output) GND 
+2, 4, 6, 8, 10, 12, 
+13, 15, 17, 19, 21, 
+23, 26, 28, 30, 36, 
+39, 41, 44, 47, 49, 
+52, 57, 62, 65, 67, 
+70, 75, 78, 80, 83, 
+85, 88, 93, 96, 98, 
+101, 103, 106, 111, 
+114, 116, 119, 121, 
+124, 129, 132, 134, 
+137, 139, 142, 147, 
+150, 157, 160, 165, 
+168, 170, 173, 175, 
+178, 183, 186, 188, 
+191, 193, 196, 201, 
+204, 206, 209, 211, 
+214, 219, 222, 224, 
+227, 229, 232, 237 
+O 
+Digital ground 
+from the RMC 
+connector host 
+system. 
+Power (Output) 
+3.3 V 48 O 
+3.3 V from the 
+RMC connector 
+host system. The 
+rail is always on 
+when the main 
+host system is not 
+in sleep mode. 
+5 V 54, 60, 66, 72 O 
+5 V from the RMC 
+connector host 
+system. The rail is 
+always on when 
+the main host 
+system is not in 
+sleep mode. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 15
+
+=== PAGE 16 ===
+Pin Group Pin Name Pin Number Direction (from 
+Host System) Description 
+FPGA_VIO<47..0> 234 O 
+I/O voltage for 
+DIO<47..0>. 3.3 V 
+or 2.5 V 
+configurable via 
+the CLIP wizard. 
+FPGA_VIO<96..48> 240 O 
+I/O voltage for 
+DIO<96..48>. 3.3 V 
+or 2.5 V 
+configurable via 
+the CLIP wizard. 
+Power (Input) 
+VIN_FILTERED 1, 7, 14, 20 I 
+9 V to 30 V input to 
+power the device 
+through the RMC 
+connector rather 
+than through the 
+front panel 
+connector. 
+VBAT 236 I 
+This pin may be 
+used to connect a 
+longer life battery 
+to the RTC on the 
+host system. The 
+RTC will track 
+absolute time as 
+long as either the 
+main system 
+battery or RMC 
+battery through 
+VBAT pin contains 
+sufficient charge. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+16 ni.com
+
+=== PAGE 17 ===
+Pin Group Pin Name Pin Number Direction (from 
+Host System) Description 
+C Series DIO 
+ID_SELECT#[1], 
+OSCLK_DIO0[1], 
+TRIG_DIO1[1], 
+DONE#_DIO2[1], 
+CVRT#_DIO3[1], 
+SPIFUNC_DIO4[1], 
+SPICS#_DIO5[1], 
+MISO_DIO6[1], 
+MOSI_DIO7[1], 
+SPI_CLK[1] 
+ID_SELECT#[2], 
+OSCLK_DIO0[2], 
+TRIG_DIO1[2], 
+DONE#_DIO2[2], 
+CVRT#_DIO3[2], 
+SPIFUNC_DIO4[2], 
+SPICS#_DIO5[2], 
+MISO_DIO6[2], 
+MOSI_DIO7[2], 
+SPI_CLK[2] 
+40, 46, 50, 53, 55, 
+56, 58, 61, 63, 64, 
+68, 69, 71, 73, 74, 
+76, 77, 79, 81, 82 
+I/O 
+Signal 
+conditioned C 
+Series DIO. 
+SLEEP 
+5V C Series 
+45, 51 
+86, 91 
+O 
+Resets 
+RST# 38 O 
+Reset that 
+indicates that the 
+main power is not 
+ideal, or that the 
+RMC connector 
+host system has 
+been reset. 
+SYS_RST# 43 I System reset used 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 17
+
+=== PAGE 18 ===
+Pin Group Pin Name Pin Number Direction (from 
+Host System) Description 
+to reset the RMC 
+connector host 
+system. Asserting 
+this pin causes the 
+RST# pin to also 
+assert. This signal 
+is pulled to 3.3 V 
+with a 4.75 kΩ 
+resistor when in 
+Run Mode, Safe 
+Mode, and Sleep 
+Mode. 
+High speed USB 
+(after PHY) 
+USB_D+ 
+USB_D- 
+29 
+35 
+I/O Port for hi-speed 
+differential USB. 
+USB_CPEN 33 O USB over-current 
+protection enable. 
+PCIe 
+PCIe Clk+ 
+PCIe Clk- 
+PCIe_Gen2 TX+ 
+PCIe_Gen2 TX- 
+32 
+31 
+3 
+9 
+O 
+Port for PCIe 
+device. 
+PCIe_Gen2 RX- 
+PCIe_Gen2 RX+ 
+22 
+16 
+I 
+CLK_REQ# 37 I Short this signal 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+18 ni.com
+
+=== PAGE 19 ===
+Pin Group Pin Name Pin Number Direction (from 
+Host System) Description 
+to GND or to the 
+CLK_REQ# pin of a 
+PCIe connector 
+when the PCIe 
+interface is used. 
+Leave floating 
+otherwise. 
+SATA 
+SATA_TX+ 
+SATA_TX- 
+5 
+11 
+O Port for additional 
+SATA storage. May 
+be routed to an 
+mSATA or M.2 
+connector. SATA_RX+ 
+SATA_RX- 
+18 
+24 
+I 
+Additional 
+Processor I/O PROC_LED 59 O 
+Indicates a 
+controller state 
+similar to the 
+STATUS LED. Refer 
+to the 
+CompactRIO 
+Single-
+BoardController 
+with NI-DAQmx 
+Installation 
+Manual for the 
+STATUS LED 
+behavior. 
+General Purpose Digital I/O Pins 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 19
+
+=== PAGE 20 ===
+Table 7. RMC Connector General Purpose Digital I/O Pins 
+Pin Group Pin Name Direction (from Host 
+System) Description 
+General purpose digital 
+I/O pins DIO[0..95] I/O 
+Pins for connecting 
+directly to the FPGA 
+through a series 
+resistor and for 
+enabling serial 
+peripherals on an RMC. 
+RMC Connector Electrical Characteristics 
+RMCs with FPGA I/O pins that require an external pull-up or pull-down should use the 
+values listed in the following table. 
+Table 8. Recommended External Pull-Up and Pull-Down Values 
+Requirement Maximum Value Minimum Value 
+External pull-up 14.7 kΩ 1 kΩ 
+External pull-down 8 kΩ 1 kΩ 
+RMC Connector Power Requirements 
+Use the following voltage pins to power the RMC: 
+• 5 V rail, which provides a primary power source to the RMC 
+• 3.3 V, which provides an auxiliary power source to the RMC 
+• FPGA_VIO, which provides I/O power for the FPGA I/O pins 
+Notice Ensure that your RMC does not source any current onto any of the 
+power pins and can tolerate 5 V, 3.3 V, and FPGA_VIO coming up in any order. 
+Notice If FPGA_VIO<47..0> and FPGA_VIO<96..48> are configured as 
+different voltages by the LabVIEW FPGA CLIP wizard, then ensure these are 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+20 ni.com
+
+=== PAGE 21 ===
+PCIe over RMC 
+PCIe is routed to the RMC connector to allow for connection to PCIe devices. These 
+devices may require a Linux driver in order to operate properly, which makes this an 
+advanced feature not supported in LabVIEW. Example devices include M.2 SSD, 
+additional Ethernet ports, or WIFI. 
+PCIe Reference Schematic 
+separate nets on the RMC design in order to prevent the higher voltage from 
+sourcing current onto the lower voltage. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 21
+
+=== PAGE 22 ===
+Figure 2. PCIe Reference Schematic 
+10µFC42
+1
+2
++3.3V
+0.1µFC43
+1
+2
+0.1µFC44
+1
+2
+10µFC45
+1
+2
++3.3V
+0.1µFC46
+1
+2
+0.1µFC47
+1
+2
+10µFC48
+1
+2
++3.3V
+0.1µFC49
+1
+2
+0.1µFC50
+1
+2
+0Ω
+R321 2
+0.1µF
+1
+2
++3.3VS
+4
+1
+3 1 2
+2
+VCC
+VIO
+OUT
+GND
+R30
+39.2
+SG-3030JC32KHZ
+U7
+10K
+1
+2
+R31
++3.3VS
++3.3VS
++3.3V
+LED-LX0603GW
+DS1
+R331 22 1
+2
+1
+332
+R34
+SPARE
+GRN
+POPULATION OPTIONS FOR DEBUG LED
+3.3V[0]
+3.3V[1]
+NC[0]
+NC[1]
+DAS/DSS#
+3.3V[2]
+3.3V[3]
+3.3V[4]
+3.3V[5]
+NC[2]
+NC[3]
+NC[4]
+NC[5]
+NC[6]
+NC[7]
+NC[8]
+NC[9]
+NC[10]
+DEVSLP
+NC[11]
+NC[12]
+NC[13]
+NC[14]
+NC[15]
+PERST
+CLKREQ
+PEWAKE
+MFG_Data/Reserved[0]
+MFG_Clock/Reserved[1]
+SUSCLK
+3.3V[6]
+3.3V[7]
+3.3V[8]
+GND[0]
+GND[1]
+PERn3
+PERp3
+GND[2]
+PETn3
+PETp3
+GND[3]
+PERn2
+PERp2
+GND[4]
+PETn2
+PETp2
+GND[5]
+PERn1
+PERp1
+GND[6]
+PETn1
+PETp1
+GND[7]
+PERn0/SATA-B+
+PERp0/SATA-B-
+GND[8]
+PETn0/SATA-A-
+PETp0/SATA-A+
+GND[9]
+REFCLKn
+REFCLKp
+GND[10]
+NC[24]
+PEDET
+GND[11]
+GND[12]
+GND[13]
+SHIELD1
+SHIELD2
+PCIe_CLK+
+PCIe_CLK–
+PCIe_Gen2_TX+
+PCIe_Gen2_TX–
+PCIe_Gen2_RX+
+PCIe_Gen2_RX–
+1
+2
+R36
+0
+1
+2
+R35
+0
+M.2 Socket
+75 pin M.2 Socket 3 SSD (Mechanical Key M)J6
+37
+76
+48
+56
+23
+55
+27
+11
+69
+67
+35
+25
+45
+19
+7
+5
+49
+3
+71
+21
+39
+43
+72
+70
+68
+73
+51
+17
+53
+29
+15
+74
+58
+31
+52
+77
+50
+41
+9
+54
+75
+47
+57
+33
+13
+1
+46
+42
+40
+38
+36
+34
+32
+28
+26
+24
+30
+22
+20
+44
+18
+16
+4
+14
+6
+10
+12
+2
+8
+SMTSO-M3-2-ET
+MH1
+Surface mount standoffSee M.2 specification for placementlocation of the standoff.
+1
+CLK_REQ#
+RST#
+Reference Schematic Design Considerations 
+Table 9. PCIe Reference Schematic Design Considerations 
+Consideration Notes 
+Differential signals 85 Ω ±10% 
+PCIe Gen1 Keep signal length shorter than 203.2 mm (8 in.) 
+PCIe Gen2 Keep signal length shorter than 152.4 mm (6 in.) 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+22 ni.com
+
+=== PAGE 23 ===
+SATA over RMC 
+SATA is routed to the RMC connector to allow additional SSD storage integrated into 
+the RMC board. These signals can be routed to an onboard SSD, M.2 connector, or 
+mSATA connector. mSATA performs more consistently than other connecters in 
+environments with shock and vibration conditions. 
+SATA Reference Schematic 
+Figure 3. SATA Reference Schematic 
+12
+2
++3.3V
+22µFC60 1.0µFC61 0.1µFC621
+1
+2
+12
+2
++3.3V
+22µFC57 1.0µFC58 0.1µFC591
+1
+2
+12
+2
++3.3V
+22µFC54 1.0µFC55 0.1µFC561
+1
+2
+12
+2
++3.3V
+22µFC51 1.0µFC52 0.1µFC531
+1
+2
++3.3V
+52
+24
+41
+39
+2
+27
+15
+37
+34
+35
+29
+50
+40
+26
+21
+18
+9
+4
+J7
+SOCKET52
+3.3Vaux[0] GND[0]
+1.5V[0]
+GND[1]
+GND[2]
+GND[3]
+GND[4]
+3.3Vaux[1]
+GND[5]
+GND[6]
+1.5V[1] GND[7]
+GND[8]
+GND[9]
+GND[10]
+3.3Vaux[2]
+GND[11]
+3.3Vaux[3]
+GND[12]
+1.5V[2]
+3.3Vaux[4]
+SATA_TX-
+SATA_TX+
+SATA_RX+
+SATA_RX-
+0.01µF
+C631 2
+21 C64
+0.01µF
+LED-LX0603GW
+DS2
+121 2
+GRN
++3.3V
+2
+R39
+1
+SPARE
+R38
+332
+POPULATION OPTIONS FOR DEBUG LED
+R40
+10K
+221
+0Ω
+R37 21
+16
+20
+8
+42
+33
+46
+44
+48
+31
+28
+25
+23
+14
+12
+10
+6
+22
+19
+17
+47
+45
+53
+30
+32
+43
+38
+36
+54
+51
+49
+13
+11
+5
+7
+3
+1
+NC[3]
+NC[7]
+NC[5]
+NC[4]
+NC[6]
+NC[2]
+SATA_BP
+SATA_BN
+SATA_AN
+SATA_AP
+NC[1]
+DEVSLP#
+NC[0]
+NC[14]
+NC[15]
+NC[16]
+NC[13]
+NC[8]
+NC[9]
+RESERVED[0]
+RESERVED[1]
+NC[12]
+SMB_CLK
+SMB_DATA
+NC[10]
+NC[11]
+VENDOR1
+VENDOR2
+DAS/DSS#
+DEVTYPE
+PRESENCE
+NC[17]
+NC[18]
+VENDOR-SPECIFIC PINS
+VENDOR-SPECIFIC PINS
+1
+1
+GND
+GND
+MH2
+SMTSO-M3
+MH3
+SMTSO-M3
+Surface mount standoffs.
+See mSATA specification for placement
+locations of the standoffs
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 23
+
+=== PAGE 24 ===
+Reference Schematic Design Considerations 
+Table 10. SATA Reference Schematic Design Considerations 
+Consideration Notes 
+Differential signals 85 Ω ±10% 
+Device on same PCB Keep signal length shorter than 152.4 mm(6 in.) 
+Device routed to connector with 1.0 m(3.28 ft.) 
+cable Keep signal length shorter than 76.2 mm(3 in.) 
+Fixed Behavior Signals 
+Power Rails 
+FPGA_VIO 
+FPGA_VIO only contains a valid voltage when the FPGA is configured. At other times 
+the voltage rail is floating and will typically settle to 0 V. FPGA_CONF can be monitored 
+to know when FPGA_VIO is valid. If FPGA_VIO is required to be at a known voltage at 
+power up then download your FPGA application to the flash of the sbRIO-96xx. 
+Both FPGA_VIO<47..0> and FPGA_VIO<96..48>can be configured for either 2.5 V or 3.3 
+V. A voltage of 2.5 V allows for either 2.5 V single ended IO standards or differential 
+LVDS IO standards. A voltage of 3.3 V allows for 3.3 V single ended IO standards. When 
+configuring the IO through the CLIP both 2.5 V and 3.3 V is supported. When 
+configuring the IO by selecting New » RIO Mezzanine Card the voltage is fixed at 3.3 V. 
+VIN_Filtered 
+The sbRIO-96xx may alternatively be powered over the RMC connector via the 
+VIN_Filtered pins. These input pins are 9 V to 30 V. These power pins must contain 
+appropriate filtering on them to ensure reliable operation of the sbRIO-96xx. 
+Note Refer to the model specifications document for your model on ni.com/
+manuals for information about voltage tolerance and current levels. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+24 ni.com
+
+=== PAGE 25 ===
+VIN_Filtered Implementation on the RMC 
+Figure 4. VIN_Filtered Reference Schematic EMI-COMM-MODE, SM
+2744045447
+9 V-30 V
+2
+3
+1
+L1
+4
+C1
+50 V
+1000 pF1
+2 2
+1
+C2
+1000 pF
+50 V
+VIN_EXT+
+GND
+VIN_FUSED
+VIN_EXT–
+VIN_Filtered
+12 AMP,
+SM
+F1
+21
+CR1
+36 V
+A
+C
+Connect a well-regulated voltage that falls in the range of 9 V to 30 V to the 
+VIN_Filtered pins to power up the board. 
+Include a common mode choke in the design before connecting the voltage rails to the 
+RMC connector. Place a transient voltage suppressor before the common choke. 
+Reference Schematic Design Considerations 
+The following table lists design considerations for the schematic shown in the previous 
+figure. 
+Table 11. Power Rails Reference Schematic Design Considerations 
+Consideration Notes 
+TVS Selection 
+The recommended part is SMDJ36CA from 
+LittleFuse. Any TVS with reverse standoff voltage 
+and breakdown voltage of more than 30 V can be 
+designed in. 
+Common Mode Choke 
+The recommended part is 2744045447 from Fair-
+Rite. Alternatively, use a common mode choke 
+that matches the performance of this part in 
+terms of the DC and AC impedance. 
+Capacitor 
+1000 pf is the recommended value of the 
+decoupling input and output capacitor. The 
+recommended part is a ceramic COG. 
+Note If simultaneously connected to multiple power sources, the sbRIO-96xx 
+draws power from the terminal with the higher voltage. Ensure that the 
+preferred power supply is 500 mV higher than the alternative power supply. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 25
+
+=== PAGE 26 ===
+Consideration Notes 
+Fuse 
+The recommended part is 0451012 from 
+LittleFuse if the only load after the fuse is the 
+VIN_RMC input pin to the sbRIO device. Use a 12 
+A fuse to provide sufficient margin and prevent 
+false blows due to temperature and process 
+variations. If you choose to connect other loads 
+after the fuse, you must account for the extra 
+current drawn by that load when selecting a 
+fuse. 
+USB Support 
+USB support over RMC has the following features. 
+• Normally used for mass storage or other USB peripherals. 
+• Supports host mode. 
+• USB pairs connect to either a USB connector or to a USB device on the RMC board. 
+USB Host Implementation on the RMC 
+Note Your RMC design must provide the 5 V USB_VBUS power to USB Host 
+ports and must limit the current supplied to each host port according to USB 
+specifications. 
+Note Refer to the File System section for more information about 
+configuring USB storage devices over RMC. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+26 ni.com
+
+=== PAGE 27 ===
+Figure 5. USB Host Reference Schematic 
+DLW21S_900
+VCC
++DAT1
+–DAT1
+GND
+SHLD1
+SHLD2
+USB_A
+D–
+D+
+GND
+IN
+EN
+ILIM
+OUT
+FAULT
+GND
+PAD
+TPS2553
+L2
+21
+34
+2
+C5
+0.01 µF
+1
+1
+4
+J1
+3
+6
+2
+5
+1
+3
+2
+U2
+TPD2EUSB30
+C3
+0.1 µF
+2
+1
+3
+1
+U1
+6
+5
+7
+4
+2
+R1 2
+0 Ω
+1
+0 Ω
+R2 21
+1
++
+2
+C4
+100 µF
+1
+R6
+1 kΩ
+2
+R4
+23.2 kΩ
+2
+1
+USB_D–
+USB_D+
+USB_CPEN
+There is a pull down resistor on USB_CPEN to guarantee the USB port is not powered until the processor is ready.
+POPULATION OPTION FOR EMC/EFI
++5V
+0.1 µF
+2 1
+C6
+R5
+4.75 kΩ
+2
+1
+1
+2
+R3
+4.75 kΩ
++5V
+These lines can swapif layout is easier
+Supporting Onboard USB Devices 
+When you implement a USB device directly on your RMC, you can connect the device 
+to a USB Host port from the sbRIO device. For this case, use the following design 
+guidelines: 
+• You can connect the USB data pair directly to a USB device on your RMC. 
+• A current limiter is not required. 
+• Use the RST# signal to reset the USB device when the sbRIO device is in reset. 
+USB Routing Considerations 
+NI recommends the following design practices for properly routing USB signals on 
+your RMC: 
+• Route the USB_D+ and USB_D- signals as differential pairs with 90 Ω diff erential 
+impedance. 
+• Length-match the positive and negative signal for each USB data pair to within 10 
+mils. 
+• Limit the USB_D+ and USB_D- trace lengths on the RMC to 8.0 in. or less, which is 
+Note USB_CPEN has a pulldown to ensure that the USB port is not powered 
+until the processor is ready. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 27
+
+=== PAGE 28 ===
+the length at which USB compliance was tested. 
+C Series Interface 
+• The C Series interface provides up to two slots of C Series support on the RMC. 
+• All lines can be connected directly to the 15-pin DSUB connector except for the 5 V 
+power. The 5 V power has specific filtering requirements. 
+• You can program C Series modules with Real-Time (NI-DAQmx) mode, Real-Time 
+Scan mode, and FPGA mode. 
+C Series Implementation on the RMC 
+The following figures show schematic designs for the C Series implementation on the 
+RMC. 
+Figure 6. C Series with Current Limiter Reference Schematic 
+IN1
+IN2
+FAULT
+OUT1
+OUT2
+GND
+THERMPAD
+ILIM
+EN
+TPS2557
+6.8 µH
+OE VCC
+GND
+SN74LVC1G126DBVR
+Current Limiter
+2
+3
+IOS_max=869 mA
+IOS_min=592 mA
+U4
+4
+5
+9
+7
+1
+6
+8
+R9 
+150  kΩ
+2
+1
+2
+1
+C7
+0.1 µF
+R7
+64.9 kΩ
+2
+1
+21
+2
+1
+C10 
+0.1 µF
+1 R8 2
+2
+1
+C9
+0.1 µF
+1+ C11
+100 µF
+2
+C12
+0.01 µF
+2
+1
+C8
+0.1 µF
+1
+2U3
+51
+43
+2
+5V_C_SERIES
+VCC_SLOT
+NC_RESERVED_3
+SLEEP
+VCC_SLOT
+VCC_SLOT_FILT
+SPICS#_DIO5
+TRIG_DIO1
+MOSI_DIO7
+SPIFUNC_DIO4
+ID_SELECT#VCC_SLOT
+332
+SHELL1
+SHELL2
+J2
+17
+16
+8
+7
+15
+14
+6
+13
+5
+12
+4
+11
+3
+10
+2
+9
+1
+CVRT#_DIO3
+OSCLK_DIO0
+SPI_CLK
+MISO_DIO6
+DONE#_DIO2
+NC_RESERVED_13
+K86X-ED-15P-BR
+L3
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+28 ni.com
+
+=== PAGE 29 ===
+Figure 7. C Series without Current Limiter Reference Schematic 
+6.8UH
+SHELL1
+SHELL2
+1 2
+L4
+2
+1
+C14
+0.1 µF
+2
+1
+C13
+0.1 µF
+C15
+100 µF
+2
+1+
+2
+C16
+0.01 µF
+1
+J3
+15
+17
+10
+13
+5
+11
+4
+16
+9
+3
+2
+6
+8
+1
+12
+14
+7
+NC_RESERVED_3
+SLEEP
+VCC_SLOT_FILT
+SPICS#_DIO5
+TRIG_DIO1
+MOSI_DIO7
+SPIFUNC_DIO4
+ID_SELECT#
+CVRT#_DIO3
+OSCLK_DIO0
+SPI_CLK
+MISO_DIO6
+DONE#_DIO2
+NC_RESERVED_13
+5V_C_SERIES
+K86X-ED-15P-BR
+Use a current limiter to protect the PI inductor from overcurrenting in a fault condition 
+and prevent the 5 V pin from accidentally shorting to either GND or CHSY. This 
+protection is beneficial in environments where hot-plugging C Series modules are 
+used. 
+Reference Schematic Design Considerations 
+The following table lists design considerations for the schematics shown in the 
+previous figures. 
+Table 12. C Series Reference Schematic Design Considerations 
+Consideration Notes 
+Current limiter U4 
+If a current limiter is used, you must re-buffer the 
+sleep signal to the DSUB connector. If a current 
+limiter is not used, you can connect the sleep 
+signal directly to the DSUB connector by 
+removing U15 in the schematic. The buffer 
+prevents the sleep signal from being driven to 
+the C Series module in an overcurrent condition. 
+Inductor L3 or L4 
+Power PI Filter specifications: 
+• Value: 6.8 μH ±20% 
+• ESR: <200 mΩ 
+• Rated Current: >=400 mA 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+© National Instruments 29
+
+=== PAGE 30 ===
+Consideration Notes 
+Capacitor C11 or C15 
+Power PI Filter specifications: 
+• Value: 100 μF ±20% 
+• ESR: <100 mΩ 
+C Series Routing Considerations 
+NI recommends the following design practices for properly routing C Series signals on 
+your RMC2: 
+• Route the signals with 55 Ω ±10% impedanc e. 
+• Length-match each signal to within 250 mils. 
+• Limit each signal trace length on the RMC to 10.0 in. or less, which is the length 
+from the RMC SEARAY connector to DSUB connector. 
+• Maintain at minimum a 3 × H line spacing between single-ended traces, where H is 
+the distance in the board stack-up from the trace to its reference plane. 
+RTC Battery (VBAT) 
+The NI sbRIO-96xx contains a lithium cell battery that maintains the real-time clock 
+(RTC) on the sbRIO device when the sbRIO device is powered off. A slight drain on the 
+battery occurs when power is not applied to the sbRIO device. 
+The CMOS BATTERY IS DEAD warning appears onscreen during the power-on self 
+test if the battery is dead. The sbRIO-96xx will start, but the system clock will reset to 
+the date and time of the BIOS release. 
+The RMC connector provides a VBAT pin to power the RTC. This allows the customer to 
+select a battery that better aligns with their application if necessary. 
+VBAT Implementation on the RMC 
+The following figure shows a schematic design for the VBAT implementation on the 
+RMC. 
+2. SLEEP lines and 5V_C SERIES are exempted from these requirements. 
+CompactRIO Single-Board Controller with NI-DAQmx System Development
+30 ni.com
+

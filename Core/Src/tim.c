@@ -261,15 +261,15 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim->Instance == TIM1)
-  {
-    Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_MOTOR);
-  }
-  else if (htim->Instance == TIM2)
-  {
-    /* TIM2 UEV 周期约 200ms（PSC=1699、ARR=19999、TIMCLK≈170MHz）；IWDG 超时约 512ms，须保证该周期远小于超时 */
-    (void)HAL_IWDG_Refresh(&hiwdg);
-  }
+    if (htim->Instance == TIM1)
+    {
+        Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_MOTOR);
+    }
+    else if (htim->Instance == TIM2)
+    {
+        /* TIM2 UEV 周期约 200ms（PSC=1699、ARR=19999、TIMCLK≈170MHz）；IWDG 超时约 512ms，须保证该周期远小于超时 */
+        (void)HAL_IWDG_Refresh(&hiwdg);
+    }
 }
 
 /**
@@ -280,18 +280,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  */
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim->Instance != TIM1)
-  {
-    return;
-  }
-  if ((htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1))
-  {
-    Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SWING);
-  }
-  else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
-  {
-    Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* CH2，≈0.20ms */
-  }
+    if (htim->Instance != TIM1)
+    {
+        return;
+    }
+    if ((htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1))
+    {
+        Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SWING);
+    }
+    else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
+    {
+        Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* CH2，≈0.20ms */
+    }
 }
 
 

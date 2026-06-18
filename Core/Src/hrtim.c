@@ -356,16 +356,11 @@ Status_t Drv_PWM_TargetPulse_Set(uint16_t u16ExpectedValue)
   return STATUS_OK;
 }
 
-/* -------- 7.2 层内接口（Drv_Loc_*，与 .h 5.2 对应） -------- */
-/* 无 */
-
-/* ======================== 8. 私有函数实现 ======================== */
-
 /**
- * @brief PWM 占空比手动测试：经调试串口读入 5 位数字（00000~10000），设为目标占空比
- * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用流程中调用
+ * @brief PWM 手动测试：经调试串口读入 5 位数字（00000~10000），设为目标占空比
+ * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用主循环中调用
  */
-static void PWM_TEST(void)
+void Drv_PWM_TEST(void)
 {
   /* 预读一帧调试串口数据 */
   HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 10, 100);
@@ -380,6 +375,11 @@ static void PWM_TEST(void)
 
   s_u8FlagPulse = 1U;
 }
+
+/* -------- 7.2 层内接口（Drv_Loc_*，与 .h 5.2 对应） -------- */
+/* 无 */
+
+/* ======================== 8. 私有函数实现 ======================== */
 
 /**
  * @brief 将占空比参数写入 HRTIM TimerA 比较寄存器（仅本文件调用）
@@ -424,23 +424,23 @@ static Status_t PWM_Pulse_Write(uint16_t u16T2Pulse)
  */
 void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim, uint32_t u32TimerIdx)
 {
-  if(HRTIM_TIMERINDEX_TIMER_A == u32TimerIdx)
-  {
-    Drv_Loc_ADC_Motor_RawData_Snapshot();
-    return;
-  }
-
-  if(HRTIM_TIMERINDEX_TIMER_B == u32TimerIdx)
-  {
-    if (s_u8FlagPulse)
+    if(HRTIM_TIMERINDEX_TIMER_A == u32TimerIdx)
     {
-      s_u8FlagPulse = 0U;
-      if (PWM_Pulse_Write((uint16_t)((float)s_u16TargetPulse * 1.7f)) != STATUS_OK)
-      {
+        Drv_Loc_ADC_Motor_RawData_Snapshot();
         return;
-      }
     }
-  }
+
+    if(HRTIM_TIMERINDEX_TIMER_B == u32TimerIdx)
+    {
+        if (s_u8FlagPulse)
+        {
+            s_u8FlagPulse = 0U;
+            if (PWM_Pulse_Write((uint16_t)((float)s_u16TargetPulse * 1.7f)) != STATUS_OK)
+            {
+                return;
+            }
+        }
+    }
 }
 
 /* USER CODE END 1 */

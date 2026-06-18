@@ -97,12 +97,6 @@ Status_t Drv_OutputShaftEncoder_Data_Get(uint8_t *pu8Out);
   */
 Status_t Drv_SwingArmEncoder_Data_Get(uint8_t *pu8Out);
 
-/**
-  * @brief  错帧调试：打印 RxEvent/IRQ 锁存与当前 ISR 的 ORE/NE/FE/PE，并清除锁存与当前错误标志
-  * @param  uart_sel 编码器串口选择
-  */
-void Drv_EncoderUart_HwErrorFlags_Log(EncoderUartSel_t uart_sel);
-
 /* -------- 5.2 层内接口（Drv_Loc_*） -------- */
 
 /**
@@ -119,13 +113,6 @@ void Drv_Loc_EncoderTrigger_SendOne(EncoderUartSel_t uart_sel);
   * @note  层内接口：由 `tim.c` / `stm32g4xx_it.c` 调用；上层不应依赖
   */
 void Drv_Loc_EncoderLevelShifter_Enable_Set(EncoderUartSel_t uart_sel, FunctionalState_t state);
-
-/**
-  * @brief  在 USART3/4/5 中断入口（调用 HAL_UART_IRQHandler 之前）锁存 ISR 错误位
-  * @param  uart_sel 编码器串口选择
-  * @note  层内接口：由 `stm32g4xx_it.c` 调用；上层不应依赖
-  */
-void Drv_Loc_EncoderUart_HwErrorFlags_AtIrqEntry_Latch(EncoderUartSel_t uart_sel);
 
 /* USER CODE END Includes */
 

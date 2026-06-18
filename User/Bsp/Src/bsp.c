@@ -50,35 +50,33 @@
  */
 void Bsp_Init(void)
 {
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_CRC_Init();
-  MX_UART4_Init();
-  MX_UART5_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
-  MX_USART3_UART_Init();
-  MX_ADC1_Init();
-  MX_ADC2_Init();
-  MX_ADC3_Init();
-  MX_HRTIM1_Init();
-  MX_TIM1_Init();
-  MX_IWDG_Init();
-  MX_TIM2_Init();
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MX_CRC_Init();
+    MX_UART4_Init();
+    MX_UART5_Init();
+    MX_USART1_UART_Init();
+    MX_USART2_UART_Init();
+    MX_USART3_UART_Init();
+    MX_ADC1_Init();
+    MX_ADC2_Init();
+    MX_ADC3_Init();
+    MX_HRTIM1_Init();
+    MX_TIM1_Init();
+    MX_IWDG_Init();
+    MX_TIM2_Init();
 
+    /* HRTIM 启动：顺序不可随意调换。TimerA/B 配置为随 Master 周期复位的从机
+     * （ResetTrigger = MASTER_PER，见 hrtim.c），故须先使能输出级、再启动从机计数器（带中断），
+     * 最后启动 Master 作为同步发令枪，保证 PWM 边沿 / ADC 触发 / 比较中断从首个周期起即相位对齐。
+     * 同组内部（TA1↔TB1、TimerA↔TimerB）先后无所谓；Master 不需中断故用不带 _IT 的版本。 */
+    HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TA1);
+    HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TB1);
+    HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_A);
+    HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_B);
+    HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_MASTER);
 
-  /* HRTIM 启动：顺序不可随意调换。TimerA/B 配置为随 Master 周期复位的从机
-   * （ResetTrigger = MASTER_PER，见 hrtim.c），故须先使能输出级、再启动从机计数器（带中断），
-   * 最后启动 Master 作为同步发令枪，保证 PWM 边沿 / ADC 触发 / 比较中断从首个周期起即相位对齐。
-   * 同组内部（TA1↔TB1、TimerA↔TimerB）先后无所谓；Master 不需中断故用不带 _IT 的版本。 */
-  HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TA1);
-  HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TB1);
-  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_A);
-  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_B);
-  HAL_HRTIM_WaveformCountStart(&hhrtim1,HRTIM_TIMERID_MASTER);
-
-
-  return;
+    return;
 
 }
 

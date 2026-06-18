@@ -76,6 +76,12 @@ void Drv_PWM_Direction_Set(uint8_t dir);
  */
 void Drv_PWM_Enable(FunctionalState_t NewState);
 
+/**
+ * @brief PWM 手动测试：经调试串口读入 5 位数字（00000~10000）设为目标占空比
+ * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用主循环中调用
+ */
+void Drv_PWM_TEST(void);
+
 /* -------- 5.2 层内接口（Drv_Loc_*） -------- */
 /* 无 */
 

@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
  * @file    State_Machine.c
  * @brief   应用层：主循环状态机实现
@@ -6,7 +5,6 @@
  *          读电机反馈 → 服务层组帧并上报反馈。任一步失败则 `continue` 等待下一帧。
  *          不直接调用 `Core` 中 `Drv_*`；外设与协议收发由服务层经驱动层完成。
  */
-/* USER CODE END Header */
 
 /* ======================== 1. 头文件引用 ======================== */
 #include "State_Machine.h"
@@ -106,7 +104,7 @@ static void Feedback_Map(const PendulumFeedbackData_t *pstruSrc,SimulinkProtocol
 {
     if(pstruDst == NULL)
     {
-      return;
+        return;
     }
     
     pstruDst->s16MotorCurrent     = pstruSrc->s16MotorCurrent;
