@@ -399,12 +399,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_uart4_rx);
 
     /* UART4 interrupt Init */
-    HAL_NVIC_SetPriority(UART4_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(UART4_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(UART4_IRQn);
   /* USER CODE BEGIN UART4_MspInit 1 */
-  /* 编码器 UART4_RX 使用 DMA2_Ch2；Cube 默认不在 MX_DMA_Init 里使能 DMA2 NVIC，须在此保留 */
-  HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 2, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
+  /* DMA2_Ch2 NVIC 由 MX_DMA_Init（dma.c）统一配置，勿在此重复 SetPriority */
   /* USER CODE END UART4_MspInit 1 */
   }
   else if(uartHandle->Instance==UART5)
@@ -464,11 +462,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_uart5_rx);
 
     /* UART5 interrupt Init */
-    HAL_NVIC_SetPriority(UART5_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(UART5_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(UART5_IRQn);
   /* USER CODE BEGIN UART5_MspInit 1 */
-  HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 2, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+  /* DMA2_Ch3 NVIC 由 MX_DMA_Init（dma.c）统一配置，勿在此重复 SetPriority */
   /* USER CODE END UART5_MspInit 1 */
   }
   else if(uartHandle->Instance==USART1)
@@ -537,7 +534,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart1_tx);
 
     /* USART1 interrupt Init */
-    HAL_NVIC_SetPriority(USART1_IRQn, 1, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 4, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
@@ -609,7 +606,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart2_tx);
 
     /* USART2 interrupt Init */
-    HAL_NVIC_SetPriority(USART2_IRQn, 1, 0);
+    HAL_NVIC_SetPriority(USART2_IRQn, 4, 0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
@@ -664,12 +661,11 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart3_rx);
 
     /* USART3 interrupt Init */
-    HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USART3_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(USART3_IRQn);
-    /* USER CODE BEGIN USART3_MspInit 1 */
-    HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 2, 0);
-    HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
-    /* USER CODE END USART3_MspInit 1 */
+  /* USER CODE BEGIN USART3_MspInit 1 */
+  /* DMA2_Ch1 NVIC 由 MX_DMA_Init（dma.c）统一配置，勿在此重复 SetPriority */
+  /* USER CODE END USART3_MspInit 1 */
   }
 }
 

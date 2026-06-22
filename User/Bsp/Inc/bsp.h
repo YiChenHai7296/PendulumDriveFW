@@ -31,7 +31,8 @@ extern "C" {
  * @brief 调试日志宏：`DEBUG_PRINTF`=1 时展开为 printf；=0 时整条调用编译删除
  * @note  与直接调用 printf 的差别——关闭后连参数求值与格式化都不再生成，调用点零开销，
  *        适合放在主循环 / 中断等热路径。包含 `bsp.h` 即可使用。
- *        约定：致命兜底打印（如 `Error_Handler`）仍用 printf，不走本宏。
+ *        `BSP_LOG_PRINTF_FORCE` 与直接 `printf` 不受 `DEBUG_PRINTF` 约束。
+ *        约定：`Error_Handler` 使用 `BSP_LOG_PRINTF`，与调试日志同受 `DEBUG_PRINTF` 约束。
  */
 #if DEBUG_PRINTF
 #define BSP_LOG_PRINTF(...)   printf(__VA_ARGS__)

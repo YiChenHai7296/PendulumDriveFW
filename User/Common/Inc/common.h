@@ -18,8 +18,8 @@ extern "C" {
 #include <stddef.h>
 
 /* ======================== 2. 宏定义（对外可见） ======================== */
-/** 校验是否为合法 FunctionalState_t */
-#define IS_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
+/** 校验是否为合法 FunctionalState_t（项目枚举 PRJ_DISABLE / PRJ_ENABLE；勿与 HAL 的 IS_FUNCTIONAL_STATE 混用） */
+#define IS_PRJ_FUNCTIONAL_STATE(S) (((S) == PRJ_DISABLE) || ((S) == PRJ_ENABLE))
 
 /** 帧队列单帧最大字节数 */
 #define RFQ_FRAME_MAX_LEN     10

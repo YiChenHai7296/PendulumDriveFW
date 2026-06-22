@@ -80,19 +80,19 @@ extern DMA_HandleTypeDef hdma_adc3;
 extern HRTIM_HandleTypeDef hhrtim1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
+extern DMA_HandleTypeDef hdma_uart4_rx;
+extern DMA_HandleTypeDef hdma_uart5_rx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart2_rx;
 extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef hdma_usart3_rx;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
-extern DMA_HandleTypeDef hdma_usart3_rx;
-extern DMA_HandleTypeDef hdma_uart4_rx;
-extern DMA_HandleTypeDef hdma_uart5_rx;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -446,17 +446,45 @@ void UART5_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles HRTIM master timer global interrupt.
+  * @brief This function handles DMA2 channel1 global interrupt.
   */
-void HRTIM1_Master_IRQHandler(void)
+void DMA2_Channel1_IRQHandler(void)
 {
-  /* USER CODE BEGIN HRTIM1_Master_IRQn 0 */
+  /* USER CODE BEGIN DMA2_Channel1_IRQn 0 */
 
-  /* USER CODE END HRTIM1_Master_IRQn 0 */
-  HAL_HRTIM_IRQHandler(&hhrtim1,HRTIM_TIMERINDEX_MASTER);
-  /* USER CODE BEGIN HRTIM1_Master_IRQn 1 */
+  /* USER CODE END DMA2_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+  /* USER CODE BEGIN DMA2_Channel1_IRQn 1 */
 
-  /* USER CODE END HRTIM1_Master_IRQn 1 */
+  /* USER CODE END DMA2_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 channel2 global interrupt.
+  */
+void DMA2_Channel2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel2_IRQn 0 */
+
+  /* USER CODE END DMA2_Channel2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_uart4_rx);
+  /* USER CODE BEGIN DMA2_Channel2_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 channel3 global interrupt.
+  */
+void DMA2_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel3_IRQn 0 */
+
+  /* USER CODE END DMA2_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_uart5_rx);
+  /* USER CODE BEGIN DMA2_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel3_IRQn 1 */
 }
 
 /**
@@ -502,26 +530,8 @@ void DMA1_Channel8_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-
 /* ======================== 7. 接口函数实现 ======================== */
-
-/**
- * @brief DMA2 Ch1 — USART3_RX（编码器电机）。须保留在 USER CODE：Cube 重新生成会删掉本文件其它处的同名 ISR。
- */
-void DMA2_Channel1_IRQHandler(void)
-{
-  HAL_DMA_IRQHandler(&hdma_usart3_rx);
-}
-
-void DMA2_Channel2_IRQHandler(void)
-{
-  HAL_DMA_IRQHandler(&hdma_uart4_rx);
-}
-
-void DMA2_Channel3_IRQHandler(void)
-{
-  HAL_DMA_IRQHandler(&hdma_uart5_rx);
-}
+/* 无 */
 
 /* ======================== 8. 私有函数实现 ======================== */
 /* 无 */

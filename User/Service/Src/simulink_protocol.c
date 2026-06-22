@@ -8,7 +8,6 @@
 
 /* ======================== 1. 头文件引用 ======================== */
 #include "simulink_protocol.h"
-#include <stdio.h>            /* printf（错误打印）          */
 #include "bsp.h"
 #include "common.h"
 #include "usart.h"

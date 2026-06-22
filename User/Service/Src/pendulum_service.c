@@ -52,7 +52,7 @@
 #define FEEDBACK_SPD_MOTOR_MAX_ABS     40000
 #define FEEDBACK_SPD_AXIS_PEND_MAX_ABS 4000
 
-/** 摆杆速度 |°/s| 超过该阈值时 printf 打印双帧绝对位置（调试用） */
+/** 摆杆速度 |°/s| 超过该阈值时 `BSP_LOG_PRINTF` 打印双帧绝对位置（调试用） */
 #define PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS  (60000.0f)
 
 /* ======================== 3. 私有类型定义 ======================== */
@@ -61,8 +61,10 @@ typedef enum
 {
     ENCODER_PROTOCOL_OK = 0,        /* 解析成功 */
     ENCODER_PROTOCOL_ERR_NULL,      /* 指针为空 */
-    ENCODER_PROTOCOL_ERR_LENGTH,    /* 帧长度错误 */
-    ENCODER_PROTOCOL_ERR_CRC,       /* CRC校验失败 */
+    ENCODER_PROTOCOL_ERR_LENGTH,    /* 帧长度不足 */
+    ENCODER_PROTOCOL_ERR_HEADER,    /* 帧头 CM 非法 */
+    ENCODER_PROTOCOL_ERR_CRC,       /* CRC8 校验失败 */
+    ENCODER_PROTOCOL_ERR_SA_STATUS, /* SA 状态域 bit4/bit5 报错 */
     ENCODER_PROTOCOL_ERR_DRIVER     /* 底层编码器快照读取失败 */
 } EncoderProtocolResult_t;
 
@@ -120,7 +122,7 @@ static float MotorCurrent_Get(void);
 
 /* 电机控制 */
 static void  Motor_Disable(void);
-static uint16_t Motor_DutyPermille_Calibrate_Map(uint16_t u16DutyPermilleAbs);
+static uint16_t Motor_DutyPermyriad_Calibrate_Map(uint16_t u16DutyPermyriadAbs);
 
 
 /* 软尺摆摆幅电压 */
@@ -191,7 +193,8 @@ void Svc_PendulumService_CurrentZero_Calibrate(void)
 
 /**
  * @brief 获取电机反馈数据
- * @details 读取三个编码器的位置数据，计算转速，读取电机电流，统一填入反馈结构体
+ * @details 读取电机/输出轴编码器双帧并算转速；倒立摆另读摆臂编码器，软尺摆以 ADC3 换算摆幅电压；
+ *          再读电机电流，统一填入反馈结构体
  * @param struOut 反馈数据输出缓冲区
  * @return 操作结果，任一编码器解析失败时返回对应错误码，struOut 可能包含部分有效数据
  */
@@ -229,7 +232,6 @@ PendulumServiceResult_t Svc_PendulumService_FeedbackData_Get(PendulumFeedbackDat
     fCurrentA = MotorCurrent_Get();
 
     s32Val = (int32_t)(fCurrentA * MOTOR_CURRENT_TO_FEEDBACK_A);
-    BSP_LOG_PRINTF("fCurrentA = %f,val = %d\n", fCurrentA, s32Val);
 
     if (s32Val > MOTOR_FEEDBACK_CURRENT_MAX)
     {
@@ -321,7 +323,7 @@ PendulumServiceResult_t Svc_PendulumService_MotorSpeedPermyriad_Set(int16_t s16S
     /* 通过宏选择占空比路径：拟合反推或直通 */
 #if MOTOR_PWM_USE_FIT_MAPPING
     /* 上位机下发“目标实际占空比”，这里反推“应给定占空比”用于 PWM 发生 */
-    u16DutyOutput = Motor_DutyPermille_Calibrate_Map(u16Duty);
+    u16DutyOutput = Motor_DutyPermyriad_Calibrate_Map(u16Duty);
 #else
     /* 直通模式：上位机下发即最终给定值 */
     u16DutyOutput = u16Duty;
@@ -355,7 +357,7 @@ static void Motor_Disable(void)
 /**
  * @brief 将编码器协议解析结果映射为电机服务对外错误码
  * @param encRes 编码器协议栈返回码
- * @param encoderErr 非 DRIVER 类错误时使用的编码器专项错误码（电机/输出轴/摆臂）
+ * @param encoderErr 非 OK/DRIVER 类错误时使用的编码器专项错误码（含 HEADER/CRC/SA_STATUS 等）
  * @return PENDULUM_SVC_OK / PENDULUM_SVC_ERR_DRIVER / encoderErr
  */
 static PendulumServiceResult_t EncoderResult_Map(EncoderProtocolResult_t encRes,
@@ -373,11 +375,12 @@ static PendulumServiceResult_t EncoderResult_Map(EncoderProtocolResult_t encRes,
 }
 
 /**
- * @brief 解析编码器单帧数据
+ * @brief 解析编码器单帧数据（CM → CRC8 → SA 状态域 → 绝对位置）
  * @param pu8Frame 帧数据缓冲区（6字节）
  * @param u16Length 缓冲区长度
  * @param struOut 解析结果输出
- * @return 解析结果
+ * @return ENCODER_PROTOCOL_OK；或 ERR_NULL / ERR_LENGTH / ERR_HEADER / ERR_CRC / ERR_SA_STATUS
+ * @note  SA bit4/bit5 任一置位时返回 ERR_SA_STATUS，不读位置（与 §4.4.2.3.1 一致）
  */
 static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(const uint8_t *pu8Frame,
                                                           uint16_t u16Length,
@@ -417,7 +420,7 @@ static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(const uint8_t *pu8Fra
                (unsigned int)pu8Frame[3],
                (unsigned int)pu8Frame[4],
                (unsigned int)pu8Frame[5]);
-        return ENCODER_PROTOCOL_ERR_LENGTH;
+        return ENCODER_PROTOCOL_ERR_HEADER;
     }
 
     /* 校验CRC（前5字节） */
@@ -436,9 +439,18 @@ static EncoderProtocolResult_t EncoderProtocol_Frame_Parse(const uint8_t *pu8Fra
         return ENCODER_PROTOCOL_ERR_CRC;
     }
 
-    /* 解析状态标志位 */
+    /* 解析状态标志位；异常时不读位置（§4.4.2.3.1） */
     struOut->u8CountErr      = (uint8_t)(((u8Sa & ENCODER_SA_COUNT_ERROR_BIT) != 0U) ? 1U : 0U);
     struOut->u8MtOrBattError = (uint8_t)(((u8Sa & ENCODER_SA_MT_BATT_ERR_BIT) != 0U) ? 1U : 0U);
+
+    if ((u8Sa & (ENCODER_SA_COUNT_ERROR_BIT | ENCODER_SA_MT_BATT_ERR_BIT)) != 0U)
+    {
+        BSP_LOG_PRINTF("状态域异常: SA=0x%02X countErr=%u mtOrBatt=%u\n",
+               (unsigned int)u8Sa,
+               (unsigned int)struOut->u8CountErr,
+               (unsigned int)struOut->u8MtOrBattError);
+        return ENCODER_PROTOCOL_ERR_SA_STATUS;
+    }
 
     /* 组合21位绝对位置（小端序） */
     u32RawPosition = (uint32_t)u8As0 | ((uint32_t)u8As1 << 8) | ((uint32_t)u8As2 << 16);
@@ -691,7 +703,7 @@ static float EncoderSpeed_OutputShaft_Calc(const EncoderDual_t *struDual)
 /**
  * @brief 计算摆臂编码器转速（17位）
  * @details 若本次计算得到的角速度绝对值大于 `PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS`（°/s），
- *          通过 `printf` 打印上一帧与当前帧绝对位置，便于排查坏帧/过零异常。
+ *          经 `BSP_LOG_PRINTF` 打印上一帧与当前帧绝对位置，便于排查坏帧/过零异常。
  * @param struDual 摆臂编码器双帧数据
  * @return 角速度（°/s）
  */
@@ -721,8 +733,8 @@ static float EncoderSpeed_SwingArm_Calc(const EncoderDual_t *struDual)
 }
 
 /**
- * @brief 读取母线/采样电压（两路 ADC 原始值平均后换算）
- * @return 电压（V），ADC 读取失败时返回 0.0f
+ * @brief 读取电机电流采样端电压（ADC1/ADC2 两路原始值平均后换算）
+ * @return 采样端电压（V），ADC 读取失败时返回 0.0f
  */
 static float MotorVoltage_Get(void)
 {
@@ -766,10 +778,10 @@ static float MotorCurrentRaw_Get(void)
 
 /**
  * @brief 电机占空比标定映射（按上位机目标占空比曲线补偿）
- * @param u16DutyPermilleAbs 绝对值占空比（0~10000，单位 0.01%）
+ * @param u16DutyPermyriadAbs 绝对值占空比（0~10000，单位 0.01%）
  * @return 映射后的绝对值占空比（0~10000，单位 0.01%）
  */
-static uint16_t Motor_DutyPermille_Calibrate_Map(uint16_t u16DutyPermilleAbs)
+static uint16_t Motor_DutyPermyriad_Calibrate_Map(uint16_t u16DutyPermyriadAbs)
 {
     /* 标定表（单位：0.01%）
      * ls_actual_tbl：实际上位机目标占空比（期望实际输出）
@@ -791,22 +803,22 @@ static uint16_t Motor_DutyPermille_Calibrate_Map(uint16_t u16DutyPermilleAbs)
     const uint16_t u16TblSize = (uint16_t)(sizeof(ls_actual_tbl) / sizeof(ls_actual_tbl[0]));
 
     /* 特殊需求：上位机给定为 0 时绝对为0 */
-    if (u16DutyPermilleAbs == 0U)
+    if (u16DutyPermyriadAbs == 0U)
     {
         return 0U;
     }
 
     /* 实际目标上限限制为 95.00%（给定值可大于95%） */
-    if (u16DutyPermilleAbs > 9500U)
+    if (u16DutyPermyriadAbs > 9500U)
     {
-        u16DutyPermilleAbs = 9500U;
+        u16DutyPermyriadAbs = 9500U;
     }
 
-    if (u16DutyPermilleAbs <= ls_actual_tbl[0])
+    if (u16DutyPermyriadAbs <= ls_actual_tbl[0])
     {
         return ls_given_tbl[0];
     }
-    if (u16DutyPermilleAbs >= ls_actual_tbl[u16TblSize - 1U])
+    if (u16DutyPermyriadAbs >= ls_actual_tbl[u16TblSize - 1U])
     {
         return ls_given_tbl[u16TblSize - 1U];
     }
@@ -815,13 +827,13 @@ static uint16_t Motor_DutyPermille_Calibrate_Map(uint16_t u16DutyPermilleAbs)
     {
         uint16_t u16X0 = ls_actual_tbl[u16I];
         uint16_t u16X1 = ls_actual_tbl[u16I + 1U];
-        if (u16DutyPermilleAbs <= u16X1)
+        if (u16DutyPermyriadAbs <= u16X1)
         {
             uint16_t u16Y0 = ls_given_tbl[u16I];
             uint16_t u16Y1 = ls_given_tbl[u16I + 1U];
             uint32_t u32Dx = (uint32_t)u16X1 - (uint32_t)u16X0;
             uint32_t u32Dy = (uint32_t)u16Y1 - (uint32_t)u16Y0;
-            uint32_t u32Num = ((uint32_t)u16DutyPermilleAbs - (uint32_t)u16X0) * u32Dy;
+            uint32_t u32Num = ((uint32_t)u16DutyPermyriadAbs - (uint32_t)u16X0) * u32Dy;
             /* 四舍五入的分段线性插值 */
             return (uint16_t)((uint32_t)u16Y0 + (u32Num + (u32Dx / 2U)) / u32Dx);
         }

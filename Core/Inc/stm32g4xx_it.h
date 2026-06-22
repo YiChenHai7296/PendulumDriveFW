@@ -40,21 +40,7 @@
 /* 无 */
 
 /* ======================== 5. 接口函数声明（用户补充 ISR） ======================== */
-/**
- * @brief DMA2 Ch1 中断：USART3_RX（编码器电机）
- * @note  须保留在 USER CODE 区；Cube 重新生成会删掉本文件其它处的同名 ISR
- */
-void DMA2_Channel1_IRQHandler(void);
-
-/**
- * @brief DMA2 Ch2 中断：UART4_RX（编码器摆杆）
- */
-void DMA2_Channel2_IRQHandler(void);
-
-/**
- * @brief DMA2 Ch3 中断：UART5_RX（编码器输出轴）
- */
-void DMA2_Channel3_IRQHandler(void);
+/* DMA2 Ch1/2/3 ISR 由 Cube 在下方 Exported functions 区声明 */
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -96,7 +82,9 @@ void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);
 void UART4_IRQHandler(void);
 void UART5_IRQHandler(void);
-void HRTIM1_Master_IRQHandler(void);
+void DMA2_Channel1_IRQHandler(void);
+void DMA2_Channel2_IRQHandler(void);
+void DMA2_Channel3_IRQHandler(void);
 void HRTIM1_TIMA_IRQHandler(void);
 void HRTIM1_TIMB_IRQHandler(void);
 void DMA1_Channel8_IRQHandler(void);

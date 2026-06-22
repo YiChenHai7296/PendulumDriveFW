@@ -3,8 +3,8 @@ softscalependulumdriveboard\simulink_protocol.o: ../User/Service/Inc/simulink_pr
 softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 softscalependulumdriveboard\simulink_protocol.o: ../User/Common/Inc/common.h
 softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 softscalependulumdriveboard\simulink_protocol.o: ../User/Bsp/Inc/bsp.h
+softscalependulumdriveboard\simulink_protocol.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 softscalependulumdriveboard\simulink_protocol.o: ../User/Config/Inc/config.h
 softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/usart.h
 softscalependulumdriveboard\simulink_protocol.o: ../Core/Inc/main.h

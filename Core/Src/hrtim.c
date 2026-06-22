@@ -37,11 +37,11 @@
 /* 无 */
 
 /* ======================== 5. 私有变量 ======================== */
-static uint16_t s_u16TargetPulse = 0U; /* PWM 占空比目标值，范围 0~10000 */
-static uint8_t  s_u8FlagPulse   = 0U; /* PWM 占空比更新标志 */
+static volatile uint16_t s_u16TargetPulse = 0U; /* PWM 占空比目标值，范围 0~10000 */
+static volatile uint8_t  s_u8FlagPulse   = 0U; /* PWM 占空比更新标志 */
 
 /* ======================== 6. 私有函数声明 ======================== */
-static Status_t PWM_Pulse_Write(uint16_t u16T2Pulse);
+static Status_t PWM_Pulse_Write(uint16_t u16ScaledPulse);
 
 /* USER CODE END 0 */
 
@@ -235,11 +235,9 @@ void HAL_HRTIM_MspInit(HRTIM_HandleTypeDef* hrtimHandle)
     __HAL_RCC_HRTIM1_CLK_ENABLE();
 
     /* HRTIM1 interrupt Init */
-    HAL_NVIC_SetPriority(HRTIM1_Master_IRQn, 6, 0);
-    HAL_NVIC_EnableIRQ(HRTIM1_Master_IRQn);
-    HAL_NVIC_SetPriority(HRTIM1_TIMA_IRQn, 6, 0);
+    HAL_NVIC_SetPriority(HRTIM1_TIMA_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_TIMA_IRQn);
-    HAL_NVIC_SetPriority(HRTIM1_TIMB_IRQn, 6, 0);
+    HAL_NVIC_SetPriority(HRTIM1_TIMB_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_TIMB_IRQn);
   /* USER CODE BEGIN HRTIM1_MspInit 1 */
 
@@ -287,7 +285,6 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
     __HAL_RCC_HRTIM1_CLK_DISABLE();
 
     /* HRTIM1 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(HRTIM1_Master_IRQn);
     HAL_NVIC_DisableIRQ(HRTIM1_TIMA_IRQn);
     HAL_NVIC_DisableIRQ(HRTIM1_TIMB_IRQn);
   /* USER CODE BEGIN HRTIM1_MspDeInit 1 */
@@ -309,15 +306,15 @@ void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef* hrtimHandle)
  */
 void Drv_PWM_Enable(FunctionalState_t NewState)
 {
-  if (NewState != PRJ_DISABLE)
-  {
-    HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_SET);
-  }
-  else
-  {
-    HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_RESET);
-    s_u8FlagPulse = 0;
-  }
+    if (NewState != PRJ_DISABLE)
+    {
+        HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_SET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(MotorEnableControl_GPIO_Port, MotorEnableControl_Pin, GPIO_PIN_RESET);
+        s_u8FlagPulse = 0;
+    }
 }
 
 
@@ -329,14 +326,14 @@ void Drv_PWM_Enable(FunctionalState_t NewState)
  */
 void Drv_PWM_Direction_Set(uint8_t dir)
 {
-  if (dir == MOTOR_DIR_FORWARD)
-  {
-    HAL_GPIO_WritePin(MotorDirectionControl_GPIO_Port, MotorDirectionControl_Pin, GPIO_PIN_RESET);
-  }
-  else
-  {
-    HAL_GPIO_WritePin(MotorDirectionControl_GPIO_Port, MotorDirectionControl_Pin, GPIO_PIN_SET);
-  }
+    if (dir == MOTOR_DIR_FORWARD)
+    {
+        HAL_GPIO_WritePin(MotorDirectionControl_GPIO_Port, MotorDirectionControl_Pin, GPIO_PIN_RESET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(MotorDirectionControl_GPIO_Port, MotorDirectionControl_Pin, GPIO_PIN_SET);
+    }
 }
 
 
@@ -347,33 +344,51 @@ void Drv_PWM_Direction_Set(uint8_t dir)
  */
 Status_t Drv_PWM_TargetPulse_Set(uint16_t u16ExpectedValue)
 {
-  if (u16ExpectedValue > 10000U)
-  {
-    return STATUS_ERROR;
-  }
-  s_u16TargetPulse = u16ExpectedValue;
-  s_u8FlagPulse   = 1U;
-  return STATUS_OK;
+    if (u16ExpectedValue > 10000U)
+    {
+        return STATUS_ERROR;
+    }
+    s_u16TargetPulse = u16ExpectedValue;
+    s_u8FlagPulse   = 1U;
+    return STATUS_OK;
 }
 
 /**
  * @brief PWM 手动测试：经调试串口读入 5 位数字（00000~10000），设为目标占空比
- * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用主循环中调用
+ * @note  仅用于开发期联调（受 main.c 的 TEST_PWM 开关控制）；阻塞等待串口输入，不应在正常应用主循环中调用
  */
 void Drv_PWM_TEST(void)
 {
-  /* 预读一帧调试串口数据 */
-  HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 10, 100);
+    uint16_t u16TargetPulseTemp = 0;
+    /* 自测前关闭 USART1 DMA+IDLE 收帧，避免与下方 HAL_UART_Receive 争用同一 UART */
+    (void)HAL_UART_DMAStop(&huart1);
+    __HAL_UART_DISABLE_IT(&huart1, UART_IT_IDLE);
 
-  /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
-  BSP_LOG_PRINTF("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
-  while (HAL_OK != HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 5, DEBUG_UART_TIMEOUT))
-    ;
+    /* 预读一帧调试串口数据 */
+    HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 10, 100);
 
-  s_u16TargetPulse = (g_au8DebugRxBuff[0] - 0x30) * 10000 + (g_au8DebugRxBuff[1] - 0x30) * 1000 +
-                    (g_au8DebugRxBuff[2] - 0x30) * 100 + (g_au8DebugRxBuff[3] - 0x30) * 10 + g_au8DebugRxBuff[4] - 0x30;
+    /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
+    BSP_LOG_PRINTF("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
+    while (HAL_OK != HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 5, DEBUG_UART_TIMEOUT))
+    {
+        ;
+    }
 
-  s_u8FlagPulse = 1U;
+    u16TargetPulseTemp = (g_au8DebugRxBuff[0] - 0x30) * 10000 + (g_au8DebugRxBuff[1] - 0x30) * 1000 +
+                      (g_au8DebugRxBuff[2] - 0x30) * 100 + (g_au8DebugRxBuff[3] - 0x30) * 10 + g_au8DebugRxBuff[4] - 0x30;
+
+    if(0<= u16TargetPulseTemp && 10000>= u16TargetPulseTemp)
+    {
+        s_u16TargetPulse = u16TargetPulseTemp;
+        s_u8FlagPulse = 1U;
+        BSP_LOG_PRINTF("\n %u.%02u%% 已写入！\n",
+                       (unsigned)(s_u16TargetPulse / 100U),
+                       (unsigned)(s_u16TargetPulse % 100U));
+    }
+    else
+    {
+        BSP_LOG_PRINTF("\n 键入有误！\n");
+    }
 }
 
 /* -------- 7.2 层内接口（Drv_Loc_*，与 .h 5.2 对应） -------- */
@@ -384,33 +399,33 @@ void Drv_PWM_TEST(void)
 /**
  * @brief 将占空比参数写入 HRTIM TimerA 比较寄存器（仅本文件调用）
  */
-static Status_t PWM_Pulse_Write(uint16_t u16T2Pulse)
+static Status_t PWM_Pulse_Write(uint16_t u16ScaledPulse)
 {
-  /* 低于 PWM_DUTY_CYCLE_MIN：逻辑关断。不可把 TimerA 三比较器全写 0：
-   * ADC1/2 由 HRTIM TimerA 的 CMP3/CMP2 外触发，全 0 时外触发与 DMA 停步，
-   * Drv_Loc_ADC_Motor_RawData_Snapshot 仍读旧缓冲，电流反馈会卡在上一非零占空比时的值（如约 -170mA）。 */
-  if (u16T2Pulse < PWM_DUTY_CYCLE_MIN)
-  {
-    /* 占位：CMP 用 PWM_DUTY_CYCLE_MIN（≥4，见 hrtim.h），保证 CMP2≠0、ADC 外触发不断 */
-    const uint16_t u16Keep = PWM_DUTY_CYCLE_MIN;
+    /* 低于 PWM_DUTY_CYCLE_MIN：逻辑关断。不可把 TimerA 三比较器全写 0：
+     * ADC1/2 由 HRTIM TimerA 的 CMP3/CMP2 外触发，全 0 时外触发与 DMA 停步，
+     * Drv_Loc_ADC_Motor_RawData_Snapshot 仍读旧缓冲，电流反馈会卡在上一非零占空比时的值（如约 -170mA）。 */
+    if (u16ScaledPulse < PWM_DUTY_CYCLE_MIN)
+    {
+        /* 占位：CMP 用 PWM_DUTY_CYCLE_MIN（≥4，见 hrtim.h），保证 CMP2≠0、ADC 外触发不断 */
+        const uint16_t u16Keep = PWM_DUTY_CYCLE_MIN;
 
-    HRTIM1->sTimerxRegs[0].CMP1xR = u16Keep - 1U;
-    HRTIM1->sTimerxRegs[0].CMP2xR = u16Keep / 2U - 1U;
-    HRTIM1->sTimerxRegs[0].CMP3xR = (17000U - u16Keep) / 2U + u16Keep - 1U;
+        HRTIM1->sTimerxRegs[0].CMP1xR = u16Keep - 1U;
+        HRTIM1->sTimerxRegs[0].CMP2xR = u16Keep / 2U - 1U;
+        HRTIM1->sTimerxRegs[0].CMP3xR = (17000U - u16Keep) / 2U + u16Keep - 1U;
+        return STATUS_OK;
+    }
+
+    if (u16ScaledPulse > 17000U)
+    {
+        return STATUS_ERROR;
+    }
+
+    /* 更新 HRTIM 定时器比较寄存器；CMP3：低电平区间中点附近触发 ADC */
+    HRTIM1->sTimerxRegs[0].CMP1xR = u16ScaledPulse - 1U;
+    HRTIM1->sTimerxRegs[0].CMP2xR = u16ScaledPulse / 2U - 1U;
+    HRTIM1->sTimerxRegs[0].CMP3xR = (17000U - u16ScaledPulse) / 2U + u16ScaledPulse - 1U;
+
     return STATUS_OK;
-  }
-
-  if (u16T2Pulse > 17000U)
-  {
-    return STATUS_ERROR;
-  }
-
-  /* 更新 HRTIM 定时器比较寄存器；CMP3：低电平区间中点附近触发 ADC */
-  HRTIM1->sTimerxRegs[0].CMP1xR = u16T2Pulse - 1U;
-  HRTIM1->sTimerxRegs[0].CMP2xR = u16T2Pulse / 2U - 1U;
-  HRTIM1->sTimerxRegs[0].CMP3xR = (17000U - u16T2Pulse) / 2U + u16T2Pulse - 1U;
-
-  return STATUS_OK;
 }
 
 /* ======================== 9. HAL 回调函数实现 ======================== */

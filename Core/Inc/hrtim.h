@@ -78,7 +78,7 @@ void Drv_PWM_Enable(FunctionalState_t NewState);
 
 /**
  * @brief PWM 手动测试：经调试串口读入 5 位数字（00000~10000）设为目标占空比
- * @note  仅用于开发期联调；阻塞等待串口输入，不应在正常应用主循环中调用
+ * @note  仅用于开发期联调（受 main.c 的 TEST_PWM 开关控制）；阻塞等待串口输入，不应在正常应用主循环中调用
  */
 void Drv_PWM_TEST(void);
 

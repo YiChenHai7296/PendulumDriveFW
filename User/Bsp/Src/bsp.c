@@ -143,8 +143,8 @@ uint16_t Bsp_Crc16Modbus_Calc(const uint8_t *pu8Data, uint16_t u16Length)
  * @return    原样返回 ch
  * @note  本函数由 C 标准库（MicroLIB）的 printf 自动调用，
  *        用户只需 #include <stdio.h> 后调用 printf(...) 即可。
- *        当 DEBUG_PRINTF = 0 时，串口发送过程被预处理器删除，
- *        printf 仍可调用但不会产生任何输出（便于发布版静默）。
+ *        `DEBUG_PRINTF=0` 时 `BSP_LOG_PRINTF`（含 `Error_Handler` 内调用）在编译期删除；
+ *        本函数仅在实际执行 `printf` / `BSP_LOG_PRINTF_FORCE` 时被调用并走 `HAL_UART_Transmit`。
  */
 int fputc(int ch, FILE *f)
 {

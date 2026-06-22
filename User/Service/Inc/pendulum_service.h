@@ -31,7 +31,7 @@ extern "C" {
 typedef enum
 {
     PENDULUM_SVC_OK = 0,               /**< 成功 */
-    PENDULUM_SVC_ERR_PARAM,            /**< 参数非法（占空比超范围等） */
+    PENDULUM_SVC_ERR_PARAM,            /**< 参数非法（转速超范围等） */
     PENDULUM_SVC_ERR_DRIVER,           /**< 驱动层返回失败 */
     PENDULUM_SVC_ERR_ENCODER_MOTOR,    /**< 电机编码器解析失败 */
     PENDULUM_SVC_ERR_ENCODER_SHAFT,    /**< 输出轴编码器解析失败 */
@@ -50,7 +50,7 @@ typedef struct
     int32_t s32AxisPosition;       /**< 输出轴位置：倒立摆 17 位 / 软尺摆 20 位 */
     int32_t s32AxisSpeed;          /**< 轴转速（°/s） */
     int32_t s32PendulumPosition;   /**< 倒立摆: 摆位置(17 位编码器); 软尺摆: 摆动电压(mV) */
-    int32_t s32PendulumSpeed;      /**< 倒立摆: 摆转速(°/s); 软尺摆: 预留(当前上报 ADC3 原始码) */
+    int32_t s32PendulumSpeed;      /**< 倒立摆: 摆转速(°/s); 软尺摆: ADC3 原始码(0~4095) */
 } PendulumFeedbackData_t;
 
 /* ======================== 4. 对外变量声明 ======================== */
@@ -67,7 +67,7 @@ typedef struct
 void Svc_PendulumService_CurrentZero_Calibrate(void);
 
 /**
- * @brief 获取电机反馈数据：读编码器与电流，填入输出结构
+ * @brief 获取电机反馈数据：读编码器与电流（摆杆量来源随控制对象），填入输出结构
  * @param[out] struOut 反馈数据；与 `SimulinkProtocolFeedbackData_t` 字段布局一致，便于上层组帧
  * @return 操作结果；任一编码器解析失败时返回对应错误码，`struOut` 可能部分无效
  */

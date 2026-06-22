@@ -70,9 +70,10 @@ extern "C" {
 /* ==================== 3. 调试选项（Debug） ==================== */
 /* ============================================================== */
 /**
- * @brief printf 调试输出总开关
- * @note  0: 关闭（fputc 内的串口发送被预处理器删除，printf 静默）
- *        1: 打开（printf 经 UART 输出）
+ * @brief printf 调试输出总开关（控制 `BSP_LOG_PRINTF` 宏）
+ * @note  0: `BSP_LOG_PRINTF(...)` 在编译期整条删除；`fputc` 仍存在。
+ *        直接 `printf` / `BSP_LOG_PRINTF_FORCE` 不受本开关约束，仍会经 USART1 输出。
+ *        1: `BSP_LOG_PRINTF` 展开为 `printf`，经 `bsp.c` 的 fputc 重定向到调试串口。
  */
 #define DEBUG_PRINTF          0
 /* 调试日志宏 BSP_LOG_PRINTF 基于本开关，定义在 BSP 模块 `User/Bsp/Inc/bsp.h` */
@@ -100,10 +101,18 @@ extern "C" {
 /**
  * @brief ADC 驱动自测开关（仅在 TEST_DRV=1 时生效）
  * @note  1: 自测循环内周期调用 Drv_ADC_TEST()
- *        0: 仅 Bsp_Ms_Delay(...)
+ *        0: 不调用 `Drv_ADC_TEST()`
  *        约束：TEST_ADC=1 必须同时 TEST_DRV=1（见 main.c 的 #error 校验）
  */
 #define TEST_ADC             0
+
+/**
+ * @brief PWM 驱动自测开关（仅在 TEST_DRV=1 时生效）
+ * @note  1: 自测循环内周期调用 Drv_PWM_TEST()（阻塞读调试串口 5 位占空比）
+ *        0: 不调用
+ *        约束：TEST_PWM=1 必须同时 TEST_DRV=1（见 main.c 的 #error 校验）
+ */
+#define TEST_PWM             0
 
 #ifdef __cplusplus
 }

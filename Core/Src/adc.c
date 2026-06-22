@@ -569,7 +569,7 @@ void Drv_ADC_TEST(void)
     const float fOffsetV       = 1.6f;   /* 运放/偏置扣除 */
     const float fMotorGain     = 41.0f;  /* 电流放大倍数 */
     const float fShuntOhm      = 0.02f;  /* 采样电阻 20 mΩ */
-    const float fSoftVinDiv    = 0.16f;  /* 摆杆侧：(Vadc-1.6)/0.16 → 输入电压理论值 */
+    const float fSoftVinDiv    = 0.16f;  /* 软尺摆幅侧：(Vadc-1.6)/0.16 → 输入电压理论值 */
 
     /* 电机快照仅由中断里 `Drv_Loc_ADC_Motor_RawData_Snapshot` 更新；此处只读上次快照 */
     if (Drv_ADC_Motor_RawData_Read(au16MotorRaw) != STATUS_OK)
@@ -591,7 +591,7 @@ void Drv_ADC_TEST(void)
     /* 电机侧理论电流(A)：(Vadc-1.6)/41/20mΩ */
     fImotor1Theory = (fVmotor1 - fOffsetV) / fMotorGain / fShuntOhm;
     fImotor2Theory = (fVmotor2 - fOffsetV) / fMotorGain / fShuntOhm;
-    /* 摆杆侧理论输入电压(V)：(Vadc-1.6)/0.16 */
+    /* 软尺摆幅侧理论输入电压(V)：(Vadc-1.6)/0.16 */
     fVinSoftTheory = (fVsoft - fOffsetV) / fSoftVinDiv;
 
     BSP_LOG_PRINTF("\n[ADC_TEST] motor(ADC1) raw=%u ; V=%.4f ; I_theory=%.4fA\r\n",

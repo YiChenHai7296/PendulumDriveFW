@@ -57,8 +57,8 @@ typedef struct
     int32_t s32MotorSpeed;         /**< 电机转速 */
     int32_t s32AxisPosition;       /**< 输出轴位置：倒立摆 17 位 / 软尺摆 20 位 */
     int32_t s32AxisSpeed;          /**< 轴转速 */
-    int32_t s32PendulumPosition;   /**< 摆位置，17 位编码器 */
-    int32_t s32PendulumSpeed;      /**< 摆转速 */
+    int32_t s32PendulumPosition;   /**< 倒立摆: 摆位置(17 位编码器); 软尺摆: 摆动电压(mV) */
+    int32_t s32PendulumSpeed;      /**< 倒立摆: 摆转速(°/s); 软尺摆: ADC3 原始码(0~4095) */
 } SimulinkProtocolFeedbackData_t;
 
 /* ======================== 4. 对外变量声明 ======================== */
