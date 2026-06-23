@@ -2,9 +2,6 @@
 # PendulumDriveFW
 软尺摆 / 倒立摆通用驱动控制板固件工程（当前软件版本 V2.0）。
 
-## 👤 开发者
-[![contributors](https://contrib.rocks/image?repo=YiChenHai7296/Pendulum_Microcontroller)](https://github.com/YiChenHai7296/Pendulum_Microcontroller/graphs/contributors)
-
 ## 📖 文档
 
 - **[摆系统总体方案V1.0](docs/摆系统总体方案.md)** — 软件分层架构、运行流程、模块设计、可测试性设计等完整技术文档
@@ -34,3 +31,5 @@
 |      |                |        | 工程文档化                                                |
 
 
+## 👤 开发者
+[![contributors](https://contrib.rocks/image?repo=YiChenHai7296/Pendulum_Microcontroller)](https://github.com/YiChenHai7296/Pendulum_Microcontroller/graphs/contributors)
