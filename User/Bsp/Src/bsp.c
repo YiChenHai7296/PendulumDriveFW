@@ -69,7 +69,8 @@ void Bsp_Init(void)
     /* HRTIM 启动：顺序不可随意调换。TimerA/B 配置为随 Master 周期复位的从机
      * （ResetTrigger = MASTER_PER，见 hrtim.c），故须先使能输出级、再启动从机计数器（带中断），
      * 最后启动 Master 作为同步发令枪，保证 PWM 边沿 / ADC 触发 / 比较中断从首个周期起即相位对齐。
-     * 同组内部（TA1↔TB1、TimerA↔TimerB）先后无所谓；Master 不需中断故用不带 _IT 的版本。 */
+     * 对外 PWM 仅 TA1→PA8；TB1 无外部引脚（内部定时，CMP1 用于占空比异步装载），
+     * WaveformOutputStart(TB1) 为 HAL 内部计数所需。TimerA/B 启动先后无所谓；Master 不需中断。 */
     HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TA1);
     HAL_HRTIM_WaveformOutputStart(&hhrtim1,HRTIM_OUTPUT_TB1);
     HAL_HRTIM_WaveformCountStart_IT(&hhrtim1,HRTIM_TIMERID_TIMER_A);

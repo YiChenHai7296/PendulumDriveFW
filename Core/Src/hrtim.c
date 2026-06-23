@@ -210,14 +210,16 @@ void MX_HRTIM1_Init(void)
   {
     Error_Handler();
   }
-  pCompareCfg.CompareValue = 0x639C;
+  pCompareCfg.CompareValue = 0x5302;
   if (HAL_HRTIM_WaveformCompareConfig(&hhrtim1, HRTIM_TIMERINDEX_TIMER_B, HRTIM_COMPAREUNIT_1, &pCompareCfg) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN HRTIM1_Init 2 */
-  /* Timer A CMP1 中断：由上方 MX 配置 InterruptRequests=HRTIM_TIM_IT_CMP1 使能；
-   * HAL_HRTIM_Compare1EventCallback(TIMER_A) 内 Drv_Loc_ADC_Motor_RawData_Snapshot 依赖此事件。 */
+  /* Timer A/B 均使能 CMP1 中断（InterruptRequests=HRTIM_TIM_IT_CMP1，见上方 Timer B 配置）：
+   * - Timer A CMP1：HAL_HRTIM_Compare1EventCallback(TIMER_A) → Drv_Loc_ADC_Motor_RawData_Snapshot。
+   * - Timer B CMP1=0x5302：同回调 TIMER_B 分支 → 若有占空比更新标志则 PWM_Pulse_Write（×1.7 折算后写 TimerA 比较寄存器）。
+   * NVIC：TIMB(2) 高于 TIMA(3)，占空比装载可抢占 ADC 快照中断。 */
   /* USER CODE END HRTIM1_Init 2 */
   HAL_HRTIM_MspPostInit(&hhrtim1);
 
@@ -235,7 +237,7 @@ void HAL_HRTIM_MspInit(HRTIM_HandleTypeDef* hrtimHandle)
     __HAL_RCC_HRTIM1_CLK_ENABLE();
 
     /* HRTIM1 interrupt Init */
-    HAL_NVIC_SetPriority(HRTIM1_TIMA_IRQn, 1, 0);
+    HAL_NVIC_SetPriority(HRTIM1_TIMA_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_TIMA_IRQn);
     HAL_NVIC_SetPriority(HRTIM1_TIMB_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(HRTIM1_TIMB_IRQn);
@@ -355,7 +357,8 @@ Status_t Drv_PWM_TargetPulse_Set(uint16_t u16ExpectedValue)
 
 /**
  * @brief PWM 手动测试：经调试串口读入 5 位数字（00000~10000），设为目标占空比
- * @note  仅用于开发期联调（受 main.c 的 TEST_PWM 开关控制）；阻塞等待串口输入，不应在正常应用主循环中调用
+ * @note  仅用于开发期联调（受 main.c 的 TEST_PWM 开关控制）；先预读最多 10 字节清 FIFO，
+ *        再阻塞等待 5 位 ASCII 数字；不应在正常应用主循环中调用
  */
 void Drv_PWM_TEST(void)
 {
@@ -368,7 +371,7 @@ void Drv_PWM_TEST(void)
     HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 10, 100);
 
     /* 提示输入占空比值（00000 ~ 10000 对应 0.00% ~ 100.00%） */
-    BSP_LOG_PRINTF("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%）\n");
+    BSP_LOG_PRINTF("\n 请输入占空比值（00000 ~ 10000 对应 0.00%% ~ 100.00%%） \n");
     while (HAL_OK != HAL_UART_Receive(&DEBUG_UART_HANDLE, g_au8DebugRxBuff, 5, DEBUG_UART_TIMEOUT))
     {
         ;
@@ -387,7 +390,7 @@ void Drv_PWM_TEST(void)
     }
     else
     {
-        BSP_LOG_PRINTF("\n 键入有误！\n");
+        BSP_LOG_PRINTF("\n 键入有误！ \n");
     }
 }
 
@@ -406,7 +409,7 @@ static Status_t PWM_Pulse_Write(uint16_t u16ScaledPulse)
      * Drv_Loc_ADC_Motor_RawData_Snapshot 仍读旧缓冲，电流反馈会卡在上一非零占空比时的值（如约 -170mA）。 */
     if (u16ScaledPulse < PWM_DUTY_CYCLE_MIN)
     {
-        /* 占位：CMP 用 PWM_DUTY_CYCLE_MIN（≥4，见 hrtim.h），保证 CMP2≠0、ADC 外触发不断 */
+        /* 占位：CMP 用 PWM_DUTY_CYCLE_MIN（当前 8，须 ≥4，见 hrtim.h），保证 CMP2≠0、ADC 外触发不断 */
         const uint16_t u16Keep = PWM_DUTY_CYCLE_MIN;
 
         HRTIM1->sTimerxRegs[0].CMP1xR = u16Keep - 1U;

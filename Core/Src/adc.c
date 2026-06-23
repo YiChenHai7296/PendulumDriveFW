@@ -537,7 +537,8 @@ Status_t Drv_ADC_Motor_RawData_Read(uint16_t *pOut)
 
 /**
   * @brief  读取 SoftRuler 通道（ADC3_IN1）当前 DMA 缓冲中的原始值（12 位有效）
-  * @details 与 ADC1/2 一致为 HRTIM 触发 + DMA 循环；单通道单 halfword，无需 32 位快照打包。
+  * @details HRTIM 外触发 + DMA 循环（与 ADC1/2 同类）；ADC3 接 HRTIM TRG6（TimerA CMP2），
+  *          非 ADC1 的 TRG1（TimerA CMP3）；单通道单 halfword，无需 32 位快照打包。
   * @param[out] pOut 输出 1 个 uint16_t
   * @retval STATUS_OK / STATUS_ERROR（pOut 为空）
   */

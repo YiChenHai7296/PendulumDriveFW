@@ -48,9 +48,14 @@
 #define MOTOR_CURRENT_ZERO_CALIB_DISCARD_SAMPLES 16U /* 标零前丢弃样本数 */
 #define MOTOR_CURRENT_ZERO_OFFSET_MAX_ABS_A 1.0f /* 零点偏置绝对值上限（异常保护） */
 
-/** 与 `simulink_protocol.c` 中反馈帧字段校验范围一致，避免 float→int32 未定义行为及异常尖峰 */
+/** 与 `simulink_protocol.c` 中反馈帧字段校验范围一致 */
+#if FEEDBACK_SPEED_USE_RPM_FORMAT
+#define FEEDBACK_SPD_MOTOR_MAX_ABS     66667  /* 0.1rpm，由 ±40000°/s 换算 */
+#define FEEDBACK_SPD_AXIS_PEND_MAX_ABS 667    /* 1rpm，由 ±4000°/s 换算 */
+#else
 #define FEEDBACK_SPD_MOTOR_MAX_ABS     40000
 #define FEEDBACK_SPD_AXIS_PEND_MAX_ABS 4000
+#endif
 
 /** 摆杆速度 |°/s| 超过该阈值时 `BSP_LOG_PRINTF` 打印双帧绝对位置（调试用） */
 #define PENDULUM_SPD_ABS_PRINTF_THRESHOLD_DPS  (60000.0f)
@@ -131,6 +136,7 @@ static int32_t SoftRulerVoltageMilliVolt_Get(int32_t *ps32RawAdc);
 
 
 /* 其他 */
+static int32_t EncoderSpeed_DegPerSecToRpmUnit(float fDegPerSec, uint8_t u8UnitScale);
 static int32_t EncoderSpeed_Int32_ClampFromFloat(float v, int32_t s32Lo, int32_t s32Hi);
 static uint32_t OutputShaftPositionMask_Get(void);
 static EncoderBits_t OutputShaftEncoderBits_Get(void);
@@ -248,16 +254,30 @@ PendulumServiceResult_t Svc_PendulumService_FeedbackData_Get(PendulumFeedbackDat
     struOut->s32AxisPosition     = (int32_t)(struShaftDual.struLatest.u32AbsolutePosition &
                                             OutputShaftPositionMask_Get());
 
-    /* 计算并填充转速数据（基于双帧位置差）；饱和+NaN 防护，与上位机反馈范围一致 */
+    /* 计算并填充转速（内部 °/s；上报单位由 FEEDBACK_SPEED_USE_RPM_FORMAT 决定） */
     fSpeed = EncoderSpeed_Motor_Calc(&struMotorDual);
+#if FEEDBACK_SPEED_USE_RPM_FORMAT
+    struOut->s32MotorSpeed = EncoderSpeed_Int32_ClampFromFloat(
+        (float)EncoderSpeed_DegPerSecToRpmUnit(fSpeed, 10U),
+        -FEEDBACK_SPD_MOTOR_MAX_ABS,
+        FEEDBACK_SPD_MOTOR_MAX_ABS);
+#else
     struOut->s32MotorSpeed = EncoderSpeed_Int32_ClampFromFloat(fSpeed,
                                                                 -FEEDBACK_SPD_MOTOR_MAX_ABS,
                                                                 FEEDBACK_SPD_MOTOR_MAX_ABS);
+#endif
 
     fSpeed = EncoderSpeed_OutputShaft_Calc(&struShaftDual);
+#if FEEDBACK_SPEED_USE_RPM_FORMAT
+    struOut->s32AxisSpeed = EncoderSpeed_Int32_ClampFromFloat(
+        (float)EncoderSpeed_DegPerSecToRpmUnit(fSpeed, 1U),
+        -FEEDBACK_SPD_AXIS_PEND_MAX_ABS,
+        FEEDBACK_SPD_AXIS_PEND_MAX_ABS);
+#else
     struOut->s32AxisSpeed = EncoderSpeed_Int32_ClampFromFloat(fSpeed,
                                                                 -FEEDBACK_SPD_AXIS_PEND_MAX_ABS,
                                                                 FEEDBACK_SPD_AXIS_PEND_MAX_ABS);
+#endif
 
     if (s_enControlObject == CONTROL_OBJECT_INVERTED_PENDULUM)
     {
@@ -269,9 +289,16 @@ PendulumServiceResult_t Svc_PendulumService_FeedbackData_Get(PendulumFeedbackDat
         }
         struOut->s32PendulumPosition = (int32_t)(struSwingDual.struLatest.u32AbsolutePosition & ENCODER_ABS_POSITION_MAX_17BIT);
         fSpeed = EncoderSpeed_SwingArm_Calc(&struSwingDual);
+#if FEEDBACK_SPEED_USE_RPM_FORMAT
+        struOut->s32PendulumSpeed = EncoderSpeed_Int32_ClampFromFloat(
+            (float)EncoderSpeed_DegPerSecToRpmUnit(fSpeed, 1U),
+            -FEEDBACK_SPD_AXIS_PEND_MAX_ABS,
+            FEEDBACK_SPD_AXIS_PEND_MAX_ABS);
+#else
         struOut->s32PendulumSpeed = EncoderSpeed_Int32_ClampFromFloat(fSpeed,
                                                                           -FEEDBACK_SPD_AXIS_PEND_MAX_ABS,
                                                                           FEEDBACK_SPD_AXIS_PEND_MAX_ABS);
+#endif
     }
     else
     {
@@ -584,6 +611,25 @@ static EncoderProtocolResult_t EncoderProtocol_SwingArm_Read(EncoderDual_t *stru
     struOut->struLatest.u32AbsolutePosition   &= ENCODER_ABS_POSITION_MAX_17BIT;
     struOut->struPrevious.u32AbsolutePosition &= ENCODER_ABS_POSITION_MAX_17BIT;
     return ENCODER_PROTOCOL_OK;
+}
+
+/**
+ * @brief °/s 转为 rpm 上报刻度（rpm = °/s / 6，再 × u8UnitScale 后四舍五入）
+ * @param fDegPerSec 角速度 °/s
+ * @param u8UnitScale 1=1rpm 整数刻度；10=0.1rpm 整数刻度
+ * @return 四舍五入后的 int32；NaN/Inf 返回 0
+ */
+static int32_t EncoderSpeed_DegPerSecToRpmUnit(float fDegPerSec, uint8_t u8UnitScale)
+{
+    float fTmp;
+
+    if ((fDegPerSec != fDegPerSec) || (fDegPerSec > 1.0e9f) || (fDegPerSec < -1.0e9f))
+    {
+        return 0;
+    }
+    fTmp = fDegPerSec * ((float)u8UnitScale / 6.0f);
+    fTmp = (fTmp >= 0.0f) ? (fTmp + 0.5f) : (fTmp - 0.5f);
+    return (int32_t)fTmp;
 }
 
 /**

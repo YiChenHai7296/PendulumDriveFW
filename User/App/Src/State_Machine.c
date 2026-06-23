@@ -86,7 +86,7 @@ void App_StateMachine_MainLoop(void)
         /* 5) 组帧并经 USART2 DMA 发送反馈 */
         if (Svc_SimulinkProtocol_Feedback_Publish(&struFbTx, APP_CONTROL_OBJECT_VALUE) != SIMULINK_PROTOCOL_OK)
         {
-            BSP_LOG_PRINTF("组帧失败！\n");
+            BSP_LOG_PRINTF("反馈失败！\n");
             continue;
         }
     }

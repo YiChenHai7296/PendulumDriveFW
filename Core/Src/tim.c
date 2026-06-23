@@ -89,7 +89,7 @@ void MX_TIM1_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_TOGGLE;
-  sConfigOC.Pulse = 999;
+  sConfigOC.Pulse = 1999;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -100,7 +100,7 @@ void MX_TIM1_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_TIMING;
-  sConfigOC.Pulse = 1999;
+  sConfigOC.Pulse = 3999;
   if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
@@ -185,9 +185,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     __HAL_RCC_TIM1_CLK_ENABLE();
 
     /* TIM1 interrupt Init */
-    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-    HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM1_CC_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
   /* USER CODE BEGIN TIM1_MspInit 1 */
 
@@ -274,7 +274,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 /**
  * @brief 定时器输出比较（OC）延时事件回调
- * @details 仅处理 TIM1：CH1（≈0.10ms）触发 UART4 摆杆编码器；CH2（≈0.20ms）触发 UART5 输出轴编码器。
+ * @details 仅处理 TIM1：CH1（≈0.20ms，Pulse=1999）触发 UART4 摆杆编码器；
+ *          CH2（≈0.40ms，Pulse=3999）触发 UART5 输出轴编码器。
  *          三路编码器请求错相位发出，避免同一时刻并发收发。
  * @param htim 触发回调的定时器句柄（仅 TIM1 生效，按 Channel 区分通道）
  */
@@ -290,7 +291,7 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
     }
     else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
     {
-        Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* CH2，≈0.20ms */
+        Drv_Loc_EncoderTrigger_SendOne(ENCODER_UART_SHAFT);  /* CH2，≈0.40ms（Pulse=3999） */
     }
 }
 

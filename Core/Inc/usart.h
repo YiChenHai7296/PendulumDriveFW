@@ -39,14 +39,14 @@ extern "C" {
 
 /* ======================== 3. 类型定义 ======================== */
 /**
-  * @brief  编码器串口选择（用于电平转换芯片使能引脚控制）
-  * @note   电机=UART3/PB4，摆杆=UART4/PB9，输出轴=UART5/PC13
+  * @brief  编码器串口选择（用于 RS485 电平转换芯片 DE/RE 使能引脚控制）
+  * @note   下列引脚为 DE 使能，非 UART TX/RX：电机=UART3/PB4，摆杆=UART4/PB9，输出轴=UART5/PC13
   */
 typedef enum
 {
-  ENCODER_UART_MOTOR   = 3,  /**< 电机编码器串口 (PB4) */
-  ENCODER_UART_SWING   = 4,  /**< 摆杆编码器串口 (PB9) */
-  ENCODER_UART_SHAFT   = 5   /**< 输出轴编码器串口 (PC13) */
+  ENCODER_UART_MOTOR   = 3,  /**< 电机编码器 UART3，DE 使能 PB4 */
+  ENCODER_UART_SWING   = 4,  /**< 摆杆编码器 UART4，DE 使能 PB9 */
+  ENCODER_UART_SHAFT   = 5   /**< 输出轴编码器 UART5，DE 使能 PC13 */
 } EncoderUartSel_t;
 
 /* ======================== 4. 对外变量声明 ======================== */
