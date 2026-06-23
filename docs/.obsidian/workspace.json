@@ -185,6 +185,7 @@
   },
   "active": "13f9e7a00139bb9e",
   "lastOpenFiles": [
+    "images/IFR.png",
     "images/IFR.jpg",
     "摆系统单片机程序编码规范V1.2.md",
     "单片机裸机系统编码规范V1.2.md",
@@ -199,7 +200,6 @@
     "images/system-context.png",
     "images/app-layer-workflow.png",
     "images/program-flow.png",
-    "images/simulink-protocol.png",
     "images",
     "images/Pasted.md",
     "欢迎.md"

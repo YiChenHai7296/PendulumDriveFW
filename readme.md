@@ -1,5 +1,5 @@
 # PendulumDriveFW
-![实验室Logo](docs/images/IFR.jpg)
+![实验室Logo](docs/images/IFR.png)
 软尺摆 / 倒立摆通用驱动控制板固件工程（当前软件版本 V2.0）。
 
 ## 📖 文档
