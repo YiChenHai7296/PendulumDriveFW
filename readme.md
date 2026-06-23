@@ -3,7 +3,7 @@
 软尺摆 / 倒立摆通用驱动控制板固件工程（当前软件版本 V2.0）。
 
 ## 开发者
-<img src="docs/images/xyf.jpg" alt="YiChenHai(xyf)" width="200">
+[![contributors](https://contrib.rocks/image?repo=YiChenHai7296/Pendulum_Microcontroller)](https://github.com/YiChenHai7296/Pendulum_Microcontroller/graphs/contributors)
 
 ## 📖 文档
 
