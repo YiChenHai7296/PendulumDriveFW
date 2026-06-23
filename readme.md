@@ -2,6 +2,9 @@
 # PendulumDriveFW
 软尺摆 / 倒立摆通用驱动控制板固件工程（当前软件版本 V2.0）。
 
+## 开发者
+<img src="docs/images/xyf.jpg" alt="YiChenHai(xyf)" width="600">
+
 ## 📖 文档
 
 - **[摆系统总体方案V1.0](docs/摆系统总体方案.md)** — 软件分层架构、运行流程、模块设计、可测试性设计等完整技术文档
