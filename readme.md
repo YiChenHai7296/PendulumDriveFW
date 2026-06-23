@@ -3,7 +3,7 @@
 软尺摆 / 倒立摆通用驱动控制板固件工程（当前软件版本 V2.0）。
 
 ## 开发者
-<img src="docs/images/xyf.jpg" alt="YiChenHai(xyf)" width="600">
+<img src="docs/images/xyf.jpg" alt="YiChenHai(xyf)" width="200">
 
 ## 📖 文档
 
