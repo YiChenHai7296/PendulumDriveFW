@@ -1,0 +1,10 @@
+.\pendulumdrivefw\state_machine.o: ..\User\App\Src\State_Machine.c
+.\pendulumdrivefw\state_machine.o: ../User/App/Inc/State_Machine.h
+.\pendulumdrivefw\state_machine.o: ../User/Config/Inc/config.h
+.\pendulumdrivefw\state_machine.o: ../User/Service/Inc/simulink_protocol.h
+.\pendulumdrivefw\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\pendulumdrivefw\state_machine.o: ../User/Common/Inc/common.h
+.\pendulumdrivefw\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\pendulumdrivefw\state_machine.o: ../User/Service/Inc/pendulum_service.h
+.\pendulumdrivefw\state_machine.o: ../User/Bsp/Inc/bsp.h
+.\pendulumdrivefw\state_machine.o: D:\ProgramFiles_Professional\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
