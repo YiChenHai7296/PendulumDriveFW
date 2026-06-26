@@ -76,6 +76,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define Encoder_OutputShaft_Enable_Pin GPIO_PIN_13
 #define Encoder_OutputShaft_Enable_GPIO_Port GPIOC
+#define LED_BLUE_Pin GPIO_PIN_11
+#define LED_BLUE_GPIO_Port GPIOA
+#define LED_RED_Pin GPIO_PIN_12
+#define LED_RED_GPIO_Port GPIOA
 #define Encoder_Motor_Enable_Pin GPIO_PIN_4
 #define Encoder_Motor_Enable_GPIO_Port GPIOB
 #define MotorEnableControl_Pin GPIO_PIN_5

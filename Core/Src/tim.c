@@ -26,7 +26,11 @@
 #include "iwdg.h"
 
 /* ======================== 2. 私有宏定义 ======================== */
-/* 无 */
+/** TIM2 UEV 周期约 200ms（PSC=1699、ARR=19999、TIMCLK≈170MHz） */
+#define TIM2_UVE_PERIOD_MS          200U
+/** LED_BLUE 翻转周期 */
+#define LED_BLUE_TOGGLE_MS          1000U
+#define LED_BLUE_TOGGLE_TICKS       (LED_BLUE_TOGGLE_MS / TIM2_UVE_PERIOD_MS)
 
 /* ======================== 3. 私有类型定义 ======================== */
 /* 无 */
@@ -267,8 +271,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     else if (htim->Instance == TIM2)
     {
+        static uint16_t s_led_blue_tick_cnt = 0U;
+
         /* TIM2 UEV 周期约 200ms（PSC=1699、ARR=19999、TIMCLK≈170MHz）；IWDG 超时约 512ms，须保证该周期远小于超时 */
         (void)HAL_IWDG_Refresh(&hiwdg);
+
+        /* LED_BLUE 每 1s 翻转一次；LED_RED 上电拉高(熄灭)后保持 */
+        s_led_blue_tick_cnt++;
+        if (s_led_blue_tick_cnt >= LED_BLUE_TOGGLE_TICKS)
+        {
+            s_led_blue_tick_cnt = 0U;
+            HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
+        }
     }
 }
 
