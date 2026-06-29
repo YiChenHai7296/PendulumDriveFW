@@ -31,4 +31,4 @@
 
 
 ## 👤 开发者
-[![contributors](https://contrib.rocks/image?repo=YiChenHai7296/Pendulum_Microcontroller)](https://github.com/YiChenHai7296/Pendulum_Microcontroller/graphs/contributors)
+[![contributors](https://contrib.rocks/image?repo=YiChenHai7296/PendulumDriveFW)](https://github.com/YiChenHai7296/PendulumDriveFW/graphs/contributors)
