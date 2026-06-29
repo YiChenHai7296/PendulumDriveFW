@@ -56,7 +56,7 @@ extern "C" {
  * @brief 电流零点偏置校准开关
  * @note  1: 启用校准，反馈电流扣除零点偏置
  *        0: 关闭校准，直接上报原始电流
- */
+ */ 
 #define MOTOR_CURRENT_ZERO_CALIB_ENABLE   1U
 
 /**
